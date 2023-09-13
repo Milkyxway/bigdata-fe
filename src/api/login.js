@@ -1,0 +1,53 @@
+import { createRequest } from '../request'
+
+/**
+ * 登录
+ * @param {*} data
+ * @returns
+ */
+export const loginReq = (data) => {
+  return createRequest()({
+    url: '/api/login',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 登出
+ * @param {*} data
+ * @returns
+ */
+export const logoutReq = (data) => {
+  return createRequest()({
+    url: '/api/logout',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 修改密码
+ * @param {*} data
+ * @returns
+ */
+export const modifyPwdReq = (data) => {
+  return createRequest()({
+    url: '/api/modifypwd',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 创建账号
+ * @param {*} data
+ * @returns
+ */
+export const createAccountReq = (data) => {
+  return createRequest()({
+    url: '/api/createaccount',
+    method: 'post',
+    data
+  })
+}
