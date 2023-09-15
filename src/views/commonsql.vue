@@ -9,7 +9,7 @@
     ></el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
-        <el-button link type="primary" size="small" @click="setFinish(row)">下载</el-button>
+        <el-button link type="primary" size="small" @click="download(row)">下载</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -21,12 +21,12 @@ import { useRouter } from 'vue-router'
 // import QueryHeader from '../components/QueryHeader.vue'
 // import QueryReport from '../components/QueryReport.vue'
 import QuerySql from '../components/QuerySql.vue'
-import TableCommon from '../components/TableCommon.vue'
-import { getReportListReq } from '../api/report'
+import { getSQLListReq, downloadSqlReq } from '../api/report'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
 import { dayjs } from 'element-plus'
 import { periodType, periodTypeMap } from '../constant/index'
+// import { getSql } from '../util/ftp'
 
 const userInfo = ref(getLocalStore('userInfo'))
 const role = ref(getLocalStore('userInfo').role)
@@ -43,12 +43,12 @@ const state = reactive({
   tableColumns: [
     {
       columnName: '脚本名称',
-      prop: 'reportName'
-    },
-    {
-      columnName: '文件地址',
-      prop: 'reportLink'
+      prop: 'name'
     }
+    // {
+    //   columnName: '文件地址',
+    //   prop: 'reportLink'
+    // }
   ],
   tableData: [],
   total: 0
@@ -84,10 +84,19 @@ const changePage = (val) => {
     getRelatedMeTask()
   }
 }
+const init = async () => {
+  const result = await getSQLListReq()
+  state.tableData = result.data
+  // getSql()
+}
 
-getReportList()
+init()
 
 const handleQuery = (query) => {
   console.log(query)
+}
+
+const download = async () => {
+  await downloadSqlReq()
 }
 </script>

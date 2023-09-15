@@ -91,6 +91,10 @@ const state = reactive({
     {
       label: 'village_id',
       value: 'village_id'
+    },
+    {
+      label: '标准地址',
+      value: '标准地址'
     }
   ],
   createTableSql: 'create table'
@@ -122,7 +126,30 @@ const removeContent = (type) => {
 const createMatchStr = () => {
   const { excelData, fieldName } = state
   if (validFieldName()) {
-    state.matchArrToStr = `(${excelData.map((i) => `'${i[fieldName.toUpperCase()]}'`).join(',\n')})`
+    if (fieldName === '标准地址') {
+      const addr = []
+      excelData.map((item) => {
+        const i = item['标准地址']
+        if (i.indexOf('、') > -1) {
+          i.split('、').map((i) => addr.push(i))
+        } else if (i.indexOf('，') > -1) {
+          i.split('，').map((i) => addr.push(i))
+        } else {
+          addr.push(i)
+        }
+      })
+      state.matchArrToStr = addr
+        .map((i, k) => {
+          return k === 0
+            ? `a.stand_name like '%${i.replace(/\s*/g, '')}%'\n`
+            : `or a.stand_name like '%${i.replace(/\s*/g, '')}%'\n`
+        })
+        .join('')
+    } else {
+      state.matchArrToStr = `(${excelData
+        .map((i) => `'${i[fieldName.toUpperCase()]}'`)
+        .join(',\n')})`
+    }
   }
 }
 
