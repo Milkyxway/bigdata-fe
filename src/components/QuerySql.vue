@@ -2,37 +2,43 @@
   <el-card class="card-admin">
     <form :v-model="queryForm">
       <div class="row-item">
-        <!-- <div class="query-select">
-          <span class="query-title">报表时间范围</span>
-          <el-date-picker
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            v-model="queryForm.createTime"
-            clearable
-          ></el-date-picker>
-        </div> -->
         <div class="query-select-keyword">
           <span class="query-title">关键字</span>
           <el-input placeholder="请输入关键字" v-model="queryForm.keyword" clearable></el-input>
         </div>
       </div>
     </form>
-    <el-button type="primary" @click="handleQuery">查询</el-button>
+    <div class="btn-wrap">
+      <el-button type="primary" @click="handleQuery">查询</el-button>
+      <Upload btn-txt="上传脚本" @handleFileChange="handleFileChange" btn-type="danger" />
+    </div>
   </el-card>
 </template>
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { getLocalStore } from '../util/localStorage'
+import Upload from './Upload.vue'
+import { uploadReq } from '../api/report'
+import { toast } from '../util/toast'
 
-const emit = defineEmits(['handleQuery', 'createTask'])
+const emit = defineEmits(['handleQuery', 'createTask', 'refreshList'])
+const state = reactive({
+  fileList: []
+})
 let queryForm = reactive({
   keyword: ''
 })
 
 const handleQuery = () => {
   emit('handleQuery', queryForm)
+}
+
+const handleFileChange = async (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  await uploadReq(formData)
+  toast('上传成功')
+  emit('refreshList')
 }
 </script>
 <style scoped>

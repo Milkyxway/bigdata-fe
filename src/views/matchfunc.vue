@@ -18,10 +18,11 @@
           >
         </el-select>
       </div>
-      <div class="row-item">
+      <Upload btn-txt="选择文件" @handleFileChange="handleFileChange" />
+      <!-- <div class="row-item">
         <el-button @click="onUpload" type="primary">选择文件</el-button>
         <input ref="uploadRef" type="file" @change="beforeUpload" accept=".xlsx, .xls" hidden />
-      </div>
+      </div> -->
     </div>
     <div class="file-row" v-if="state.fileName">
       <div class="row-item icon-margin">
@@ -70,12 +71,13 @@ import * as XLSX from 'xlsx'
 import { ref, reactive, watch } from 'vue'
 import { copyText } from 'vue3-clipboard'
 import { toast } from '../util/toast'
+import Upload from '../components/Upload.vue'
 
 //导入
-const uploadRef = ref()
-const onUpload = () => {
-  uploadRef.value.click()
-}
+// const uploadRef = ref()
+// const onUpload = () => {
+//   uploadRef.value.click()
+// }
 const state = reactive({
   fieldName: '',
   matchArrToStr: '',
@@ -103,7 +105,8 @@ const state = reactive({
 const beforeUpload = async (e) => {
   analysisExcel(e.target.files[0])
 }
-const analysisExcel = (file) => {
+
+const handleFileChange = (file) => {
   // return new Promise((resolve, reject) => {
   const reader = new FileReader()
   reader.onload = (e) => {

@@ -1,5 +1,5 @@
 <template>
-  <QuerySql @handleQuery="handleQuery" />
+  <QuerySql @handleQuery="handleQuery" @refreshList="getSqlList" />
   <el-table :data="state.tableData">
     <el-table-column
       v-for="item in state.tableColumns"
@@ -9,7 +9,7 @@
     ></el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
-        <el-button link type="primary" size="small" @click="download(row)">下载</el-button>
+        <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -21,7 +21,7 @@ import { useRouter } from 'vue-router'
 // import QueryHeader from '../components/QueryHeader.vue'
 // import QueryReport from '../components/QueryReport.vue'
 import QuerySql from '../components/QuerySql.vue'
-import { getSQLListReq, downloadSqlReq } from '../api/report'
+import { getSQLListReq } from '../api/report'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
 import { dayjs } from 'element-plus'
@@ -43,12 +43,12 @@ const state = reactive({
   tableColumns: [
     {
       columnName: '脚本名称',
-      prop: 'name'
+      prop: 'sqlName'
+    },
+    {
+      columnName: '脚本地址',
+      prop: 'sqlLink'
     }
-    // {
-    //   columnName: '文件地址',
-    //   prop: 'reportLink'
-    // }
   ],
   tableData: [],
   total: 0
@@ -84,19 +84,26 @@ const changePage = (val) => {
     getRelatedMeTask()
   }
 }
-const init = async () => {
-  const result = await getSQLListReq()
-  state.tableData = result.data
-  // getSql()
+const getSqlList = async () => {
+  state.tableData = []
+  const result = await getSQLListReq({
+    ...state.page,
+    ...state.querys
+  })
+  state.tableData = result.data.list
+  state.total = result.data.total
 }
 
-init()
+getSqlList()
 
 const handleQuery = (query) => {
-  console.log(query)
+  state.querys = {
+    ...query
+  }
+  getSqlList()
 }
 
-const download = async () => {
-  await downloadSqlReq()
+const download = async (link) => {
+  window.location.href = link
 }
 </script>
