@@ -10,6 +10,7 @@
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
         <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button>
+        <el-button link type="danger" size="small" @click="deleteSQL(row.sqlId)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -21,11 +22,12 @@ import { useRouter } from 'vue-router'
 // import QueryHeader from '../components/QueryHeader.vue'
 // import QueryReport from '../components/QueryReport.vue'
 import QuerySql from '../components/QuerySql.vue'
-import { getSQLListReq } from '../api/report'
+import { getSQLListReq, deleteSqlReq } from '../api/report'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
 import { dayjs } from 'element-plus'
 import { periodType, periodTypeMap } from '../constant/index'
+import { ElMessageBox } from 'element-plus'
 // import { getSql } from '../util/ftp'
 
 const userInfo = ref(getLocalStore('userInfo'))
@@ -104,6 +106,23 @@ const handleQuery = (query) => {
 }
 
 const download = async (link) => {
-  window.location.href = link
+  window.location.href = `http://172.16.179.5:7002${link}`
+}
+
+const deleteSQL = async (sqlId) => {
+  ElMessageBox.confirm('确定要删除这条脚本?', '警告', {
+    type: 'warning',
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    callback: async (action) => {
+      if (action === 'confirm') {
+        try {
+          await deleteSqlReq(sqlId)
+          toast()
+          getSqlList()
+        } catch (e) {}
+      }
+    }
+  })
 }
 </script>

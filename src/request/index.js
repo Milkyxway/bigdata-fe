@@ -10,8 +10,8 @@ export function createRequest() {
     background: 'rgba(0, 0, 0, 0.7)'
   })
   const request = axios.create({
-    // baseURL: `http://172.16.179.5:7001`,
-    baseURL: `http://127.0.0.1:7001`,
+    // baseURL: `http://172.16.179.5:7002`,
+    baseURL: `http://127.0.0.1:7002`,
     headers: {
       common: {
         ['Cache-Control']: 'no-cache'

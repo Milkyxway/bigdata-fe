@@ -40,16 +40,30 @@ export const routeList = [
             component: () => import('../views/matchfunc.vue')
           },
           {
-            path: '/develop/sql',
-            name: '常用脚本',
-            isSider: true,
-            component: () => import('../views/commonsql.vue')
-          },
-          {
             path: '/develop/create',
             name: '创建任务',
             isSider: true,
             component: () => import('../views/createperiod.vue')
+          },
+          {
+            path: '/develop/tasklist',
+            name: '任务列表',
+            isSider: true,
+            component: () => import('../views/tasklist.vue')
+          }
+        ]
+      },
+      {
+        path: '/sql',
+        name: '脚本库',
+        iconName: 'view',
+        component: () => import('../views/PersonalHome.vue'),
+        children: [
+          {
+            path: '/sql/list',
+            name: '脚本列表',
+            isSider: true,
+            component: () => import('../views/commonsql.vue')
           }
         ]
       }

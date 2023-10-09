@@ -19,11 +19,32 @@
         </div>
       </div>
     </form>
+    <div class="btn-wrap">
+      <el-button type="primary" @click="handleQuery">查询</el-button>
+      <el-button type="danger" @click="uploadFn">上传脚本</el-button>
+    </div>
   </el-card>
+  <el-dialog
+    :show-close="false"
+    :close-on-press-escape="false"
+    v-model="state.showUploadDialog"
+    title="上传报表"
+  >
+    <el-select placeholder="请选择报表周期类型" v-model="state.selectPeriodType">
+      <el-option v-for="item in periodType" :label="item.label" :value="item.value">{{
+        item.label
+      }}</el-option>
+    </el-select>
+    <el-button type="primary" @click="state.showUploadDialog = false">取消</el-button>
+    <Upload btn-txt="上传报表" @handleFileChange="handleFileChange" btn-type="danger" />
+  </el-dialog>
 </template>
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { getLocalStore } from '../util/localStorage'
+import Upload from './Upload.vue'
+import { uploadReq } from '../api/report'
+import { periodType, periodTypeMap } from '../constant/index'
 
 const emit = defineEmits(['handleQuery', 'createTask'])
 const role = getLocalStore('userInfo').role
@@ -37,9 +58,25 @@ let queryForm = reactive({
   taskSource: null,
   ariseOrg: null
 })
+const state = reactive({
+  showUploadDialog: false,
+  selectPeriodType: null
+})
 
 const handleQuery = () => {
   emit('handleQuery', queryForm)
+}
+
+const handleFileChange = async (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  await uploadReq(formData)
+  toast('上传成功')
+  emit('refreshList')
+}
+
+const uploadFn = () => {
+  state.showUploadDialog = true
 }
 </script>
 <style scoped>

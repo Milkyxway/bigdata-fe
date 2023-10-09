@@ -381,6 +381,21 @@ const periodType = [
     value: 4
   }
 ]
+
+const priority = [
+  {
+    label: '高',
+    value: 99
+  },
+  {
+    label: '中',
+    value: 50
+  },
+  {
+    label: '低',
+    value: 1
+  }
+]
 const periodTypeMap = {
   1: '日报',
   2: '周报',
@@ -399,5 +414,6 @@ export {
   taskSourceMap,
   statusWeight,
   periodTypeMap,
-  periodType
+  periodType,
+  priority
 }

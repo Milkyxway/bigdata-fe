@@ -36,3 +36,55 @@ export const uploadReq = (data) => {
     data
   })
 }
+
+/**
+ * 删除脚本
+ * @param {*} data
+ * @returns
+ */
+export const deleteSqlReq = (data) => {
+  return createRequest()({
+    url: '/api/report/deletesql',
+    method: 'delete',
+    data
+  })
+}
+
+/**
+ * 创建任务
+ * @param {*} data
+ * @returns
+ */
+export const createTaskReq = (data) => {
+  return createRequest()({
+    url: '/api/report/createtask',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 获取任务列表
+ * @param {*} data
+ * @returns
+ */
+export const getTaskListReq = (data) => {
+  return createRequest()({
+    url: '/api/report/tasklist',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 创建任务类型
+ * @param {*} data
+ * @returns
+ */
+export const createTaskTypeReq = (data) => {
+  return createRequest()({
+    url: '/api/report/addtasktype',
+    method: 'post',
+    data
+  })
+}
