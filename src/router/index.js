@@ -50,6 +50,12 @@ export const routeList = [
             name: '任务列表',
             isSider: true,
             component: () => import('../views/tasklist.vue')
+          },
+          {
+            path: '/develop/taskdetail/:taskId',
+            name: '任务详情',
+            isSider: false,
+            component: () => import('../views/taskdetail.vue')
           }
         ]
       },

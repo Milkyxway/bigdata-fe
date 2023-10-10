@@ -8,11 +8,12 @@
 </template>
 <script setup>
 import { reactive } from 'vue'
-import Table from '../components/Table.vue'
-import { getTaskListReq } from '../api/report'
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
+import Table from '../components/Table.vue'
+import { getTaskListReq } from '../api/report'
 import router from '../router/index'
+import { priorityMap } from '../constant/index'
 const state = reactive({
   page: {
     pageNum: 0,
@@ -63,8 +64,8 @@ const state = reactive({
     },
     {
       label: '查看',
-      fn: () => {
-        router.push('/task/detail')
+      fn: (row) => {
+        router.push(`/develop/taskdetail/${row.reportId}`)
       }
     }
   ]
@@ -94,7 +95,8 @@ const getTaskList = async () => {
       oneTimeExe: i.LargeCategory === '一次性' ? formatDate(i.oneTimeExe) : null,
       periodExeTime:
         i.LargeCategory === '一次性' ? '' : `${formatDate(i.startTime)} - ${formatDate(i.endTime)}`,
-      createTime: formatDate(i.createTime, 'YYYY-MM-DD hh:mm:ss')
+      createTime: formatDate(i.createTime, 'YYYY-MM-DD hh:mm:ss'),
+      reportPriority: priorityMap[i.reportPriority]
     }
   })
   state.tableTotal = result.data.total

@@ -188,7 +188,6 @@ const initArrs = () => {
   hour.value = formatArr(hour, false)
   minutes.value = formatArr(minutes, false)
   periodTypes.value = periodTypes.value.filter((i) => i.label !== '年报')
-  state.periodType = 3
 }
 
 const formatDate = (date) => dayjs(date).format()
@@ -208,7 +207,7 @@ const getModeName = () => {
       modeName = `(${day},${hour}${min})`
       break
     case 3:
-      modeName = `(${date}, ${hour}${min})`
+      modeName = `(${date},${hour}${min})`
       break
   }
   return modeName
@@ -233,7 +232,7 @@ const commit = () => {
             LargeCategory: '周期性',
             TimeOn: formatDate(timeRange[0]),
             endTime: formatDate(timeRange[1]),
-            reportTypeID: typeRes.data.reportTypeID,
+            reportTypeId: typeRes.data.reportTypeId,
             reportPriority: priority
           })
           if (result.data.reportId) {

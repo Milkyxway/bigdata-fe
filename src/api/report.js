@@ -101,3 +101,29 @@ export const addSqlReq = (data) => {
     data
   })
 }
+
+/**
+ * 获取任务详情
+ * @param {*} data
+ * @returns
+ */
+export const getTaskDetailReq = (data) => {
+  return createRequest()({
+    url: '/api/report/detail',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 获取报表类型
+ * @param {*} data
+ * @returns
+ */
+export const getReportTypeReq = (data) => {
+  return createRequest()({
+    url: '/api/report/type',
+    method: 'post',
+    data
+  })
+}
