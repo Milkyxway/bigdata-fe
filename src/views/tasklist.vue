@@ -12,6 +12,7 @@ import Table from '../components/Table.vue'
 import { getTaskListReq } from '../api/report'
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
+import router from '../router/index'
 const state = reactive({
   page: {
     pageNum: 0,
@@ -45,6 +46,10 @@ const state = reactive({
       prop: 'reportPriority'
     },
     {
+      label: '最后执行时间',
+      prop: 'lastTime'
+    },
+    {
       label: '创建时间',
       prop: 'createTime'
     }
@@ -54,6 +59,12 @@ const state = reactive({
       label: '中止',
       fn: () => {
         pauseTask()
+      }
+    },
+    {
+      label: '查看',
+      fn: () => {
+        router.push('/task/detail')
       }
     }
   ]

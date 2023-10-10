@@ -17,19 +17,20 @@ const props = defineProps({
     default: []
   },
   select: {
-    type: String,
-    default: ''
+    type: String
   }
 })
 const emits = defineEmits(['updateSelect'])
-const selectVal = ref(null)
+const selectVal = ref(props.select)
 const updateVal = (val) => {
   emits('updateSelect', val)
 }
 watch(
   () => selectVal.value,
   (val) => {
+    // if (val !== null) {
     updateVal(val)
+    // }
   },
   {
     immediate: true

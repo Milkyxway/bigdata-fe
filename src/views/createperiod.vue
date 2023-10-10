@@ -1,16 +1,18 @@
 <template>
-  <el-radio-group v-model="state.chooseTaskType" v-if="!state.taskId">
-    <el-radio-button
-      v-for="(item, index) in taskType"
-      v-bind:key="index"
-      :label="item.label"
-      :name="item.value"
-    />
-  </el-radio-group>
-  <div v-if="state.taskId">{{ state.chooseTaskType }}</div>
-  <!-- <el-form ref="formRef" :model="state.formData"> -->
+  <el-card>
+    <el-radio-group v-model="state.chooseTaskType">
+      <el-radio-button
+        v-for="(item, index) in taskType"
+        v-bind:key="index"
+        :label="item.label"
+        :name="item.value"
+      />
+    </el-radio-group>
+    <WhiteSpace />
+    <!-- <div v-if="state.taskId">{{ state.chooseTaskType }}</div> -->
+    <!-- <el-form ref="formRef" :model="state.formData"> -->
 
-  <!-- <el-form-item
+    <!-- <el-form-item
       v-if="state.chooseTaskType === '一次性任务'"
       :label-width="formLabelWidth"
       label="任务执行时间"
@@ -22,14 +24,9 @@
   
    
   </el-form> -->
-  <OneTimeForm v-if="state.chooseTaskType === '一次性任务'" />
-  <PeriodForm v-if="state.chooseTaskType === '周期性任务'" />
-  <el-input
-    v-if="state.taskId"
-    type="textarea"
-    placeholder="请输入sql语句"
-    v-model="state.sqlInput"
-  ></el-input>
+    <OneTimeForm v-if="state.chooseTaskType === '一次性任务'" />
+    <PeriodForm v-if="state.chooseTaskType === '周期性任务'" />
+  </el-card>
 </template>
 <script setup>
 import { reactive, ref, watch } from 'vue'
@@ -37,6 +34,7 @@ import dayjs from 'dayjs'
 import { createTaskReq } from '../api/report'
 import PeriodForm from '../components/PeriodForm.vue'
 import OneTimeForm from '../components/OneTimeForm.vue'
+import WhiteSpace from '../components/WhiteSpace.vue'
 
 const taskType = [
   {
@@ -51,7 +49,7 @@ const taskType = [
 const formRef = ref()
 const formLabelWidth = '140px'
 const state = reactive({
-  chooseTaskType: '一次性任务',
+  chooseTaskType: '周期性任务',
   formData: {
     reportName: '',
     oneTimeExe: '',
@@ -63,10 +61,10 @@ const state = reactive({
 watch(
   () => state.chooseTaskType,
   (val) => {
-    state.formData = {
-      reportName: ''
-    }
-    state
+    // state.formData = {
+    //   reportName: ''
+    // }
+    // state
   }
 )
 
@@ -95,7 +93,6 @@ const commit = () => {
       }
       try {
         const result = await createTaskReq(params)
-        debugger
         if (result.data.taskId) {
           state.taskId = result.data.taskId
           toast('创建任务成功！')

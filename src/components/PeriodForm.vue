@@ -86,8 +86,18 @@
       />
     </el-form-item>
     <el-form-item> </el-form-item>
-    <el-button type="primary" @click="commit">提交</el-button>
+    <el-button type="primary" @click="commit" v-if="!state.taskId">提交</el-button>
   </el-form>
+  <div v-if="state.taskId">
+    <div>
+      <span>按需求分步输入sql语句</span>
+      <el-icon @click="addSqlStrs"><CirclePlus /></el-icon>
+    </div>
+    <div v-for="(item, index) in state.sqlStrs" v-bind:key="index">
+      <span>{{ index + 1 }}</span>
+      <FillSql :taskId="state.taskId" />
+    </div>
+  </div>
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
@@ -95,6 +105,9 @@ import dayjs from 'dayjs'
 import { periodType, priority, periodTypeMap } from '../constant/index'
 import { createTaskReq, createTaskTypeReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
+import FillSql from './FillSql.vue'
+import WhiteSpace from './WhiteSpace.vue'
+import { toast } from '../util/toast'
 const formRef = ref()
 const month = ref(new Array(31).fill(0))
 const hour = ref(new Array(24).fill(0))
@@ -138,12 +151,18 @@ const state = reactive({
   hour: '',
   min: '',
   periodType: 1,
-  priority: '',
+  priority: 99,
   formData: {
     reportName: '',
     timeRange: []
-  }
+  },
+  taskId: '',
+  sqlStrs: [0]
 })
+
+const addSqlStrs = () => {
+  state.sqlStrs.push(0)
+}
 
 const updateSelect = (data, type) => {
   state[type] = data
@@ -169,6 +188,7 @@ const initArrs = () => {
   hour.value = formatArr(hour, false)
   minutes.value = formatArr(minutes, false)
   periodTypes.value = periodTypes.value.filter((i) => i.label !== '年报')
+  state.periodType = 3
 }
 
 const formatDate = (date) => dayjs(date).format()
@@ -214,12 +234,12 @@ const commit = () => {
             TimeOn: formatDate(timeRange[0]),
             endTime: formatDate(timeRange[1]),
             reportTypeID: typeRes.data.reportTypeID,
-            priority
+            reportPriority: priority
           })
-          // if (result.data.reportTypeID) {
-          //   state.taskId = result.data.taskId
-          //   toast('创建任务成功！')
-          // }
+          if (result.data.reportId) {
+            state.taskId = result.data.reportId
+            toast('创建任务成功！')
+          }
         }
       } catch (e) {}
     }

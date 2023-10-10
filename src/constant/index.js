@@ -396,6 +396,12 @@ const priority = [
     value: 1
   }
 ]
+
+const priorityMap = {
+  99: '高',
+  50: '中',
+  1: '低'
+}
 const periodTypeMap = {
   1: '日报',
   2: '周报',
@@ -415,5 +421,6 @@ export {
   statusWeight,
   periodTypeMap,
   periodType,
-  priority
+  priority,
+  priorityMap
 }

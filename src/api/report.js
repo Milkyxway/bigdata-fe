@@ -88,3 +88,16 @@ export const createTaskTypeReq = (data) => {
     data
   })
 }
+
+/**
+ * 增加sql语句
+ * @param {*} data
+ * @returns
+ */
+export const addSqlReq = (data) => {
+  return createRequest()({
+    url: '/api/report/addsql',
+    method: 'post',
+    data
+  })
+}
