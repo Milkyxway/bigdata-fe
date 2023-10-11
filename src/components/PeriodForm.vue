@@ -29,7 +29,7 @@
       />
     </el-form-item>
     <el-form-item :label-width="formLabelWidth" label="周期任务执行时间">
-      <div v-if="state.periodType == 1">
+      <div v-if="state.formData.periodType == 1" class="time-row">
         <SelectCommon
           :selections="hour"
           v-model:select="state.hour"
@@ -43,18 +43,20 @@
         />
         <span>分</span>
       </div>
-      <div v-if="state.periodType == 2">
+      <div v-if="state.formData.periodType == 2" class="time-row">
         <SelectCommon
           :selections="week"
           v-model:select="state.day"
           @updateSelect="(val) => updateSelect(val, 'day')"
         />
+
         <SelectCommon
           :selections="hour"
           v-model:select="state.hour"
           @updateSelect="(val) => updateSelect(val, 'hour')"
         />
         <span>时</span>
+
         <SelectCommon
           :selections="minutes"
           v-model:select="state.min"
@@ -62,7 +64,7 @@
         />
         <span>分</span>
       </div>
-      <div v-if="state.periodType == 3">
+      <div v-if="state.formData.periodType == 3" class="time-row">
         <SelectCommon
           :selections="month"
           v-model:select="state.date"
@@ -284,3 +286,21 @@ const commit = () => {
 }
 initArrs()
 </script>
+<style scoped>
+.el-select {
+  width: 100%;
+}
+.el-input {
+  width: 100%;
+}
+.el-textarea {
+  width: 100%;
+}
+.time-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+</style>

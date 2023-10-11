@@ -91,17 +91,19 @@ const commitSql = async () => {
     sqlType: sqlTypeMap()
   }
   state.sqlContent.split(';').map(async (i) => {
-    const result = await addSqlReq({
-      ...params,
-      reportSqlData: i
-    })
-    state.commitSuccess += i
+    if (i) {
+      const result = await addSqlReq({
+        ...params,
+        reportSqlData: i
+      })
+      // state.commitSuccess += i
+    }
   })
 }
 
 const startExe = async () => {
-  const result = await updateTaskReq({
-    reportId: state.taskId,
+  await updateTaskReq({
+    reportId: props.taskId,
     reportState: 1
   })
 }

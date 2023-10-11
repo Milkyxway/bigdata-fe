@@ -28,6 +28,7 @@
       :sqlArr="state.sqlArr"
       @addSqlInput="state.sqlArr.push(0)"
       @deleteSqlInput="deleteSqlInput"
+      :taskId="state.taskId"
     />
   </el-card>
 </template>
