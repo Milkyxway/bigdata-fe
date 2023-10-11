@@ -127,3 +127,16 @@ export const getReportTypeReq = (data) => {
     data
   })
 }
+
+/**
+ * 修改任务
+ * @param {*} data
+ * @returns
+ */
+export const updateTaskReq = (data) => {
+  return createRequest()({
+    url: '/api/report/update',
+    method: 'post',
+    data
+  })
+}

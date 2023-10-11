@@ -1,51 +1,26 @@
 const taskStatusMap = {
-  0: '全部',
-  1: '待确认',
-  2: '待调整',
-  3: '进行中',
-  4: '已完成',
-  5: '已延期',
-  6: '已提交', // 部门完成所有的任务提交后状态
-  7: '延期后再进行',
-  8: '已取消'
+  0: '已创建',
+  1: '执行中',
+  2: '完结归档',
+  3: '中止'
 }
 
 const taskStatusList = [
   {
-    label: '全部',
+    label: '已创建',
     value: 0
   },
   {
-    label: '待确认',
+    label: '执行中',
     value: 1
   },
   {
-    label: '待调整',
+    label: '完结归档',
     value: 2
   },
   {
-    label: '进行中',
+    label: '中止',
     value: 3
-  },
-  {
-    label: '已完成',
-    value: 4
-  },
-  {
-    label: '已延期',
-    value: 5
-  },
-  {
-    label: '已提交',
-    value: 6
-  },
-  {
-    label: '延期后再进行',
-    value: 7
-  },
-  {
-    label: '已取消',
-    value: 8
   }
 ]
 
@@ -59,72 +34,6 @@ const statusWeight = {
   6: 6, // 已提交
   7: 2, // 延期后再进行
   8: 8 // 已取消
-}
-
-const taskCategory = [
-  {
-    label: '全部',
-    value: 0
-  },
-
-  {
-    label: '市场营销',
-    value: 1
-  },
-  {
-    label: '政企业务',
-    value: 2
-  },
-  {
-    label: '指标考核',
-    value: 3
-  },
-  {
-    label: '网络建设',
-    value: 4
-  },
-  {
-    label: '公众客户',
-    value: 5
-  },
-  {
-    label: '后勤保障',
-    value: 6
-  },
-  {
-    label: '器材保障',
-    value: 7
-  },
-  {
-    label: '技术支撑',
-    value: 8
-  },
-  {
-    label: '组织人事',
-    value: 9
-  },
-  {
-    label: '制度管理',
-    value: 10
-  },
-  {
-    label: '财务资产',
-    value: 11
-  }
-]
-
-const taskCategoryMap = {
-  1: '市场营销',
-  2: '政企业务',
-  3: '指标考核',
-  4: '网络建设',
-  5: '公众客户',
-  6: '后勤保障',
-  7: '器材保障',
-  8: '技术支撑',
-  9: '组织人事',
-  10: '制度管理',
-  11: '财务资产'
 }
 
 const orgnizationTree = [
@@ -310,59 +219,6 @@ const orgnizationTree = [
   // }
 ]
 
-const appealCategory = [
-  {
-    label: '任务表述调整',
-    value: 1
-  },
-  {
-    label: '非问题仅需解释',
-    value: 2
-  },
-  {
-    label: '暂时无法解决，需持续跟进',
-    value: 3
-  },
-  {
-    label: '已完成',
-    value: 4
-  }
-]
-
-const taskOrigin = [
-  {
-    label: '全部',
-    value: 0
-  },
-  {
-    label: '专项调研',
-    value: 1
-  },
-  {
-    label: '公司重点工作',
-    value: 2
-  },
-  {
-    label: '安全检查整改',
-    value: 3
-  },
-  {
-    label: '审计整改',
-    value: 4
-  },
-  {
-    label: '党委巡察整改',
-    value: 5
-  }
-]
-const taskSourceMap = {
-  1: '专项调研',
-  2: '公司重点工作',
-  3: '安全检查整改',
-  4: '审计整改',
-  5: '党委巡察整改'
-}
-
 const periodType = [
   {
     label: '日报',
@@ -412,12 +268,7 @@ const periodTypeMap = {
 export {
   taskStatusMap,
   taskStatusList,
-  taskCategory,
-  taskCategoryMap,
   orgnizationTree,
-  appealCategory,
-  taskOrigin,
-  taskSourceMap,
   statusWeight,
   periodTypeMap,
   periodType,

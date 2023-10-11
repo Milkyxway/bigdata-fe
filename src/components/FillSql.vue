@@ -1,25 +1,41 @@
 <template>
-  <el-radio-group v-model="state.chooseSqlType">
-    <el-radio
-      v-for="(item, index) in sqlTypes"
-      v-bind:key="index"
-      :label="item.label"
-      :name="item.value"
-    ></el-radio>
-  </el-radio-group>
-  <el-input
-    type="textarea"
-    rows="5"
-    v-if="state.chooseSqlType !== '上传'"
-    v-model="state.sqlContent"
-  />
-  <Upload v-if="state.chooseSqlType === '上传'" btn-txt="上传匹配文件" />
-  <el-button type="primary" @click="commitSql">提交语句</el-button>
+  <div v-for="(item, index) in props.sqlArr" v-bind:key="index">
+    <el-radio-group v-model="state.chooseSqlType">
+      <el-radio
+        v-for="(item, index) in sqlTypes"
+        v-bind:key="index"
+        :label="item.label"
+        :name="item.value"
+      ></el-radio>
+    </el-radio-group>
+    <div class="input-row">
+      <div>
+        <el-icon @click="addSqlStrs" color="#0076fe"><CirclePlus /></el-icon>
+        <el-icon @click="deleteSqlInput(index)" color="#f56c6c" v-if="index">
+          <SemiSelect
+        /></el-icon>
+      </div>
+
+      <el-input
+        type="textarea"
+        placeholder="请输入sql语句，用英文;分隔"
+        rows="5"
+        v-if="state.chooseSqlType !== '上传'"
+        v-model="state.sqlContent"
+      />
+      <Upload v-if="state.chooseSqlType === '上传'" btn-txt="上传匹配文件" />
+    </div>
+    <WhiteSpace />
+    <el-button type="plain" @click="commitSql">提交语句</el-button>
+  </div>
+  <WhiteSpace />
+  <el-button type="primary" @click="startExe">完成，开始执行</el-button>
 </template>
 <script setup>
 import { reactive, ref, watch } from 'vue'
 import Upload from './Upload.vue'
-import { addSqlReq } from '../api/report'
+import WhiteSpace from './WhiteSpace.vue'
+import { addSqlReq, updateTaskReq } from '../api/report'
 const state = reactive({
   chooseSqlType: '执行类无输出',
   sqlContent: '',
@@ -28,8 +44,12 @@ const state = reactive({
 const props = defineProps({
   taskId: {
     type: Number
+  },
+  sqlArr: {
+    type: Array
   }
 })
+const emits = defineEmits(['addSqlInput', 'deleteSqlInput'])
 const sqlTypes = ref([
   {
     label: '执行类无输出',
@@ -50,6 +70,12 @@ watch(
     state.sqlContent = ''
   }
 )
+const addSqlStrs = () => {
+  emits('addSqlInput')
+}
+const deleteSqlInput = () => {
+  emits('deleteSqlInput', props.index)
+}
 const sqlTypeMap = () => {
   const { chooseSqlType } = state
   const map = {
@@ -72,4 +98,19 @@ const commitSql = async () => {
     state.commitSuccess += i
   })
 }
+
+const startExe = async () => {
+  const result = await updateTaskReq({
+    reportId: state.taskId,
+    reportState: 1
+  })
+}
 </script>
+<style scoped>
+.input-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+</style>

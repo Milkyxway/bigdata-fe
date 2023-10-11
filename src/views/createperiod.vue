@@ -1,5 +1,10 @@
 <template>
   <el-card>
+    <template #header>
+      <div class="card-header">
+        <span class="bold">创建任务</span>
+      </div>
+    </template>
     <el-radio-group v-model="state.chooseTaskType">
       <el-radio-button
         v-for="(item, index) in taskType"
@@ -9,32 +14,29 @@
       />
     </el-radio-group>
     <WhiteSpace />
-    <!-- <div v-if="state.taskId">{{ state.chooseTaskType }}</div> -->
-    <!-- <el-form ref="formRef" :model="state.formData"> -->
-
-    <!-- <el-form-item
-      v-if="state.chooseTaskType === '一次性任务'"
-      :label-width="formLabelWidth"
-      label="任务执行时间"
-      prop="OneTime"
-      :rules="[{ required: true, message: '请选择任务执行时间', trigger: 'blur' }]"
-    >
-      <el-date-picker v-model="state.formData.OneTime"></el-date-picker>
-    </el-form-item>
-  
-   
-  </el-form> -->
     <OneTimeForm v-if="state.chooseTaskType === '一次性任务'" />
-    <PeriodForm v-if="state.chooseTaskType === '周期性任务'" />
+    <PeriodForm v-if="state.chooseTaskType === '周期性任务'" @updateTaskId="updateTaskId" />
+  </el-card>
+  <WhiteSpace />
+  <el-card v-if="state.taskId">
+    <template #header>
+      <div class="card-header">
+        <span class="bold">分步填写sql</span>
+      </div>
+    </template>
+    <FillSql
+      :sqlArr="state.sqlArr"
+      @addSqlInput="state.sqlArr.push(0)"
+      @deleteSqlInput="deleteSqlInput"
+    />
   </el-card>
 </template>
 <script setup>
 import { reactive, ref, watch } from 'vue'
-import dayjs from 'dayjs'
-import { createTaskReq } from '../api/report'
 import PeriodForm from '../components/PeriodForm.vue'
 import OneTimeForm from '../components/OneTimeForm.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
+import FillSql from '../components/FillSql.vue'
 
 const taskType = [
   {
@@ -46,59 +48,28 @@ const taskType = [
     value: '周期性'
   }
 ]
-const formRef = ref()
-const formLabelWidth = '140px'
 const state = reactive({
   chooseTaskType: '周期性任务',
-  formData: {
-    reportName: '',
-    oneTimeExe: '',
-    timeRange: []
-  },
-  taskId: 0,
-  sqlInput: ''
-})
-watch(
-  () => state.chooseTaskType,
-  (val) => {
-    // state.formData = {
-    //   reportName: ''
-    // }
-    // state
-  }
-)
 
-const formatDate = (date) => dayjs(date).format()
-const commit = () => {
-  const {
-    chooseTaskType,
-    formData: { oneTimeExe, timeRange, reportName }
-  } = state
-  formRef.value.validate(async (res) => {
-    if (res) {
-      let params = { reportName }
-      if (chooseTaskType === '一次性任务') {
-        params = {
-          ...params,
-          LargeCategory: '一次性',
-          oneTimeExe: formatDate(oneTimeExe)
-        }
-      } else {
-        params = {
-          ...params,
-          LargeCategory: '周期性',
-          startTime: formatDate(timeRange[0]),
-          endTime: formatDate(timeRange[1])
-        }
-      }
-      try {
-        const result = await createTaskReq(params)
-        if (result.data.taskId) {
-          state.taskId = result.data.taskId
-          toast('创建任务成功！')
-        }
-      } catch (e) {}
-    }
-  })
+  taskId: 0,
+  sqlArr: [0]
+})
+const updateTaskId = (taskId) => {
+  state.taskId = taskId
+}
+
+const deleteSqlInput = (index) => {
+  state.sqlArr.splice(index, 1)
 }
 </script>
+<style scoped>
+.card-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.bold {
+  font-weight: bold;
+}
+</style>

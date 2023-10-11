@@ -11,9 +11,9 @@ import { reactive } from 'vue'
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
 import Table from '../components/Table.vue'
-import { getTaskListReq } from '../api/report'
+import { getTaskListReq, updateTaskReq } from '../api/report'
 import router from '../router/index'
-import { priorityMap } from '../constant/index'
+import { priorityMap, taskStatusMap } from '../constant/index'
 const state = reactive({
   page: {
     pageNum: 0,
@@ -35,12 +35,12 @@ const state = reactive({
       prop: 'oneTimeExe'
     },
     {
-      label: '周期性任务执行时间',
+      label: '周期性任务时间范围',
       prop: 'periodExeTime'
     },
     {
       label: '任务状态',
-      prop: 'taskStatus'
+      prop: 'reportState'
     },
     {
       label: '任务优先级',
@@ -58,8 +58,8 @@ const state = reactive({
   tableOperations: [
     {
       label: '中止',
-      fn: () => {
-        pauseTask()
+      fn: (row) => {
+        pauseTask(row.reportId)
       }
     },
     {
@@ -71,7 +71,7 @@ const state = reactive({
   ]
 })
 
-const pauseTask = () => {
+const pauseTask = (taskId) => {
   ElMessageBox.confirm('确定要中止这条任务吗?', '警告', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -79,6 +79,10 @@ const pauseTask = () => {
     callback: async (action) => {
       if (action === 'confirm') {
         try {
+          await updateTaskReq({
+            reportId: taskId,
+            reportState: 3
+          })
         } catch (e) {}
       }
     }
@@ -96,7 +100,8 @@ const getTaskList = async () => {
       periodExeTime:
         i.LargeCategory === '一次性' ? '' : `${formatDate(i.startTime)} - ${formatDate(i.endTime)}`,
       createTime: formatDate(i.createTime, 'YYYY-MM-DD hh:mm:ss'),
-      reportPriority: priorityMap[i.reportPriority]
+      reportPriority: priorityMap[i.reportPriority],
+      reportState: taskStatusMap[i.reportState]
     }
   })
   state.tableTotal = result.data.total

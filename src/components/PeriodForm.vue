@@ -16,11 +16,16 @@
     >
       <el-date-picker type="daterange" v-model="state.formData.timeRange"></el-date-picker>
     </el-form-item>
-    <el-form-item :label-width="formLabelWidth" label="任务周期类型">
+    <el-form-item
+      :label-width="formLabelWidth"
+      label="任务周期类型"
+      prop="periodType"
+      :rules="[{ required: true, message: '请选择任务周期类型', trigger: 'blur' }]"
+    >
       <SelectCommon
         :selections="periodTypes"
-        v-model:select="state.periodType"
-        @updateSelect="(val) => updateSelect(val, 'periodType')"
+        v-model:select="state.formData.periodType"
+        @updateSelect="(val) => (state.formData.periodType = val)"
       />
     </el-form-item>
     <el-form-item :label-width="formLabelWidth" label="周期任务执行时间">
@@ -78,34 +83,29 @@
         <span>分</span>
       </div>
     </el-form-item>
-    <el-form-item :label-width="formLabelWidth" label="任务优先级">
+    <el-form-item
+      :label-width="formLabelWidth"
+      label="任务优先级"
+      prop="priority"
+      :rules="[{ required: true, message: '请选择任务优先级', trigger: 'blur' }]"
+    >
       <SelectCommon
         :selections="priority"
-        v-model:select="state.priority"
-        @updateSelect="(val) => updateSelect(val, 'priority')"
+        v-model:select="state.formData.priority"
+        @updateSelect="(val) => (state.formData.priority = val)"
       />
     </el-form-item>
     <el-form-item> </el-form-item>
-    <el-button type="primary" @click="commit" v-if="!state.taskId">提交</el-button>
+    <el-button type="primary" @click="commit" v-if="!state.taskId">创建任务</el-button>
   </el-form>
-  <div v-if="state.taskId">
-    <div>
-      <span>按需求分步输入sql语句</span>
-      <el-icon @click="addSqlStrs"><CirclePlus /></el-icon>
-    </div>
-    <div v-for="(item, index) in state.sqlStrs" v-bind:key="index">
-      <span>{{ index + 1 }}</span>
-      <FillSql :taskId="state.taskId" />
-    </div>
-  </div>
+  <WhiteSpace />
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import dayjs from 'dayjs'
 import { periodType, priority, periodTypeMap } from '../constant/index'
-import { createTaskReq, createTaskTypeReq } from '../api/report'
+import { createTaskReq, createTaskTypeReq, updateTaskReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
-import FillSql from './FillSql.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import { toast } from '../util/toast'
 const formRef = ref()
@@ -154,15 +154,15 @@ const state = reactive({
   priority: 99,
   formData: {
     reportName: '',
-    timeRange: []
+    timeRange: [],
+    periodType: 1,
+    priority: 99
   },
   taskId: '',
   sqlStrs: [0]
 })
 
-const addSqlStrs = () => {
-  state.sqlStrs.push(0)
-}
+const emits = defineEmits(['updateTaskId'])
 
 const updateSelect = (data, type) => {
   state[type] = data
@@ -193,7 +193,13 @@ const initArrs = () => {
 const formatDate = (date) => dayjs(date).format()
 
 const getModeName = () => {
-  const { periodType, day, hour, min, date } = state
+  const {
+    formData: { periodType },
+    day,
+    hour,
+    min,
+    date
+  } = state
   let modeName = ''
   switch (periodType) {
     //   1: '日报',
@@ -213,34 +219,66 @@ const getModeName = () => {
   return modeName
 }
 
+const validateData = () => {
+  const {
+    formData: { periodType },
+    hour,
+    min,
+    date,
+    day
+  } = state
+  let hasEmpty = false
+  if (periodType === 1) {
+    if (!hour || !min) {
+      hasEmpty = true
+    }
+  }
+  if (periodType === 2) {
+    if (!day || !hour || !min) {
+      hasEmpty = true
+    }
+  }
+  if (periodType === 3) {
+    if (!date || !hour || !min) {
+      hasEmpty = true
+    }
+  }
+  if (hasEmpty) {
+    toast('请完整填写周期执行时间', 'error')
+    return false
+  }
+  return true
+}
+
 const commit = () => {
   formRef.value.validate(async (res) => {
     if (res) {
-      const {
-        periodType,
-        formData: { timeRange, reportName },
-        priority
-      } = state
-      try {
-        const typeRes = await createTaskTypeReq({
-          reportTypeName: periodTypeMap[periodType],
-          modeName: getModeName()
-        })
-        if (typeRes.code == 200) {
-          const result = await createTaskReq({
-            reportName,
-            LargeCategory: '周期性',
-            TimeOn: formatDate(timeRange[0]),
-            endTime: formatDate(timeRange[1]),
-            reportTypeId: typeRes.data.reportTypeId,
-            reportPriority: priority
+      if (validateData()) {
+        const {
+          formData: { timeRange, reportName, periodType, priority }
+        } = state
+        try {
+          const typeRes = await createTaskTypeReq({
+            reportTypeName: periodTypeMap[periodType],
+            modeName: getModeName()
           })
-          if (result.data.reportId) {
-            state.taskId = result.data.reportId
-            toast('创建任务成功！')
+          if (typeRes.code == 200) {
+            const result = await createTaskReq({
+              reportName,
+              LargeCategory: '周期性',
+              TimeOn: formatDate(timeRange[0]),
+              endTime: formatDate(timeRange[1]),
+              reportTypeId: typeRes.data.reportTypeId,
+              reportPriority: priority
+            })
+            if (result.data.reportId) {
+              state.taskId = result.data.reportId
+              toast('创建任务成功！')
+              emits('updateTaskId', result.data.reportId)
+            }
           }
-        }
-      } catch (e) {}
+        } catch (e) {}
+      }
     }
   })
 }

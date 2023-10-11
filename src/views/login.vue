@@ -88,7 +88,7 @@ const login = () => {
 const redirect = () => {
   const userInfo = getLocalStore('userInfo')
   if (userInfo && userInfo.role) {
-    router.replace('/develop/match')
+    router.replace('/develop/tasklist')
   }
 }
 redirect()
