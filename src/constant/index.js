@@ -264,7 +264,46 @@ const periodTypeMap = {
   3: '月报',
   4: '年报'
 }
+const week = [
+  {
+    label: '周一',
+    value: 'Monday'
+  },
+  {
+    label: '周二',
+    value: 'Tuesday'
+  },
+  {
+    label: '周三',
+    value: 'Wednesday'
+  },
+  {
+    label: '周四',
+    value: 'Thursday'
+  },
+  {
+    label: '周五',
+    value: 'Friday'
+  },
+  {
+    label: '周六',
+    value: 'Saturday'
+  },
+  {
+    label: '周日',
+    value: 'Sunday'
+  }
+]
 
+const weekMap = {
+  Monday: '周一',
+  Tuesday: '周二',
+  Wednesday: '周三',
+  Thursday: '周四',
+  Friday: '周五',
+  Saturday: '周六',
+  Sunday: '周日'
+}
 export {
   taskStatusMap,
   taskStatusList,
@@ -273,5 +312,6 @@ export {
   periodTypeMap,
   periodType,
   priority,
-  priorityMap
+  priorityMap,
+  weekMap
 }

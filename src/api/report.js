@@ -153,3 +153,16 @@ export const getTaskSqlsReq = (data) => {
     data
   })
 }
+
+/**
+ * 删除任务
+ * @param {*} data
+ * @returns
+ */
+export const deleteTaskReq = (data) => {
+  return createRequest()({
+    url: '/api/report/deletetask',
+    method: 'delete',
+    data
+  })
+}

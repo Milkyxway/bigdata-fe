@@ -35,7 +35,8 @@
 import { reactive, ref, watch } from 'vue'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
-import { addSqlReq, updateTaskReq } from '../api/report'
+import { addSqlReq, updateTaskReq, getTaskSqlsReq } from '../api/report'
+import { toast } from '../util/toast'
 const state = reactive({
   chooseSqlType: '执行类无输出',
   sqlContent: '',
@@ -91,11 +92,11 @@ const commitSql = async (index) => {
     reportId: props.taskId,
     sqlType: sqlTypeMap()
   }
-  props.sqlArr[index].split(';').map(async (i) => {
-    if (i.reportSqlData) {
+  props.sqlArr[index].reportSqlData.split(';').map(async (i) => {
+    if (i) {
       const result = await addSqlReq({
         ...params,
-        reportSqlData: i.reportSqlData
+        reportSqlData: i
       })
       // state.commitSuccess += i
     }
@@ -103,10 +104,17 @@ const commitSql = async (index) => {
 }
 
 const startExe = async () => {
-  await updateTaskReq({
-    reportId: props.taskId,
-    reportState: 1
+  const result = await getTaskSqlsReq({
+    taskId: props.taskId
   })
+  if (result.data.taskSqls) {
+    await updateTaskReq({
+      reportId: props.taskId,
+      reportState: 1
+    })
+  } else {
+    toast('该任务没有填写sql脚本无法执行', 'warning')
+  }
 }
 </script>
 <style scoped>

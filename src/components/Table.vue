@@ -50,6 +50,7 @@
         </el-table-column>
       </el-table>
     </div>
+    <WhiteSpace />
     <el-pagination
       class="pagination"
       v-model:currentPage="currentPageNum"
@@ -64,6 +65,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import WhiteSpace from './WhiteSpace.vue'
 const props = defineProps({
   tableColumns: {
     type: Array,
@@ -134,3 +136,8 @@ watch(
   }
 )
 </script>
+<style scoped>
+.pagination {
+  justify-content: flex-end;
+}
+</style>

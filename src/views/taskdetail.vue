@@ -63,6 +63,7 @@
       :sqlArr="state.taskSqls || state.sqlArr"
       @addSqlInput="addSqlStrs"
       @deleteSqlInput="deleteSqlInput"
+      :taskId="taskId"
     />
   </el-card>
 </template>
@@ -72,15 +73,28 @@ import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import NavBack from '../components/NavBack.vue'
 import { getTaskDetailReq, getReportTypeReq, getTaskSqlsReq } from '../api/report'
-import { priorityMap, periodTypeMap, taskStatusMap } from '../constant/index'
+import { priorityMap, periodTypeMap, taskStatusMap, weekMap } from '../constant/index'
 import FillSql from '../components/FillSql.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 const route = useRoute()
 const taskId = ref(route.params.taskId)
+const typeToCn = (sqlTypeId) => {
+  const map = {
+    1: '执行类无输出',
+    2: '上传',
+    3: '查询类有输出'
+  }
+  return map[sqlTypeId]
+}
 const state = reactive({
   detail: {},
   taskSqls: null,
-  sqlArr: ['']
+  sqlArr: [
+    {
+      reportSqlData: '',
+      chooseSqlType: typeToCn(1)
+    }
+  ]
 })
 
 const getTime = computed(() => {
@@ -107,7 +121,10 @@ const getExeTime = computed(() => {
         const date = list[0]
         const hour = list[1].substr(0, 2)
         const min = list[1].substr(2, 2)
-        time = reportTypeName === '月报' ? `每月${date}日 ${hour}:${min}` : `${date} ${hour}:${min}`
+        time =
+          reportTypeName === '月报'
+            ? `每月${date}日 ${hour}:${min}`
+            : `${weekMap[date]} ${hour}:${min}`
         break
       case '日报':
         time = `每天${modeName.substr(0, 2)}:${modeName.substr(2, 2)}`
@@ -123,14 +140,6 @@ const getPriority = computed(() => {
   }
 })
 
-const typeToCn = (sqlTypeId) => {
-  const map = {
-    1: '执行类无输出',
-    2: '上传',
-    3: '查询类有输出'
-  }
-  return map[sqlTypeId]
-}
 const addSqlStrs = () => {
   state.sqlArr.push('')
 }
