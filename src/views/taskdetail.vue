@@ -21,7 +21,7 @@
       </div>
       <div class="row-item">
         <div class="bold space">任务状态:</div>
-        <div>{{ state.detail?.reportState }}</div>
+        <div>{{ getTaskStatus }}</div>
       </div>
       <div class="row-item" v-if="state.detail?.reportPriority">
         <div class="bold space">任务优先级:</div>
@@ -39,12 +39,31 @@
         <div class="bold space">最后执行时间:</div>
         <div>{{ getTime(state.detail?.lastTime) }}</div>
       </div>
-
+      <div class="row-item" v-if="state.taskSqls">
+        <div class="bold space">任务对应sql语句:</div>
+        <div v-for="(item, index) in state.taskSqls" v-bind:key="index">
+          <span>{{ item.reportSqlData }}</span>
+          <span v-if="index < state.taskSqls.length - 1">;</span>
+        </div>
+      </div>
       <div class="row-item">
         <div class="bold space">创建时间:</div>
         <div>{{ getTime(state.detail?.createTime, 'YYYY/MM/DD hh:mm:ss') }}</div>
       </div>
     </div>
+  </el-card>
+  <WhiteSpace />
+  <el-card v-if="state.detail.reportState === 0">
+    <template #header>
+      <div class="card-header">
+        <span class="bold">分步填写sql</span>
+      </div>
+    </template>
+    <FillSql
+      :sqlArr="state.taskSqls || state.sqlArr"
+      @addSqlInput="addSqlStrs"
+      @deleteSqlInput="deleteSqlInput"
+    />
   </el-card>
 </template>
 <script setup>
@@ -52,18 +71,26 @@ import { watch, ref, reactive, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import NavBack from '../components/NavBack.vue'
-import { getTaskDetailReq, getReportTypeReq } from '../api/report'
-import { priorityMap, periodTypeMap } from '../constant/index'
+import { getTaskDetailReq, getReportTypeReq, getTaskSqlsReq } from '../api/report'
+import { priorityMap, periodTypeMap, taskStatusMap } from '../constant/index'
+import FillSql from '../components/FillSql.vue'
+import WhiteSpace from '../components/WhiteSpace.vue'
 const route = useRoute()
 const taskId = ref(route.params.taskId)
 const state = reactive({
-  detail: {}
+  detail: {},
+  taskSqls: null,
+  sqlArr: ['']
 })
 
 const getTime = computed(() => {
   return function (time, format = 'YYYY/MM/DD') {
     return dayjs(time).format(format)
   }
+})
+
+const getTaskStatus = computed(() => {
+  return taskStatusMap[state.detail?.reportState]
 })
 const getExeTime = computed(() => {
   let time
@@ -96,6 +123,21 @@ const getPriority = computed(() => {
   }
 })
 
+const typeToCn = (sqlTypeId) => {
+  const map = {
+    1: '执行类无输出',
+    2: '上传',
+    3: '查询类有输出'
+  }
+  return map[sqlTypeId]
+}
+const addSqlStrs = () => {
+  state.sqlArr.push('')
+}
+
+const deleteSqlInput = (index) => {
+  state.sqlArr.splice(index, 1)
+}
 const getTaskDetail = async () => {
   const result = await getTaskDetailReq({ taskId: taskId.value })
   state.detail = result.data
@@ -110,7 +152,22 @@ const getReportType = async (reportTypeId) => {
     ...result.data
   }
 }
+const getTaskSqls = async () => {
+  const result = await getTaskSqlsReq({
+    taskId: taskId.value
+  })
+  state.taskSqls = result.data.taskSqls
+  if (state.taskSqls) {
+    state.taskSqls = state.taskSqls.map((i) => {
+      return {
+        ...i,
+        chooseSqlType: typeToCn(i.sqlType)
+      }
+    })
+  }
+}
 getTaskDetail()
+getTaskSqls()
 </script>
 <style scoped>
 .card-content {

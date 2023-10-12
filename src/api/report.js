@@ -140,3 +140,16 @@ export const updateTaskReq = (data) => {
     data
   })
 }
+
+/**
+ * 获取任务的sql语句
+ * @param {*} data
+ * @returns
+ */
+export const getTaskSqlsReq = (data) => {
+  return createRequest()({
+    url: '/api/report/tasksqls',
+    method: 'post',
+    data
+  })
+}

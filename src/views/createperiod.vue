@@ -53,7 +53,12 @@ const state = reactive({
   chooseTaskType: '周期性任务',
 
   taskId: 0,
-  sqlArr: [0]
+  sqlArr: [
+    {
+      reportSqlData: '',
+      chooseSqlType: '执行类无输出'
+    }
+  ]
 })
 const updateTaskId = (taskId) => {
   state.taskId = taskId
