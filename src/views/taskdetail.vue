@@ -77,13 +77,13 @@ const getExeTime = computed(() => {
       case '月报':
       case '周报':
         const list = modeName.split(',')
-        const date = list[0].split('(')[1]
+        const date = list[0]
         const hour = list[1].substr(0, 2)
         const min = list[1].substr(2, 2)
         time = reportTypeName === '月报' ? `每月${date}日 ${hour}:${min}` : `${date} ${hour}:${min}`
         break
       case '日报':
-        time = `每天${modeName.substr(1, 2)}:${modeName.substr(3, 2)}`
+        time = `每天${modeName.substr(0, 2)}:${modeName.substr(2, 2)}`
         break
     }
     return time

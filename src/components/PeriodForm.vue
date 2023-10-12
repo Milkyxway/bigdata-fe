@@ -209,13 +209,13 @@ const getModeName = () => {
     // 3: '月报',
     // 4: '年报'
     case 1:
-      modeName = `(${hour}${min})`
+      modeName = `${hour}${min}`
       break
     case 2:
-      modeName = `(${day},${hour}${min})`
+      modeName = `${day},${hour}${min}`
       break
     case 3:
-      modeName = `(${date},${hour}${min})`
+      modeName = `${date},${hour}${min}`
       break
   }
   return modeName
