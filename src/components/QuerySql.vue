@@ -10,20 +10,35 @@
     </form>
     <div class="btn-wrap">
       <el-button type="primary" @click="handleQuery">查询</el-button>
-      <Upload btn-txt="上传脚本" @handleFileChange="handleFileChange" btn-type="danger" />
+      <!-- <Upload btn-txt="上传脚本" @handleFileChange="handleFileChange" btn-type="danger" /> -->
+      <el-button type="primary" @click="state.showUploadDialog = true">添加脚本</el-button>
     </div>
   </el-card>
+  <EditorInDialog
+    v-model:content="state.sqlContent"
+    v-model:showUploadDialog="state.showUploadDialog"
+    @updateContent="(val) => (state.sqlContent = val)"
+    @closeModal="state.showUploadDialog = false"
+    type="add"
+    @refreshList="refreshList"
+  />
 </template>
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import EditorInDialog from './EditorInDialog.vue'
 import { getLocalStore } from '../util/localStorage'
 import Upload from './Upload.vue'
-import { uploadReq } from '../api/report'
+import { uploadReq, addCommonUseSqlAddReq } from '../api/report'
 import { toast } from '../util/toast'
 
+const formRef = ref()
 const emit = defineEmits(['handleQuery', 'createTask', 'refreshList'])
 const state = reactive({
-  fileList: []
+  fileList: [],
+  showUploadDialog: false,
+  sqlContent: ''
 })
 let queryForm = reactive({
   keyword: ''
@@ -33,11 +48,24 @@ const handleQuery = () => {
   emit('handleQuery', queryForm)
 }
 
+const refreshList = () => {
+  emit('refreshList')
+}
+
 const handleFileChange = async (file) => {
   const formData = new FormData()
   formData.append('file', file)
   await uploadReq(formData)
   toast('上传成功')
+  emit('refreshList')
+}
+
+const uploadSqls = async () => {
+  const result = await addCommonUseSqlAddReq({
+    sqlContent: text.value
+  })
+  toast('上传成功！')
+  state.showUploadDialog = false
   emit('refreshList')
 }
 </script>

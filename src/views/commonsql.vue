@@ -9,16 +9,42 @@
     ></el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
-        <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button>
+        <!-- <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button> -->
         <el-button link type="danger" size="small" @click="deleteSQL(row.sqlId)">删除</el-button>
+        <el-button
+          link
+          type="primary"
+          size="small"
+          @click="
+            () => {
+              state.showEdit = true
+              state.editContent = row.sqlContent
+              state.sqlName = row.sqlName
+              state.selectSqlId = row.sqlId
+            }
+          "
+          >查看</el-button
+        >
       </template>
     </el-table-column>
   </el-table>
+  <EditorInDialog
+    v-model:content="state.editContent"
+    v-model:sqlName="state.sqlName"
+    v-model:sqlId="state.selectSqlId"
+    v-model:showUploadDialog="state.showEdit"
+    @updateContent="(val, type) => (state[type] = val)"
+    @closeModal="state.showEdit = false"
+    @refreshList="getSqlList"
+    type="update"
+  />
 </template>
 
 <script setup>
 import { reactive, watch, ref } from 'vue'
+
 import { useRouter } from 'vue-router'
+import EditorInDialog from '../components/EditorInDialog.vue'
 // import QueryHeader from '../components/QueryHeader.vue'
 // import QueryReport from '../components/QueryReport.vue'
 import QuerySql from '../components/QuerySql.vue'
@@ -29,63 +55,37 @@ import { dayjs } from 'element-plus'
 import { periodType, periodTypeMap } from '../constant/index'
 import { ElMessageBox } from 'element-plus'
 // import { getSql } from '../util/ftp'
-
+const text = ref('# Hello Editor')
 const userInfo = ref(getLocalStore('userInfo'))
 const role = ref(getLocalStore('userInfo').role)
 const state = reactive({
+  showEdit: false,
   chooseTab: 3,
   page: {
     pageSize: 10,
     pageNum: 0
   },
   querys: {
-    reportType: 3
+    // reportType: 3
   },
 
   tableColumns: [
     {
       columnName: '脚本名称',
       prop: 'sqlName'
-    },
-    {
-      columnName: '脚本地址',
-      prop: 'sqlLink'
     }
+    // {
+    //   columnName: '脚本内容',
+    //   prop: 'sqlContent'
+    // }
   ],
   tableData: [],
-  total: 0
+  total: 0,
+  editContent: '',
+  sqlName: '',
+  selectSqlId: ''
 })
 
-const getReportList = async () => {
-  const params = {
-    ...state.querys,
-    ...state.page
-  }
-  const result = await getReportListReq(params)
-  state.tableData = result.data.list
-  state.total = result.data.total
-}
-
-const handleQueryAll = (param) => (param === 0 ? null : param)
-const getRangeDateParam = (range) => {
-  if (range) {
-    return [
-      dayjs(range[0]).format('YYYY-MM-DD HH:mm:ss'),
-      dayjs(range[1]).format('YYYY-MM-DD HH:mm:ss')
-    ]
-  }
-  return null
-}
-
-const changePage = (val) => {
-  state.page.pageSize = val.pageSize
-  state.page.pageNum = val.pageNum - 1
-  if (state.chooseTab === 'all') {
-    getSuperviseList()
-  } else {
-    getRelatedMeTask()
-  }
-}
 const getSqlList = async () => {
   state.tableData = []
   const result = await getSQLListReq({
@@ -117,7 +117,7 @@ const deleteSQL = async (sqlId) => {
     callback: async (action) => {
       if (action === 'confirm') {
         try {
-          await deleteSqlReq(sqlId)
+          await deleteSqlReq({ sqlId })
           toast()
           getSqlList()
         } catch (e) {}

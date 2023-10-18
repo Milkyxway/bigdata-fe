@@ -134,9 +134,10 @@ const getTaskList = async () => {
       oneTimeExe: i.LargeCategory === '一次性' ? formatDate(i.oneTimeExe) : null,
       periodExeTime:
         i.LargeCategory === '一次性' ? '' : `${formatDate(i.startTime)} - ${formatDate(i.endTime)}`,
-      createTime: formatDate(i.createTime, 'YYYY-MM-DD hh:mm:ss'),
+      createTime: formatDate(i.createTime, 'YYYY-MM-DD HH:mm:ss'),
       reportPriority: priorityMap[i.reportPriority],
-      reportState: taskStatusMap[i.reportState]
+      reportState: taskStatusMap[i.reportState],
+      lastTime: i.lastTime ? formatDate(i.lastTime, 'YYYY-MM-DD HH:mm:ss') : ''
     }
   })
   state.tableTotal = result.data.total

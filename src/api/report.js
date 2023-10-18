@@ -15,7 +15,7 @@ export const getReportListReq = (data) => {
  */
 export const getSQLListReq = (data) => {
   return createRequest()({
-    url: '/api/report/sqllist',
+    url: '/api/commonsql/list',
     method: 'post',
     data
   })
@@ -44,8 +44,21 @@ export const uploadReq = (data) => {
  */
 export const deleteSqlReq = (data) => {
   return createRequest()({
-    url: '/api/report/deletesql',
+    url: '/api/commonsql/delete',
     method: 'delete',
+    data
+  })
+}
+
+/**
+ * 修改常用sql
+ * @param {*} data
+ * @returns
+ */
+export const updateCommonSqlReq = (data) => {
+  return createRequest()({
+    url: '/api/commonsql/update',
+    method: 'post',
     data
   })
 }
@@ -163,6 +176,19 @@ export const deleteTaskReq = (data) => {
   return createRequest()({
     url: '/api/report/deletetask',
     method: 'delete',
+    data
+  })
+}
+
+/**
+ *  增加常用脚本
+ * @param {*} data
+ * @returns
+ */
+export const addCommonUseSqlAddReq = (data) => {
+  return createRequest()({
+    url: '/api/commonsql/add',
+    method: 'post',
     data
   })
 }

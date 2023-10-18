@@ -1,4 +1,5 @@
 <template>
+  <NavBack />
   <el-card>
     <template #header>
       <div class="card-header">
@@ -38,6 +39,7 @@ import PeriodForm from '../components/PeriodForm.vue'
 import OneTimeForm from '../components/OneTimeForm.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import FillSql from '../components/FillSql.vue'
+import NavBack from '../components/NavBack.vue'
 
 const taskType = [
   {

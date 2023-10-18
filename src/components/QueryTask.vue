@@ -41,6 +41,7 @@
     <div class="btn-wrap">
       <el-button type="plain" @click="reset">重置查询</el-button>
       <el-button type="primary" @click="handleQuery">查询</el-button>
+      <el-button type="danger" @click="createTask">创建任务</el-button>
     </div>
   </el-card>
 </template>
@@ -48,6 +49,8 @@
 import { reactive, ref } from 'vue'
 import SelectCommon from './SelectCommon.vue'
 import { taskStatusList, priority } from '../constant'
+import { createTaskReq } from '../api/report'
+import router from '../router/index'
 const state = reactive({
   formData: {
     reportName: '',
@@ -68,6 +71,10 @@ const reset = () => {
   Object.keys(state.formData).map((i) => {
     state.formData[i] = ''
   })
+}
+
+const createTask = () => {
+  router.push('/develop/create')
 }
 </script>
 <style scoped>
