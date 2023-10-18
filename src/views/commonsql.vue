@@ -1,5 +1,6 @@
 <template>
   <QuerySql @handleQuery="handleQuery" @refreshList="getSqlList" />
+  <WhiteSpace />
   <el-table :data="state.tableData">
     <el-table-column
       v-for="item in state.tableColumns"
@@ -42,22 +43,13 @@
 
 <script setup>
 import { reactive, watch, ref } from 'vue'
-
-import { useRouter } from 'vue-router'
 import EditorInDialog from '../components/EditorInDialog.vue'
-// import QueryHeader from '../components/QueryHeader.vue'
-// import QueryReport from '../components/QueryReport.vue'
 import QuerySql from '../components/QuerySql.vue'
 import { getSQLListReq, deleteSqlReq } from '../api/report'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
-import { dayjs } from 'element-plus'
-import { periodType, periodTypeMap } from '../constant/index'
 import { ElMessageBox } from 'element-plus'
-// import { getSql } from '../util/ftp'
-const text = ref('# Hello Editor')
-const userInfo = ref(getLocalStore('userInfo'))
-const role = ref(getLocalStore('userInfo').role)
+import WhiteSpace from '../components/WhiteSpace.vue'
 const state = reactive({
   showEdit: false,
   chooseTab: 3,
@@ -65,19 +57,13 @@ const state = reactive({
     pageSize: 10,
     pageNum: 0
   },
-  querys: {
-    // reportType: 3
-  },
+  querys: {},
 
   tableColumns: [
     {
       columnName: '脚本名称',
       prop: 'sqlName'
     }
-    // {
-    //   columnName: '脚本内容',
-    //   prop: 'sqlContent'
-    // }
   ],
   tableData: [],
   total: 0,
