@@ -66,6 +66,10 @@ const roleList = [
   {
     label: '员工',
     value: 'employee'
+  },
+  {
+    label: '开发者',
+    value: 'developer'
   }
 ]
 const handleSubmit = () => {

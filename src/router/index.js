@@ -31,6 +31,7 @@ export const routeList = [
         path: '/develop',
         name: '开发模块',
         iconName: 'view',
+        auth: ['developer'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
@@ -63,6 +64,7 @@ export const routeList = [
         path: '/sql',
         name: '脚本库',
         iconName: 'view',
+        auth: ['developer'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
@@ -72,27 +74,27 @@ export const routeList = [
             component: () => import('../views/commonsql.vue')
           }
         ]
+      },
+      {
+        name: '账号模块',
+        path: '/personal',
+        component: () => import('../views/PersonalHome.vue'),
+        children: [
+          {
+            path: '/personal/password',
+            name: '修改密码',
+            isSider: true,
+            component: () => import('../views/password.vue')
+          },
+          {
+            path: '/personal/createaccount',
+            name: '创建账号',
+            isSider: true,
+            auth: ['admin'],
+            component: () => import('../views/createaccount.vue')
+          }
+        ]
       }
-      // {
-      //   name: '账号模块',
-      //   path: '/personal',
-      //   component: () => import('../views/PersonalHome.vue'),
-      //   children: [
-      //     {
-      //       path: '/personal/password',
-      //       name: '修改密码',
-      //       isSider: true,
-      //       component: () => import('../views/password.vue')
-      //     },
-      //     {
-      //       path: '/personal/createaccount',
-      //       name: '创建账号',
-      //       isSider: true,
-      //       auth: ['admin'],
-      //       component: () => import('../views/createaccount.vue')
-      //     }
-      //   ]
-      // }
     ]
   }
 ]

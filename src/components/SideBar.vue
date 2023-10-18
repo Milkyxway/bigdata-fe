@@ -30,8 +30,16 @@
 import { reactive, computed } from 'vue'
 import { getLocalStore } from '../util/localStorage'
 import router, { routeList } from '../router/index'
-
-const homeMenu = routeList.filter((item) => item.id === 'home')[0]?.children || []
+const role = getLocalStore('userInfo').role
+const homeMenu =
+  routeList
+    .filter((item) => item.id === 'home')[0]
+    ?.children.filter((i) => {
+      if (i.auth) {
+        return i.auth?.includes(role) && i
+      }
+      return i
+    }) || []
 let menuLevel = router.currentRoute.value.matched?.length || 0
 let currentPath = router.currentRoute.value.fullPath
 const currentSiderPath = computed(() => {
@@ -41,7 +49,7 @@ const currentSiderPath = computed(() => {
 })
 const defaultSelectedKey =
   currentPath === '/' || menuLevel < 3 ? '/dataCenter/project' : currentPath
-const role = getLocalStore('userInfo').role
+
 const handleOpen = () => {}
 const handleClose = () => {}
 const showMenuItem = computed(() => {
