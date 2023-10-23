@@ -19,7 +19,7 @@
     <PeriodForm v-if="state.chooseTaskType === '周期性任务'" @updateTaskId="updateTaskId" />
   </el-card>
   <WhiteSpace />
-  <el-card v-if="state.taskId">
+  <el-card>
     <template #header>
       <div class="card-header">
         <span class="bold">分步填写sql</span>

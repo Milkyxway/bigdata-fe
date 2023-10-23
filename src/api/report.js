@@ -192,3 +192,29 @@ export const addCommonUseSqlAddReq = (data) => {
     data
   })
 }
+
+/**
+ * 参数类型列表
+ * @param {*} data
+ * @returns
+ */
+export const getParamsListReq = (data) => {
+  return createRequest()({
+    url: '/api/report/paramslist',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 增加sql参数类型
+ * @param {*} data
+ * @returns
+ */
+export const addParamsReq = (data) => {
+  return createRequest()({
+    url: '/api/report/addparams',
+    method: 'post',
+    data
+  })
+}

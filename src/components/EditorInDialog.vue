@@ -2,8 +2,10 @@
   <el-dialog
     :show-close="false"
     :close-on-press-escape="false"
+    :close-on-click-modal="false"
     v-model="props.showUploadDialog"
     title="输入脚本"
+    :destroy-on-close="true"
   >
     <div class="row-item">
       <span class="sql-name">脚本名称</span>
@@ -55,6 +57,8 @@ watch(
 )
 const closeModal = () => {
   emits('closeModal')
+  sqlName.value = ''
+  sqlContent.value = ''
 }
 
 const uploadSqls = async () => {

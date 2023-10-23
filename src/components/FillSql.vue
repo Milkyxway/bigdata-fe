@@ -8,6 +8,24 @@
         :name="item.value"
       ></el-radio>
     </el-radio-group>
+    <div v-if="state.commonSqls">
+      <span>常用sql语句 </span>
+      <SelectCommon
+        :selections="state.commonSqls"
+        v-model:select="state.selectSql"
+        @updateSelect="(val) => (item.reportSqlData = val)"
+      />
+    </div>
+
+    <div>
+      <span>参数填写模板</span>
+      <SelectCommon
+        :selections="state.paramsList"
+        v-model:select="state.selectParamType"
+        @updateSelect="(val) => (item.selectParamType = val)"
+      />
+    </div>
+
     <div class="input-row">
       <div>
         <el-icon @click="addSqlStrs" color="#0076fe"><CirclePlus /></el-icon>
@@ -22,11 +40,13 @@
         rows="5"
         v-if="state.chooseSqlType !== '上传'"
         v-model="item.reportSqlData"
+        clearable
       />
       <Upload v-if="state.chooseSqlType === '上传'" btn-txt="上传匹配文件" />
     </div>
     <WhiteSpace />
     <el-button type="plain" @click="commitSql(index)">提交语句</el-button>
+    <el-button type="plain" @click="item.reportSqlData = ''">清空语句</el-button>
   </div>
   <WhiteSpace />
   <el-button type="primary" @click="startExe">完成，开始执行</el-button>
@@ -35,12 +55,23 @@
 import { reactive, ref, watch } from 'vue'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
-import { addSqlReq, updateTaskReq, getTaskSqlsReq } from '../api/report'
+import SelectCommon from './SelectCommon.vue'
+import {
+  addSqlReq,
+  updateTaskReq,
+  getTaskSqlsReq,
+  getSQLListReq,
+  getParamsListReq
+} from '../api/report'
 import { toast } from '../util/toast'
 const state = reactive({
   chooseSqlType: '执行类无输出',
   sqlContent: '',
-  commitSuccess: ''
+  commitSuccess: '',
+  commonSqls: [],
+  selectSql: '',
+  paramsList: [],
+  selectParamType: ''
 })
 const props = defineProps({
   taskId: {
@@ -98,7 +129,7 @@ const commitSql = async (index) => {
         ...params,
         reportSqlData: i
       })
-      // state.commitSuccess += i
+      //  state.commitSuccess += i
     }
   })
 }
@@ -116,6 +147,26 @@ const startExe = async () => {
     toast('该任务没有填写sql脚本无法执行', 'warning')
   }
 }
+const getCommonSqlList = async () => {
+  const result = await getSQLListReq()
+  state.commonSqls = result.data.list.map((i) => {
+    return {
+      label: i.sqlName,
+      value: i.sqlContent
+    }
+  })
+}
+const getParamsList = async () => {
+  const result = await getParamsListReq()
+  state.paramsList = result.data.list.map((i) => {
+    return {
+      label: i.parameterName,
+      value: i.parameterKey
+    }
+  })
+}
+getCommonSqlList()
+getParamsList()
 </script>
 <style scoped>
 .input-row {

@@ -29,17 +29,17 @@ export const routeList = [
       },
       {
         path: '/develop',
-        name: '开发模块',
+        name: '任务模块',
         iconName: 'view',
         auth: ['developer'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
-          {
-            path: '/develop/match',
-            name: '匹配需求',
-            isSider: true,
-            component: () => import('../views/matchfunc.vue')
-          },
+          // {
+          //   path: '/develop/match',
+          //   name: '匹配需求',
+          //   isSider: true,
+          //   component: () => import('../views/matchfunc.vue')
+          // },
           {
             path: '/develop/create',
             name: '创建任务',
@@ -72,6 +72,21 @@ export const routeList = [
             name: '脚本列表',
             isSider: true,
             component: () => import('../views/commonsql.vue')
+          }
+        ]
+      },
+      {
+        path: '/develop',
+        name: '工具箱',
+        iconName: 'view',
+        auth: ['developer'],
+        component: () => import('../views/PersonalHome.vue'),
+        children: [
+          {
+            path: '/develop/match',
+            name: '匹配需求',
+            isSider: true,
+            component: () => import('../views/matchfunc.vue')
           }
         ]
       },
