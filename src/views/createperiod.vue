@@ -15,11 +15,11 @@
       />
     </el-radio-group>
     <WhiteSpace />
-    <OneTimeForm v-if="state.chooseTaskType === '一次性任务'" />
+    <OneTimeForm v-if="state.chooseTaskType === '一次性任务'" @updateTaskId="updateTaskId" />
     <PeriodForm v-if="state.chooseTaskType === '周期性任务'" @updateTaskId="updateTaskId" />
   </el-card>
   <WhiteSpace />
-  <el-card>
+  <el-card v-if="state.taskId">
     <template #header>
       <div class="card-header">
         <span class="bold">分步填写sql</span>
@@ -35,12 +35,14 @@
 </template>
 <script setup>
 import { reactive, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import PeriodForm from '../components/PeriodForm.vue'
 import OneTimeForm from '../components/OneTimeForm.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import FillSql from '../components/FillSql.vue'
 import NavBack from '../components/NavBack.vue'
-
+const route = useRoute()
+const typeInUrl = ref(route.params.type)
 const taskType = [
   {
     label: '一次性任务',
@@ -69,6 +71,10 @@ const updateTaskId = (taskId) => {
 const deleteSqlInput = (index) => {
   state.sqlArr.splice(index, 1)
 }
+const setChooseType = () => {
+  state.chooseTaskType = typeInUrl.value === 'onetime' ? '一次性任务' : '周期性任务'
+}
+setChooseType()
 </script>
 <style scoped>
 .card-header {

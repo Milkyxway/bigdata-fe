@@ -48,7 +48,7 @@
       </div>
       <div class="row-item">
         <div class="bold space">创建时间:</div>
-        <div>{{ getTime(state.detail?.createTime, 'YYYY/MM/DD hh:mm:ss') }}</div>
+        <div>{{ getTime(state.detail?.createTime, 'YYYY/MM/DD HH:mm:ss') }}</div>
       </div>
     </div>
   </el-card>

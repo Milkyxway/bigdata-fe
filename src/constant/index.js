@@ -253,6 +253,12 @@ const priority = [
   }
 ]
 
+const sqlType = {
+  1: '执行类无输出',
+  2: '上传',
+  3: '查询类有输出'
+}
+
 const priorityMap = {
   99: '高',
   50: '中',
@@ -313,5 +319,6 @@ export {
   periodType,
   priority,
   priorityMap,
-  weekMap
+  weekMap,
+  sqlType
 }

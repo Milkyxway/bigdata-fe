@@ -8,24 +8,27 @@
         :name="item.value"
       ></el-radio>
     </el-radio-group>
-    <div v-if="state.commonSqls">
-      <span>常用sql语句 </span>
-      <SelectCommon
-        :selections="state.commonSqls"
-        v-model:select="state.selectSql"
-        @updateSelect="(val) => (item.reportSqlData = val)"
-      />
-    </div>
 
-    <div>
-      <span>参数填写模板</span>
-      <SelectCommon
-        :selections="state.paramsList"
-        v-model:select="state.selectParamType"
-        @updateSelect="(val) => (item.selectParamType = val)"
-      />
-    </div>
+    <div class="input-row">
+      <div v-if="state.commonSqls">
+        <span>常用sql语句 </span>
+        <SelectCommon
+          :selections="state.commonSqls"
+          v-model:select="state.selectSql"
+          @updateSelect="(val) => (item.reportSqlData = val)"
+        />
+      </div>
 
+      <div>
+        <span>参数填写模板</span>
+        <SelectCommon
+          :selections="state.paramsList"
+          v-model:select="state.selectParamType"
+          @updateSelect="(val) => (item.selectParamType = val)"
+        />
+      </div>
+    </div>
+    <WhiteSpace />
     <div class="input-row">
       <div>
         <el-icon @click="addSqlStrs" color="#0076fe"><CirclePlus /></el-icon>

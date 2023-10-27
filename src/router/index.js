@@ -24,6 +24,12 @@ export const routeList = [
             name: '报表列表',
             isSider: true,
             component: () => import('../views/reportlist.vue')
+          },
+          {
+            path: '/report/selfhelp',
+            name: '自助提数',
+            isSider: true,
+            component: () => import('../views/selfhelp.vue')
           }
         ]
       },
@@ -41,7 +47,7 @@ export const routeList = [
           //   component: () => import('../views/matchfunc.vue')
           // },
           {
-            path: '/develop/create',
+            path: '/develop/create/:type',
             name: '创建任务',
             isSider: true,
             component: () => import('../views/createperiod.vue')
@@ -57,6 +63,12 @@ export const routeList = [
             name: '任务详情',
             isSider: false,
             component: () => import('../views/taskdetail.vue')
+          },
+          {
+            path: '/develop/task/params',
+            name: '参数配置',
+            isSider: true,
+            component: () => import('../views/configparams.vue')
           }
         ]
       },
