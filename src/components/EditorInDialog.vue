@@ -46,6 +46,7 @@ const sqlName = ref()
 watch(
   () => props.content,
   (val) => {
+    console.log(val)
     sqlContent.value = val
   }
 )
@@ -57,8 +58,6 @@ watch(
 )
 const closeModal = () => {
   emits('closeModal')
-  sqlName.value = ''
-  sqlContent.value = ''
 }
 
 const uploadSqls = async () => {
