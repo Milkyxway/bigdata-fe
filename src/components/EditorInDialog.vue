@@ -46,7 +46,6 @@ const sqlName = ref()
 watch(
   () => props.content,
   (val) => {
-    console.log(val)
     sqlContent.value = val
   }
 )
