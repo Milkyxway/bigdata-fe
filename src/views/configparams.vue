@@ -43,6 +43,9 @@ const addParams = () => {
     if (resolve) {
       const result = await addParamsReq(state.formData)
       toast('添加成功！')
+      Object.keys(state.formData).map((i) => {
+        state.formData[i] = ''
+      })
     }
   })
 }

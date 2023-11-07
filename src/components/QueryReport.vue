@@ -71,8 +71,8 @@ const handleFileChange = async (file) => {
   const formData = new FormData()
   formData.append('file', file)
   await uploadReq(formData)
-  toast('上传成功')
-  emit('refreshList')
+  //toast('上传成功')
+  //emit('refreshList')
 }
 
 const uploadFn = () => {
