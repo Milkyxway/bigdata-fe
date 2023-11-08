@@ -74,7 +74,7 @@ const reset = () => {
 }
 
 const createTask = () => {
-  router.push('/develop/create')
+  router.push('/develop/create/:type')
 }
 </script>
 <style scoped>

@@ -8,9 +8,19 @@
     >
       <el-input v-model="state.formData.reportName" placeholder="请输入任务名称"></el-input>
     </el-form-item>
+    <el-form-item :label-width="formLabelWidth" label="周期任务执行时间">
+      <div class="time-row">
+        <SelectCommon
+          :selections="hour"
+          v-model:select="state.formData.hour"
+          @updateSelect="(val) => (state.formData.hour = val)"
+        />
+        <span>时</span>
+      </div>
+    </el-form-item>
     <el-form-item
       :label-width="formLabelWidth"
-      label="任务名称"
+      label="任务优先级"
       prop="reportPriority"
       :rules="[{ required: true, message: '请选择任务优先级', trigger: 'blur' }]"
     >
@@ -35,10 +45,21 @@ const formLabelWidth = '140px'
 const state = reactive({
   formData: {
     reportName: '',
-    reportPriority: 99
+    reportPriority: 99,
+    hour: ''
   },
   taskId: ''
 })
+const hour = ref([
+  {
+    label: 9,
+    value: 9
+  },
+  {
+    label: 12,
+    value: 12
+  }
+])
 const emit = defineEmits(['updateTaskId'])
 const submit = () => {
   formRef.value.validate(async (resolve) => {
@@ -66,6 +87,13 @@ const submit = () => {
   width: 100%;
 }
 .el-textarea {
+  width: 100%;
+}
+.time-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
   width: 100%;
 }
 </style>

@@ -141,7 +141,9 @@ const getPriority = computed(() => {
 })
 
 const addSqlStrs = () => {
-  state.sqlArr.push('')
+  state.sqlArr.push({
+    reportSqlData: ''
+  })
 }
 
 const deleteSqlInput = (index) => {

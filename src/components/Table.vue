@@ -58,6 +58,7 @@
       background
       layout="total, sizes, jumper, prev, pager, next"
       :total="tableTotal || tableData.length"
+      v-if="!props.noPagination"
     >
     </el-pagination>
   </div>
@@ -93,6 +94,10 @@ const props = defineProps({
       loading: false,
       stripe: true
     })
+  },
+  noPagination: {
+    type: Boolean,
+    default: false
   }
 })
 const handleSortChange = ({ prop, order }) => {

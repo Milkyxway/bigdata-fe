@@ -1,4 +1,11 @@
 <template>
+  <Table
+    :tableData="state.paramsList"
+    :tableColumns="tableColumns"
+    :tableTotal="state.tableTotal"
+    :tableOperations="tableOperations"
+    noPagination
+  />
   <div v-for="(item, index) in props.sqlArr" v-bind:key="index">
     <el-radio-group v-model="item.chooseSqlType">
       <el-radio
@@ -16,15 +23,6 @@
           :selections="state.commonSqls"
           v-model:select="state.selectSql"
           @updateSelect="(val) => (item.reportSqlData = val)"
-        />
-      </div>
-
-      <div>
-        <span>参数填写模板</span>
-        <SelectCommon
-          :selections="state.paramsList"
-          v-model:select="state.selectParamType"
-          @updateSelect="(val) => (item.selectParamType = val)"
         />
       </div>
     </div>
@@ -59,6 +57,7 @@ import { reactive, ref, watch } from 'vue'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import SelectCommon from './SelectCommon.vue'
+import Table from './Table.vue'
 import {
   addSqlReq,
   updateTaskReq,
@@ -99,6 +98,24 @@ const sqlTypes = ref([
     value: '查询类有输出'
   }
 ])
+const tableColumns = ref([
+  {
+    label: '参数名称',
+    prop: 'parameterName'
+  },
+  {
+    label: '参数通配符',
+    prop: 'parameterKey'
+  }
+])
+const tableOperations = ref([
+  {
+    label: '复制',
+    fn: (row) => {
+      router.push(`/develop/taskdetail/${row.reportId}`)
+    }
+  }
+])
 watch(
   () => state.chooseSqlType,
   (val) => {
@@ -108,8 +125,8 @@ watch(
 const addSqlStrs = () => {
   emits('addSqlInput')
 }
-const deleteSqlInput = () => {
-  emits('deleteSqlInput', props.index)
+const deleteSqlInput = (index) => {
+  emits('deleteSqlInput', index)
 }
 const sqlTypeMap = () => {
   const { chooseSqlType } = state
@@ -161,12 +178,7 @@ const getCommonSqlList = async () => {
 }
 const getParamsList = async () => {
   const result = await getParamsListReq()
-  state.paramsList = result.data.list.map((i) => {
-    return {
-      label: i.parameterName,
-      value: i.parameterKey
-    }
-  })
+  state.paramsList = result.data.list
 }
 getCommonSqlList()
 getParamsList()
