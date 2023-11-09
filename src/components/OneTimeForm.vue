@@ -10,6 +10,7 @@
     </el-form-item>
     <el-form-item :label-width="formLabelWidth" label="周期任务执行时间">
       <div class="time-row">
+        <el-date-picker v-model="state.formData.date"></el-date-picker>
         <SelectCommon
           :selections="hour"
           v-model:select="state.formData.hour"
@@ -39,6 +40,7 @@ import { createTaskReq } from '../api/report'
 import { periodType, priority, periodTypeMap } from '../constant/index'
 import SelectCommon from './SelectCommon.vue'
 import { toast } from '../util/toast'
+import dayjs from 'dayjs'
 
 const formRef = ref()
 const formLabelWidth = '140px'
@@ -46,7 +48,8 @@ const state = reactive({
   formData: {
     reportName: '',
     reportPriority: 99,
-    hour: ''
+    hour: '',
+    date: ''
   },
   taskId: ''
 })
@@ -61,16 +64,18 @@ const hour = ref([
   }
 ])
 const emit = defineEmits(['updateTaskId'])
+const formatHour = (time) => (time > 10 ? `${time}:00:00` : `0${time}:00:00`)
 const submit = () => {
   formRef.value.validate(async (resolve) => {
     if (resolve) {
       const {
-        formData: { reportName, reportPriority }
+        formData: { reportName, reportPriority, date, hour }
       } = state
       const result = await createTaskReq({
         LargeCategory: '一次性',
         reportName,
-        reportPriority
+        reportPriority,
+        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${formatHour(hour)}`
       })
       toast('创建成功！')
       state.taskId = result.data.reportId

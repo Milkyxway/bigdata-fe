@@ -29,9 +29,9 @@
       </div>
       <div class="row-item">
         <div class="bold space">报表类型:</div>
-        <div>{{ state.detail?.reportTypeName }}</div>
+        <div>{{ state.reportTypeDetail?.reportTypeName }}</div>
       </div>
-      <div class="row-item">
+      <div class="row-item" v-if="state.detail?.LargeCategory === '周期性'">
         <div class="bold space">计划周期执行时间:</div>
         <div>{{ getExeTime }}</div>
       </div>
@@ -41,9 +41,17 @@
       </div>
       <div class="row-item" v-if="state.taskSqls">
         <div class="bold space">任务对应sql语句:</div>
-        <div v-for="(item, index) in state.taskSqls" v-bind:key="index">
-          <span>{{ item.reportSqlData }}</span>
-          <span v-if="index < state.taskSqls.length - 1">;</span>
+        <div class="sql-wrap">
+          <div v-for="(item, index) in state.taskSqls" v-bind:key="index">
+            <div>{{ item.reportSqlData }};</div>
+          </div>
+        </div>
+      </div>
+      <div class="row-item" v-if="state.detail?.SourceExcelLink">
+        <div class="bold space">上传文件:</div>
+        <div>
+          {{ getExcelLink }}
+          <span @click="downloadFile" class="status-submit">下载</span>
         </div>
       </div>
       <div class="row-item">
@@ -60,7 +68,7 @@
       </div>
     </template>
     <FillSql
-      :sqlArr="state.taskSqls || state.sqlArr"
+      :sqlArr="sqlArr"
       @addSqlInput="addSqlStrs"
       @deleteSqlInput="deleteSqlInput"
       :taskId="taskId"
@@ -88,14 +96,10 @@ const typeToCn = (sqlTypeId) => {
 }
 const state = reactive({
   detail: {},
-  taskSqls: null,
-  sqlArr: [
-    {
-      reportSqlData: '',
-      chooseSqlType: typeToCn(1)
-    }
-  ]
+  taskSqls: [],
+  reportTypeDetail: {}
 })
+const sqlArr = ref([])
 
 const getTime = computed(() => {
   return function (time, format = 'YYYY/MM/DD') {
@@ -134,6 +138,10 @@ const getExeTime = computed(() => {
   }
 })
 
+const getExcelLink = computed(
+  () => `http://172.16.179.2:7002/public/upload/${state.detail?.SourceExcelLink}`
+)
+
 const getPriority = computed(() => {
   return function (priority) {
     return priorityMap[priority]
@@ -141,13 +149,18 @@ const getPriority = computed(() => {
 })
 
 const addSqlStrs = () => {
-  state.sqlArr.push({
-    reportSqlData: ''
+  sqlArr.value.push({
+    reportSqlData: '',
+    chooseSqlType: typeToCn(1)
   })
 }
 
+const downloadFile = () => {
+  window.location.href = getExcelLink.value
+}
+
 const deleteSqlInput = (index) => {
-  state.sqlArr.splice(index, 1)
+  sqlArr.value.splice(index, 1)
 }
 const getTaskDetail = async () => {
   const result = await getTaskDetailReq({ taskId: taskId.value })
@@ -158,23 +171,32 @@ const getReportType = async (reportTypeId) => {
   const result = await getReportTypeReq({
     reportTypeId
   })
-  state.detail = {
-    ...state.detail,
-    ...result.data
-  }
+  state.reportTypeDetail = result.data
+  // state.detail = {
+  //   ...state.detail,
+  //   ...result.data
+  // }
 }
 const getTaskSqls = async () => {
   const result = await getTaskSqlsReq({
     taskId: taskId.value
   })
+
   state.taskSqls = result.data.taskSqls
-  if (state.taskSqls) {
-    state.taskSqls = state.taskSqls.map((i) => {
+  if (result.data.taskSqls) {
+    sqlArr.value = result.data.taskSqls.map((i) => {
       return {
         ...i,
         chooseSqlType: typeToCn(i.sqlType)
       }
     })
+  } else {
+    sqlArr.value = [
+      {
+        reportSqlData: '',
+        chooseSqlType: '执行类无输出'
+      }
+    ]
   }
 }
 getTaskDetail()
@@ -253,5 +275,11 @@ getTaskSqls()
 }
 .task-goal {
   width: 200px;
+}
+.sql-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 </style>

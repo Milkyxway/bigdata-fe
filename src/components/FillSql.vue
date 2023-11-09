@@ -22,7 +22,13 @@
         <SelectCommon
           :selections="state.commonSqls"
           v-model:select="state.selectSql"
-          @updateSelect="(val) => (item.reportSqlData = val)"
+          @updateSelect="
+            (val) => {
+              if (val !== '') {
+                item.reportSqlData = val
+              }
+            }
+          "
         />
       </div>
     </div>
@@ -39,13 +45,27 @@
         type="textarea"
         placeholder="请输入sql语句，用英文;分隔"
         rows="5"
-        v-if="state.chooseSqlType !== '上传'"
         v-model="item.reportSqlData"
         clearable
       />
-      <Upload v-if="state.chooseSqlType === '上传'" btn-txt="上传匹配文件" />
     </div>
     <WhiteSpace />
+    <div class="input-row" v-if="item.chooseSqlType === '上传'">
+      <span class="sub-title">源sheet名</span>
+      <el-input placeholder="请输入源sheet名" v-model="item.SourceSheet"></el-input>
+      <span class="sub-title">匹配列名</span>
+      <el-input placeholder="请输入匹配列名" v-model="item.ExcelTable"></el-input>
+      <span class="sub-title">目标sheet名</span>
+      <el-input placeholder="请输入目标sheet名" v-model="item.TargetSheet"></el-input>
+    </div>
+    <WhiteSpace v-if="item.chooseSqlType === '上传'" />
+    <Upload
+      v-if="item.chooseSqlType === '上传'"
+      btn-txt="上传匹配文件"
+      btn-type="danger"
+      @handleFileChange="(file) => handleFileChange(file, index)"
+    />
+    <WhiteSpace v-if="item.chooseSqlType === '上传'" />
     <el-button type="plain" @click="commitSql(index)">提交语句</el-button>
     <el-button type="plain" @click="item.reportSqlData = ''">清空语句</el-button>
   </div>
@@ -54,6 +74,7 @@
 </template>
 <script setup>
 import { reactive, ref, watch } from 'vue'
+// import * as XLSX from 'xlsx'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import SelectCommon from './SelectCommon.vue'
@@ -63,9 +84,12 @@ import {
   updateTaskReq,
   getTaskSqlsReq,
   getSQLListReq,
-  getParamsListReq
+  getParamsListReq,
+  uploadReq
 } from '../api/report'
 import { toast } from '../util/toast'
+import dayjs from 'dayjs'
+import { progressProps } from 'element-plus'
 const state = reactive({
   chooseSqlType: '执行类无输出',
   sqlContent: '',
@@ -74,6 +98,11 @@ const state = reactive({
   selectSql: '',
   paramsList: [],
   selectParamType: ''
+  // sourceParams: {
+  //   SourceSheet: '',
+  //   TargetSheet: '',
+  //   ExcelTable: ''
+  // }
 })
 const props = defineProps({
   taskId: {
@@ -122,26 +151,49 @@ watch(
     state.sqlContent = ''
   }
 )
+watch(
+  () => props.sqlArr,
+  (val) => console.log(val)
+)
 const addSqlStrs = () => {
   emits('addSqlInput')
 }
 const deleteSqlInput = (index) => {
   emits('deleteSqlInput', index)
 }
-const sqlTypeMap = () => {
-  const { chooseSqlType } = state
+
+const handleFileChange = async (file, index) => {
+  const now = dayjs().format('YYYYMMDDHHmmss')
+  const fileSuffix = file.name.split('.')[1]
+  const fileName = `${now}.${fileSuffix}`
+  const copyFile = new File([file], `${fileName}`)
+  const formData = new FormData()
+  formData.append('file', copyFile)
+  await uploadReq(formData)
+  toast('上传成功')
+  await updateTaskReq({
+    reportId: props.taskId,
+    SourceExcelLink: copyFile.name
+  })
+}
+
+const sqlTypeMap = (type) => {
+  // const { chooseSqlType } = state
   const map = {
     执行类无输出: 1,
     上传: 2,
     查询类有输出: 3
   }
-  return map[chooseSqlType]
+  return map[type]
 }
 
 const commitSql = async (index) => {
   const params = {
     reportId: props.taskId,
-    sqlType: sqlTypeMap()
+    sqlType: sqlTypeMap(props.sqlArr[index].chooseSqlType),
+    SourceSheet: props.sqlArr[index].SourceSheet,
+    TargetSheet: props.sqlArr[index].TargetSheet,
+    ExcelTable: props.sqlArr[index].ExcelTable
   }
   props.sqlArr[index].reportSqlData.split(';').map(async (i) => {
     if (i) {
@@ -189,5 +241,8 @@ getParamsList()
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+}
+.sub-title {
+  white-space: nowrap;
 }
 </style>

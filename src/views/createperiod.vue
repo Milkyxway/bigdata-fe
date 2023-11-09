@@ -27,7 +27,7 @@
     </template>
     <FillSql
       :sqlArr="state.sqlArr"
-      @addSqlInput="state.sqlArr.push(0)"
+      @addSqlInput="addSqlInput"
       @deleteSqlInput="deleteSqlInput"
       :taskId="state.taskId"
     />
@@ -73,6 +73,13 @@ const deleteSqlInput = (index) => {
 }
 const setChooseType = () => {
   state.chooseTaskType = typeInUrl.value === 'onetime' ? '一次性任务' : '周期性任务'
+}
+
+const addSqlInput = () => {
+  state.sqlArr.push({
+    reportSqlData: '',
+    chooseSqlType: '执行类无输出'
+  })
 }
 setChooseType()
 </script>

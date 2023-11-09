@@ -52,9 +52,14 @@ const state = reactive({
       label: '任务优先级',
       prop: 'reportPriority'
     },
+
     {
       label: '最后执行时间',
       prop: 'lastTime'
+    },
+    {
+      label: '任务结果文件',
+      prop: 'reportLink'
     },
     {
       label: '创建时间',
