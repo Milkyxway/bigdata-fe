@@ -61,7 +61,7 @@
     </div>
   </el-card>
   <WhiteSpace />
-  <el-card v-if="state.detail.reportState === 0">
+  <el-card>
     <template #header>
       <div class="card-header">
         <span class="bold">分步填写sql</span>

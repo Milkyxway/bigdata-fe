@@ -19,12 +19,12 @@ export const routeList = [
         iconName: 'view',
         component: () => import('../views/PersonalHome.vue'),
         children: [
-          {
-            path: '/report/list',
-            name: '报表列表',
-            isSider: true,
-            component: () => import('../views/reportlist.vue')
-          },
+          // {
+          //   path: '/report/list',
+          //   name: '报表列表',
+          //   isSider: true,
+          //   component: () => import('../views/reportlist.vue')
+          // },
           {
             path: '/report/selfhelp',
             name: '自助提数',

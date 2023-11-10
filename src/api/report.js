@@ -116,6 +116,19 @@ export const addSqlReq = (data) => {
 }
 
 /**
+ * 修改任务sql语句
+ * @param {*} data
+ * @returns
+ */
+export const updateSqlReq = (data) => {
+  return createRequest()({
+    url: '/api/report/updatesql',
+    method: 'post',
+    data
+  })
+}
+
+/**
  * 获取任务详情
  * @param {*} data
  * @returns

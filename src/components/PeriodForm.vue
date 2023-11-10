@@ -31,17 +31,10 @@
     <el-form-item :label-width="formLabelWidth" label="周期任务执行时间">
       <div v-if="state.formData.periodType == 1" class="time-row">
         <SelectCommon
-          :selections="hour"
-          v-model:select="state.hour"
-          @updateSelect="(val) => updateSelect(val, 'hour')"
+          :selections="noon"
+          v-model="state.noon"
+          @updateSelect="(val) => updateSelect(val, 'noon')"
         />
-        <span>时</span>
-        <SelectCommon
-          :selections="minutes"
-          v-model:select="state.min"
-          @updateSelect="(val) => updateSelect(val, 'min')"
-        />
-        <span>分</span>
       </div>
       <div v-if="state.formData.periodType == 2" class="time-row">
         <SelectCommon
@@ -49,20 +42,11 @@
           v-model:select="state.day"
           @updateSelect="(val) => updateSelect(val, 'day')"
         />
-
         <SelectCommon
-          :selections="hour"
-          v-model:select="state.hour"
-          @updateSelect="(val) => updateSelect(val, 'hour')"
+          :selections="noon"
+          v-model="state.noon"
+          @updateSelect="(val) => updateSelect(val, 'noon')"
         />
-        <span>时</span>
-
-        <SelectCommon
-          :selections="minutes"
-          v-model:select="state.min"
-          @updateSelect="(val) => updateSelect(val, 'min')"
-        />
-        <span>分</span>
       </div>
       <div v-if="state.formData.periodType == 3" class="time-row">
         <SelectCommon
@@ -72,17 +56,10 @@
         />
         <span>日</span>
         <SelectCommon
-          :selections="hour"
-          v-model:select="state.hour"
-          @updateSelect="(val) => updateSelect(val, 'hour')"
+          :selections="noon"
+          v-model="state.noon"
+          @updateSelect="(val) => updateSelect(val, 'noon')"
         />
-        <span>时</span>
-        <SelectCommon
-          :selections="minutes"
-          v-model:select="state.min"
-          @updateSelect="(val) => updateSelect(val, 'min')"
-        />
-        <span>分</span>
       </div>
     </el-form-item>
     <el-form-item
@@ -112,8 +89,6 @@ import WhiteSpace from './WhiteSpace.vue'
 import { toast } from '../util/toast'
 const formRef = ref()
 const month = ref(new Array(31).fill(0))
-const hour = ref(new Array(24).fill(0))
-const minutes = ref(new Array(60).fill(0))
 const periodTypes = ref(periodType)
 const week = ref([
   {
@@ -150,8 +125,7 @@ const state = reactive({
   modeName: '',
   day: '',
   date: '',
-  hour: '',
-  min: '',
+  noon: '',
   periodType: 1,
   priority: 99,
   formData: {
@@ -163,6 +137,17 @@ const state = reactive({
   taskId: '',
   sqlStrs: [0]
 })
+
+const noon = ref([
+  {
+    label: '上午',
+    value: '0900'
+  },
+  {
+    label: '下午',
+    value: '1200'
+  }
+])
 
 const emits = defineEmits(['updateTaskId'])
 
@@ -187,8 +172,8 @@ const formatArr = (arr, addOne = true) => {
 
 const initArrs = () => {
   month.value = formatArr(month)
-  hour.value = formatArr(hour, false)
-  minutes.value = formatArr(minutes, false)
+  // hour.value = formatArr(hour, false)
+  // minutes.value = formatArr(minutes, false)
   periodTypes.value = periodTypes.value.filter((i) => i.label !== '年报')
 }
 
@@ -198,9 +183,8 @@ const getModeName = () => {
   const {
     formData: { periodType },
     day,
-    hour,
-    min,
-    date
+    date,
+    noon
   } = state
   let modeName = ''
   switch (periodType) {
@@ -209,13 +193,13 @@ const getModeName = () => {
     // 3: '月报',
     // 4: '年报'
     case 1:
-      modeName = `${hour}${min}`
+      modeName = noon
       break
     case 2:
-      modeName = `${day},${hour}${min}`
+      modeName = `${day},${noon}`
       break
     case 3:
-      modeName = `${date},${hour}${min}`
+      modeName = `${date},${noon}`
       break
   }
   return modeName
@@ -227,21 +211,22 @@ const validateData = () => {
     hour,
     min,
     date,
-    day
+    day,
+    noon
   } = state
   let hasEmpty = false
   if (periodType === 1) {
-    if (!hour || !min) {
+    if (!noon) {
       hasEmpty = true
     }
   }
   if (periodType === 2) {
-    if (!day || !hour || !min) {
+    if (!day || !noon) {
       hasEmpty = true
     }
   }
   if (periodType === 3) {
-    if (!date || !hour || !min) {
+    if (!date || !noon) {
       hasEmpty = true
     }
   }

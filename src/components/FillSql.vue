@@ -55,8 +55,6 @@
       <el-input placeholder="请输入源sheet名" v-model="item.SourceSheet"></el-input>
       <span class="sub-title">匹配列名</span>
       <el-input placeholder="请输入匹配列名" v-model="item.ExcelTable"></el-input>
-      <span class="sub-title">目标sheet名</span>
-      <el-input placeholder="请输入目标sheet名" v-model="item.TargetSheet"></el-input>
     </div>
     <WhiteSpace v-if="item.chooseSqlType === '上传'" />
     <Upload
@@ -66,7 +64,13 @@
       @handleFileChange="(file) => handleFileChange(file, index)"
     />
     <WhiteSpace v-if="item.chooseSqlType === '上传'" />
-    <el-button type="plain" @click="commitSql(index)">提交语句</el-button>
+    <div class="input-row" v-if="item.chooseSqlType === '查询类有输出'">
+      <span class="sub-title">目标sheet名</span>
+      <el-input placeholder="请输入目标sheet名" v-model="item.TargetSheet"></el-input>
+    </div>
+    <el-button type="plain" @click="commitSql(index)">{{
+      props.sqlArr[index].reportSqlId ? '修改语句' : '提交语句'
+    }}</el-button>
     <el-button type="plain" @click="item.reportSqlData = ''">清空语句</el-button>
   </div>
   <WhiteSpace />
@@ -85,11 +89,11 @@ import {
   getTaskSqlsReq,
   getSQLListReq,
   getParamsListReq,
-  uploadReq
+  uploadReq,
+  updateSqlReq
 } from '../api/report'
 import { toast } from '../util/toast'
 import dayjs from 'dayjs'
-import { progressProps } from 'element-plus'
 const state = reactive({
   chooseSqlType: '执行类无输出',
   sqlContent: '',
@@ -187,7 +191,10 @@ const sqlTypeMap = (type) => {
   return map[type]
 }
 
-const commitSql = async (index) => {
+const addSqlForTask = (index) => {
+  if (!props.sqlArr[index].reportSqlData) {
+    return toast('请填写sql语句', 'warning')
+  }
   const params = {
     reportId: props.taskId,
     sqlType: sqlTypeMap(props.sqlArr[index].chooseSqlType),
@@ -201,9 +208,20 @@ const commitSql = async (index) => {
         ...params,
         reportSqlData: i
       })
+      toast('提交成功！')
       //  state.commitSuccess += i
     }
   })
+}
+
+const updateSqlForTask = (index) => {}
+const commitSql = async (index) => {
+  if (!props.sqlArr[index].reportSqlId) {
+    // 新增
+    addSqlForTask(index)
+  } else {
+    updateSqlForTask(index)
+  }
 }
 
 const startExe = async () => {
@@ -215,6 +233,7 @@ const startExe = async () => {
       reportId: props.taskId,
       reportState: 1
     })
+    toast('提交成功！')
   } else {
     toast('该任务没有填写sql脚本无法执行', 'warning')
   }
