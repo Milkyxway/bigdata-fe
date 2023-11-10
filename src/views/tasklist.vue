@@ -62,6 +62,10 @@ const state = reactive({
       prop: 'reportLink'
     },
     {
+      label: '执行日志文件',
+      prop: 'logLink'
+    },
+    {
       label: '创建时间',
       prop: 'createTime'
     }

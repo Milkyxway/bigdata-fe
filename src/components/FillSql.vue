@@ -6,16 +6,19 @@
     :tableOperations="tableOperations"
     noPagination
   />
-  <div v-for="(item, index) in props.sqlArr" v-bind:key="index">
-    <el-radio-group v-model="item.chooseSqlType">
-      <el-radio
-        v-for="(item, index) in sqlTypes"
-        v-bind:key="index"
-        :label="item.label"
-        :name="item.value"
-      ></el-radio>
-    </el-radio-group>
-
+  <div v-for="(item, index) in props.sqlArr" v-bind:key="index" class="sql-box">
+    <WhiteSpace />
+    <div class="input-row">
+      <el-radio-group v-model="item.chooseSqlType">
+        <el-radio
+          v-for="(item, index) in sqlTypes"
+          v-bind:key="index"
+          :label="item.label"
+          :name="item.value"
+        ></el-radio>
+      </el-radio-group>
+    </div>
+    <WhiteSpace />
     <div class="input-row">
       <div v-if="state.commonSqls">
         <span>常用sql语句 </span>
@@ -50,34 +53,40 @@
       />
     </div>
     <WhiteSpace />
-    <div class="input-row" v-if="item.chooseSqlType === '上传'">
-      <span class="sub-title">源sheet名</span>
-      <el-input placeholder="请输入源sheet名" v-model="item.SourceSheet"></el-input>
-      <span class="sub-title">匹配列名</span>
-      <el-input placeholder="请输入匹配列名" v-model="item.ExcelTable"></el-input>
+    <div v-if="item.chooseSqlType === '上传'">
+      <div class="input-row">
+        <span class="sub-title">源sheet名</span>
+        <el-input placeholder="请输入源sheet名" v-model="item.SourceSheet"></el-input>
+        <span class="sub-title">匹配列名</span>
+        <el-input placeholder="请输入匹配列名" v-model="item.ExcelTable"></el-input>
+      </div>
+      <WhiteSpace />
+      <div v-if="props.excelLink" class="input-row" @click="downloadLink">
+        <span>上传文件：</span><span class="font-ble">{{ props.excelLink }}</span>
+      </div>
+      <Upload
+        :btn-txt="props.excelLink ? '修改匹配文件' : '上传匹配文件'"
+        btn-type="danger"
+        @handleFileChange="(file) => handleFileChange(file, index)"
+      />
+      <WhiteSpace />
     </div>
-    <WhiteSpace v-if="item.chooseSqlType === '上传'" />
-    <Upload
-      v-if="item.chooseSqlType === '上传'"
-      btn-txt="上传匹配文件"
-      btn-type="danger"
-      @handleFileChange="(file) => handleFileChange(file, index)"
-    />
-    <WhiteSpace v-if="item.chooseSqlType === '上传'" />
     <div class="input-row" v-if="item.chooseSqlType === '查询类有输出'">
       <span class="sub-title">目标sheet名</span>
       <el-input placeholder="请输入目标sheet名" v-model="item.TargetSheet"></el-input>
     </div>
+    <WhiteSpace v-if="item.chooseSqlType === '查询类有输出'" />
     <el-button type="plain" @click="commitSql(index)">{{
       props.sqlArr[index].reportSqlId ? '修改语句' : '提交语句'
     }}</el-button>
     <el-button type="plain" @click="item.reportSqlData = ''">清空语句</el-button>
+    <WhiteSpace />
   </div>
   <WhiteSpace />
   <el-button type="primary" @click="startExe">完成，开始执行</el-button>
 </template>
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 // import * as XLSX from 'xlsx'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
@@ -114,6 +123,9 @@ const props = defineProps({
   },
   sqlArr: {
     type: Array
+  },
+  excelLink: {
+    type: String
   }
 })
 const emits = defineEmits(['addSqlInput', 'deleteSqlInput'])
@@ -155,10 +167,6 @@ watch(
     state.sqlContent = ''
   }
 )
-watch(
-  () => props.sqlArr,
-  (val) => console.log(val)
-)
 const addSqlStrs = () => {
   emits('addSqlInput')
 }
@@ -181,8 +189,11 @@ const handleFileChange = async (file, index) => {
   })
 }
 
+const downloadLink = () => {
+  window.location.href = props.excelLink
+}
+
 const sqlTypeMap = (type) => {
-  // const { chooseSqlType } = state
   const map = {
     执行类无输出: 1,
     上传: 2,
@@ -214,7 +225,23 @@ const addSqlForTask = (index) => {
   })
 }
 
-const updateSqlForTask = (index) => {}
+const updateSqlForTask = async (index) => {
+  const item = props.sqlArr[index]
+  const params = {
+    ...item,
+    sqlType: sqlTypeMap(item.chooseSqlType)
+  }
+  item.reportSqlData.split(';').map(async (i) => {
+    if (i) {
+      await updateSqlReq({
+        ...params,
+        reportSqlData: i
+      })
+      toast('修改成功！')
+    }
+  })
+}
+
 const commitSql = async (index) => {
   if (!props.sqlArr[index].reportSqlId) {
     // 新增
@@ -255,6 +282,9 @@ getCommonSqlList()
 getParamsList()
 </script>
 <style scoped>
+.sql-box {
+  border-bottom: 1px dashed #ededed;
+}
 .input-row {
   display: flex;
   flex-direction: row;
@@ -263,5 +293,9 @@ getParamsList()
 }
 .sub-title {
   white-space: nowrap;
+}
+.font-ble {
+  color: #0076fe;
+  cursor: pointer;
 }
 </style>

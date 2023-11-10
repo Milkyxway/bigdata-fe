@@ -27,10 +27,10 @@
         <div class="bold space">任务优先级:</div>
         <div>{{ getPriority(state.detail?.reportPriority) }}</div>
       </div>
-      <div class="row-item">
+      <!-- <div class="row-item">
         <div class="bold space">报表类型:</div>
         <div>{{ state.reportTypeDetail?.reportTypeName }}</div>
-      </div>
+      </div> -->
       <div class="row-item" v-if="state.detail?.LargeCategory === '周期性'">
         <div class="bold space">计划周期执行时间:</div>
         <div>{{ getExeTime }}</div>
@@ -45,13 +45,6 @@
           <div v-for="(item, index) in state.taskSqls" v-bind:key="index">
             <div>{{ item.reportSqlData }};</div>
           </div>
-        </div>
-      </div>
-      <div class="row-item" v-if="state.detail?.SourceExcelLink">
-        <div class="bold space">上传文件:</div>
-        <div>
-          {{ getExcelLink }}
-          <span @click="downloadFile" class="status-submit">下载</span>
         </div>
       </div>
       <div class="row-item">
@@ -72,6 +65,7 @@
       @addSqlInput="addSqlStrs"
       @deleteSqlInput="deleteSqlInput"
       :taskId="taskId"
+      :excelLink="getExcelLink"
     />
   </el-card>
 </template>
@@ -96,8 +90,8 @@ const typeToCn = (sqlTypeId) => {
 }
 const state = reactive({
   detail: {},
-  taskSqls: [],
-  reportTypeDetail: {}
+  taskSqls: []
+  // reportTypeDetail: {}
 })
 const sqlArr = ref([])
 
@@ -165,7 +159,7 @@ const deleteSqlInput = (index) => {
 const getTaskDetail = async () => {
   const result = await getTaskDetailReq({ taskId: taskId.value })
   state.detail = result.data
-  getReportType(result.data.reportTypeId)
+  // getReportType(result.data.reportTypeId)
 }
 const getReportType = async (reportTypeId) => {
   const result = await getReportTypeReq({
