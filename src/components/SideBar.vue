@@ -12,7 +12,7 @@
         <span>{{ item.name }}</span>
       </template>
       <el-menu-item-group
-        v-for="child in item.children.filter((i) => i.isSider)"
+        v-for="child in item.children.filter((i) => i.isSider && i.auth && i.auth.includes(role))"
         v-bind:key="child.key"
       >
         <el-menu-item

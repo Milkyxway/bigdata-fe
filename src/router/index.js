@@ -28,6 +28,7 @@ export const routeList = [
           {
             path: '/report/selfhelp',
             name: '自助提数',
+            auth: ['section', 'developer'],
             isSider: true,
             component: () => import('../views/selfhelp.vue')
           }
@@ -37,7 +38,6 @@ export const routeList = [
         path: '/develop',
         name: '任务模块',
         iconName: 'view',
-        auth: ['developer'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           // {
@@ -49,12 +49,14 @@ export const routeList = [
           {
             path: '/develop/create/:type',
             name: '创建任务',
+            auth: ['developer'],
             isSider: true,
             component: () => import('../views/createperiod.vue')
           },
           {
             path: '/develop/tasklist',
             name: '任务列表',
+            auth: ['developer', 'section'],
             isSider: true,
             component: () => import('../views/tasklist.vue')
           },
@@ -67,6 +69,7 @@ export const routeList = [
           {
             path: '/develop/task/params',
             name: '参数配置',
+            auth: ['developer'],
             isSider: true,
             component: () => import('../views/configparams.vue')
           }
@@ -83,6 +86,7 @@ export const routeList = [
             path: '/sql/list',
             name: '脚本列表',
             isSider: true,
+            auth: ['developer'],
             component: () => import('../views/commonsql.vue')
           }
         ]
@@ -97,6 +101,7 @@ export const routeList = [
           {
             path: '/develop/match',
             name: '匹配需求',
+            auth: ['developer'],
             isSider: true,
             component: () => import('../views/matchfunc.vue')
           }
@@ -111,6 +116,7 @@ export const routeList = [
             path: '/personal/password',
             name: '修改密码',
             isSider: true,
+            auth: ['admin', 'section', 'employee', 'developer'],
             component: () => import('../views/password.vue')
           },
           {
