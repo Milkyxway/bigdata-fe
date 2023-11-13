@@ -86,14 +86,14 @@ const state = reactive({
     {
       label: '删除',
       fn: (row) => {
-        deleteTask(row.reportId, row.reportTypeId)
+        deleteTask(row.reportId, row.reportTypeId, row.reportName)
       }
     }
   ]
 })
 
-const deleteTask = (taskId, reportTypeId) => {
-  ElMessageBox.confirm('确定要删除这条任务吗?', '警告', {
+const deleteTask = (taskId, reportTypeId, reportName) => {
+  ElMessageBox.confirm(`确定要删除${reportName}吗?`, '警告', {
     type: 'warning',
     confirmButtonText: '确认',
     cancelButtonText: '取消',

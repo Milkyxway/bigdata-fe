@@ -11,7 +11,9 @@
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
         <!-- <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button> -->
-        <el-button link type="danger" size="small" @click="deleteSQL(row.sqlId)">删除</el-button>
+        <el-button link type="danger" size="small" @click="deleteSQL(row.sqlId, row.sqlName)"
+          >删除</el-button
+        >
         <el-button
           link
           type="primary"
@@ -95,8 +97,8 @@ const download = async (link) => {
   window.location.href = `http://172.16.179.5:7002${link}`
 }
 
-const deleteSQL = async (sqlId) => {
-  ElMessageBox.confirm('确定要删除这条脚本?', '警告', {
+const deleteSQL = async (sqlId, sqlName) => {
+  ElMessageBox.confirm(`确定要删除${sqlName}?`, '警告', {
     type: 'warning',
     confirmButtonText: '确认',
     cancelButtonText: '取消',
