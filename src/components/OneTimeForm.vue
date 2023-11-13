@@ -32,6 +32,7 @@
     </el-form-item>
   </el-form>
   <el-form-item
+    v-if="props.detail?.reportId"
     :label-width="formLabelWidth"
     label="任务状态"
     prop="reportState"
@@ -113,14 +114,14 @@ const submit = () => {
         reportPriority,
         OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${formatHour(hour)}`
       }
-      const result = props.detail.reportId
+      const result = props.detail?.reportId
         ? await updateTaskReq({ ...params, reportId: props.detail.reportId, reportState })
         : await createTaskReq({ ...params })
       toast('操作成功！')
-      if (!props.detail.reportId) {
+      if (!props.detail?.reportId) {
         state.taskId = result.data.reportId
-        emit('updateTaskId', result.data.reportId)
       }
+      emit('updateTaskId', props.detail?.reportId || result.data.reportId)
     }
   })
 }

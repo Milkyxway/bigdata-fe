@@ -75,6 +75,7 @@
       />
     </el-form-item>
     <el-form-item
+      v-if="props.detail?.reportId"
       :label-width="formLabelWidth"
       label="任务状态"
       prop="reportState"
@@ -249,7 +250,7 @@ const validateData = () => {
 }
 
 const commit = () => {
-  const isUpdate = props.detail.reportId
+  const isUpdate = props.detail?.reportId
   formRef.value.validate(async (res) => {
     if (res) {
       if (validateData()) {
