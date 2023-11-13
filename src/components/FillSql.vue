@@ -88,6 +88,7 @@
 <script setup>
 import { reactive, ref, watch, computed } from 'vue'
 // import * as XLSX from 'xlsx'
+import { copyText } from 'vue3-clipboard'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import SelectCommon from './SelectCommon.vue'
@@ -152,7 +153,15 @@ const tableOperations = ref([
   {
     label: '复制',
     fn: (row) => {
-      router.push(`/develop/taskdetail/${row.reportId}`)
+      copyText(row.parameterKey, undefined, (error, event) => {
+        if (error) {
+          toast('复制失败！', 'error')
+          console.log(error)
+        } else {
+          toast('复制成功！')
+          console.log(event)
+        }
+      })
     }
   }
 ])

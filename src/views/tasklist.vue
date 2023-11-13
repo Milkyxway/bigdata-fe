@@ -153,16 +153,16 @@ const getTaskList = async () => {
       reportPriority: priorityMap[i.reportPriority],
       reportState: taskStatusMap[i.reportState],
       lastTime: i.lastTime ? formatDate(i.lastTime, 'YYYY-MM-DD HH:mm:ss') : '',
-      reportLink: getReportLink(i.reportLink),
-      logLink: `http://172.16.179.2:7002/public/upload/${i.logLink}`
+      reportLink: getLink(i.reportLink, 'out'),
+      logLink: getLink(i.logLink, 'log')
     }
   })
   state.tableTotal = result.data.total
 }
 
-const getReportLink = (link) => {
-  if (link) {
-    return link.split(',').map((i) => `http://172.16.179.2:7002/public/upload/${i}.xlsx`)
+const getLink = (fileName, path) => {
+  if (fileName) {
+    return fileName.split(',').map((i) => `http://172.16.179.2:7002/public/${path}/${i}`)
   }
 }
 
