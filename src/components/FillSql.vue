@@ -111,11 +111,6 @@ const state = reactive({
   selectSql: '',
   paramsList: [],
   selectParamType: ''
-  // sourceParams: {
-  //   SourceSheet: '',
-  //   TargetSheet: '',
-  //   ExcelTable: ''
-  // }
 })
 const props = defineProps({
   taskId: {

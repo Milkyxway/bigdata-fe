@@ -86,13 +86,13 @@ const state = reactive({
     {
       label: '删除',
       fn: (row) => {
-        deleteTask(row.reportId)
+        deleteTask(row.reportId, row.reportTypeId)
       }
     }
   ]
 })
 
-const deleteTask = (taskId) => {
+const deleteTask = (taskId, reportTypeId) => {
   ElMessageBox.confirm('确定要删除这条任务吗?', '警告', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -100,6 +100,12 @@ const deleteTask = (taskId) => {
     callback: async (action) => {
       if (action === 'confirm') {
         try {
+          if (reportTypeId) {
+            // 周期性任务先删除reportTypeId
+            await deleteTaskTypeReq({
+              reportTypeId
+            })
+          }
           await deleteTaskReq({
             reportId: taskId
           })
@@ -146,10 +152,18 @@ const getTaskList = async () => {
       createTime: formatDate(i.createTime, 'YYYY-MM-DD HH:mm:ss'),
       reportPriority: priorityMap[i.reportPriority],
       reportState: taskStatusMap[i.reportState],
-      lastTime: i.lastTime ? formatDate(i.lastTime, 'YYYY-MM-DD HH:mm:ss') : ''
+      lastTime: i.lastTime ? formatDate(i.lastTime, 'YYYY-MM-DD HH:mm:ss') : '',
+      reportLink: getReportLink(i.reportLink),
+      logLink: `http://172.16.179.2:7002/public/upload/${i.logLink}`
     }
   })
   state.tableTotal = result.data.total
+}
+
+const getReportLink = (link) => {
+  if (link) {
+    return link.split(',').map((i) => `http://172.16.179.2:7002/public/upload/${i}.xlsx`)
+  }
 }
 
 const handleQuery = (query) => {

@@ -32,7 +32,7 @@
       <div v-if="state.formData.periodType == 1" class="time-row">
         <SelectCommon
           :selections="noon"
-          v-model="state.noon"
+          v-model:select="state.noon"
           @updateSelect="(val) => updateSelect(val, 'noon')"
         />
       </div>
@@ -44,7 +44,7 @@
         />
         <SelectCommon
           :selections="noon"
-          v-model="state.noon"
+          v-model:select="state.noon"
           @updateSelect="(val) => updateSelect(val, 'noon')"
         />
       </div>
@@ -57,7 +57,7 @@
         <span>日</span>
         <SelectCommon
           :selections="noon"
-          v-model="state.noon"
+          v-model:select="state.noon"
           @updateSelect="(val) => updateSelect(val, 'noon')"
         />
       </div>
@@ -74,15 +74,36 @@
         @updateSelect="(val) => (state.formData.priority = val)"
       />
     </el-form-item>
-    <el-form-item> </el-form-item>
-    <el-button type="primary" @click="commit" v-if="!state.taskId">创建任务</el-button>
+    <el-form-item
+      :label-width="formLabelWidth"
+      label="任务状态"
+      prop="reportState"
+      :rules="[{ required: true, message: '请选择任务状态', trigger: 'blur' }]"
+    >
+      <SelectCommon
+        :selections="taskStatusList"
+        v-model:select="state.formData.reportState"
+        @updateSelect="(val) => (state.formData.reportState = val)"
+      >
+      </SelectCommon>
+    </el-form-item>
+    <el-button type="primary" @click="commit" v-if="!state.taskId">{{
+      props.detail?.reportId ? '修改任务' : '创建任务'
+    }}</el-button>
   </el-form>
   <WhiteSpace />
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import dayjs from 'dayjs'
-import { periodType, priority, periodTypeMap } from '../constant/index'
+import {
+  periodType,
+  priority,
+  periodTypeMap,
+  priorityMap,
+  week,
+  taskStatusList
+} from '../constant/index'
 import { createTaskReq, createTaskTypeReq, updateTaskReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
 import WhiteSpace from './WhiteSpace.vue'
@@ -90,37 +111,16 @@ import { toast } from '../util/toast'
 const formRef = ref()
 const month = ref(new Array(31).fill(0))
 const periodTypes = ref(periodType)
-const week = ref([
-  {
-    label: '周一',
-    value: 'Monday'
+const props = defineProps({
+  detail: {
+    type: Object
   },
-  {
-    label: '周二',
-    value: 'Tuesday'
-  },
-  {
-    label: '周三',
-    value: 'Wednesday'
-  },
-  {
-    label: '周四',
-    value: 'Thursday'
-  },
-  {
-    label: '周五',
-    value: 'Friday'
-  },
-  {
-    label: '周六',
-    value: 'Saturday'
-  },
-  {
-    label: '周日',
-    value: 'Sunday'
+  typeDetail: {
+    type: Object
   }
-])
-const formLabelWidth = '200px'
+})
+
+// const formLabelWidth = '200px'
 const state = reactive({
   modeName: '',
   day: '',
@@ -132,7 +132,8 @@ const state = reactive({
     reportName: '',
     timeRange: [],
     periodType: 1,
-    priority: 99
+    priority: 99,
+    reportState: ''
   },
   taskId: '',
   sqlStrs: [0]
@@ -148,6 +149,20 @@ const noon = ref([
     value: '1200'
   }
 ])
+const initVal = () => {
+  if (props.detail?.reportId) {
+    state.formData = {
+      reportName: props.detail.reportName,
+      priority: props.detail.reportPriority,
+      timeRange: [props.detail.TimeOn, props.detail.endTime],
+      periodType: periodType.filter((i) => i.label === props.typeDetail.reportTypeName)[0].value,
+      reportState: props.detail.reportState
+    }
+    state.day = props.typeDetail.modeName.split(',')[0]
+    state.noon = props.typeDetail.modeName.split(',')[1] <= '0900' ? '0900' : '1200'
+    state.date = props.typeDetail.modeName.split(',')[0]
+  }
+}
 
 const emits = defineEmits(['updateTaskId'])
 
@@ -172,8 +187,6 @@ const formatArr = (arr, addOne = true) => {
 
 const initArrs = () => {
   month.value = formatArr(month)
-  // hour.value = formatArr(hour, false)
-  // minutes.value = formatArr(minutes, false)
   periodTypes.value = periodTypes.value.filter((i) => i.label !== '年报')
 }
 
@@ -208,8 +221,6 @@ const getModeName = () => {
 const validateData = () => {
   const {
     formData: { periodType },
-    hour,
-    min,
     date,
     day,
     noon
@@ -238,11 +249,12 @@ const validateData = () => {
 }
 
 const commit = () => {
+  const isUpdate = props.detail.reportId
   formRef.value.validate(async (res) => {
     if (res) {
       if (validateData()) {
         const {
-          formData: { timeRange, reportName, periodType, priority }
+          formData: { timeRange, reportName, periodType, priority, reportState }
         } = state
         try {
           const typeRes = await createTaskTypeReq({
@@ -250,18 +262,24 @@ const commit = () => {
             modeName: getModeName()
           })
           if (typeRes.code == 200) {
-            const result = await createTaskReq({
+            const params = {
               reportName,
               LargeCategory: '周期性',
               TimeOn: formatDate(timeRange[0]),
               endTime: formatDate(timeRange[1]),
               reportTypeId: typeRes.data.reportTypeId,
               reportPriority: priority
-            })
-            if (result.data.reportId) {
+            }
+            const result = !isUpdate
+              ? await createTaskReq({ ...params })
+              : await updateTaskReq({ ...params, reportId: isUpdate, reportState })
+            if (result.data.reportId && !isUpdate) {
               state.taskId = result.data.reportId
               toast('创建任务成功！')
               emits('updateTaskId', result.data.reportId)
+            }
+            if (isUpdate) {
+              toast('修改任务成功！')
             }
           }
         } catch (e) {}
@@ -270,6 +288,7 @@ const commit = () => {
   })
 }
 initArrs()
+initVal()
 </script>
 <style scoped>
 .el-select {

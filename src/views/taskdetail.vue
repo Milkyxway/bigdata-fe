@@ -6,52 +6,15 @@
         <span class="bold">任务详情</span>
       </div>
     </template>
-    <div class="card-content">
-      <div class="row-item">
-        <div class="bold space">任务名称:</div>
-        <div>{{ state.detail?.reportName }}</div>
-      </div>
-      <div class="row-item">
-        <div class="bold space">任务类型:</div>
-        <div class="content">{{ state.detail?.LargeCategory }}</div>
-      </div>
-      <div class="row-item" v-if="state.detail?.LargeCategory === '周期性'">
-        <div class="bold space">任务时间范围:</div>
-        <div>{{ getTime(state.detail?.TimeOn) }} - {{ getTime(state.detail?.endTime) }}</div>
-      </div>
-      <div class="row-item">
-        <div class="bold space">任务状态:</div>
-        <div>{{ getTaskStatus }}</div>
-      </div>
-      <div class="row-item" v-if="state.detail?.reportPriority">
-        <div class="bold space">任务优先级:</div>
-        <div>{{ getPriority(state.detail?.reportPriority) }}</div>
-      </div>
-      <!-- <div class="row-item">
-        <div class="bold space">报表类型:</div>
-        <div>{{ state.reportTypeDetail?.reportTypeName }}</div>
-      </div> -->
-      <div class="row-item" v-if="state.detail?.LargeCategory === '周期性'">
-        <div class="bold space">计划周期执行时间:</div>
-        <div>{{ getExeTime }}</div>
-      </div>
-      <div class="row-item" v-if="state.detail?.lastTime">
-        <div class="bold space">最后执行时间:</div>
-        <div>{{ getTime(state.detail?.lastTime) }}</div>
-      </div>
-      <div class="row-item" v-if="state.taskSqls">
-        <div class="bold space">任务对应sql语句:</div>
-        <div class="sql-wrap">
-          <div v-for="(item, index) in state.taskSqls" v-bind:key="index">
-            <div>{{ item.reportSqlData }};</div>
-          </div>
-        </div>
-      </div>
-      <div class="row-item">
-        <div class="bold space">创建时间:</div>
-        <div>{{ getTime(state.detail?.createTime, 'YYYY/MM/DD HH:mm:ss') }}</div>
-      </div>
-    </div>
+    <PeriodForm
+      v-if="state.detail?.LargeCategory === '周期性' && state.init"
+      :detail="state.detail"
+      :typeDetail="state.reportTypeDetail"
+    />
+    <OneTimeForm
+      v-if="state.detail?.LargeCategory === '一次性' && state.init"
+      :detail="state.detail"
+    />
   </el-card>
   <WhiteSpace />
   <el-card>
@@ -74,6 +37,8 @@ import { watch, ref, reactive, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import NavBack from '../components/NavBack.vue'
+import PeriodForm from '../components/PeriodForm.vue'
+import OneTimeForm from '../components/OneTimeForm.vue'
 import { getTaskDetailReq, getReportTypeReq, getTaskSqlsReq } from '../api/report'
 import { priorityMap, periodTypeMap, taskStatusMap, weekMap } from '../constant/index'
 import FillSql from '../components/FillSql.vue'
@@ -90,8 +55,9 @@ const typeToCn = (sqlTypeId) => {
 }
 const state = reactive({
   detail: {},
-  taskSqls: []
-  // reportTypeDetail: {}
+  taskSqls: [],
+  reportTypeDetail: {},
+  init: false
 })
 const sqlArr = ref([])
 
@@ -159,13 +125,18 @@ const deleteSqlInput = (index) => {
 const getTaskDetail = async () => {
   const result = await getTaskDetailReq({ taskId: taskId.value })
   state.detail = result.data
-  // getReportType(result.data.reportTypeId)
+  getReportType(result.data.reportTypeId)
 }
 const getReportType = async (reportTypeId) => {
+  if (!reportTypeId) {
+    state.init = true
+    return
+  }
   const result = await getReportTypeReq({
     reportTypeId
   })
   state.reportTypeDetail = result.data
+  state.init = true
   // state.detail = {
   //   ...state.detail,
   //   ...result.data

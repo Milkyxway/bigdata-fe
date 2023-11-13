@@ -320,5 +320,6 @@ export {
   priority,
   priorityMap,
   weekMap,
+  week,
   sqlType
 }

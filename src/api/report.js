@@ -116,6 +116,19 @@ export const createTaskTypeReq = (data) => {
 }
 
 /**
+ * 删除任务类型
+ * @param {*} data
+ * @returns
+ */
+export const deleteTaskTypeReq = (data) => {
+  return createRequest()({
+    url: '/api/report/deletetype',
+    method: 'post',
+    data
+  })
+}
+
+/**
  * 增加sql语句
  * @param {*} data
  * @returns
