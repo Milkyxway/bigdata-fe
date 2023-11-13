@@ -227,19 +227,13 @@ const addSqlForTask = (index) => {
 
 const updateSqlForTask = async (index) => {
   const item = props.sqlArr[index]
+  const { chooseSqlType, ...rest } = item
   const params = {
-    ...item,
+    ...rest,
     sqlType: sqlTypeMap(item.chooseSqlType)
   }
-  item.reportSqlData.split(';').map(async (i) => {
-    if (i) {
-      await updateSqlReq({
-        ...params,
-        reportSqlData: i
-      })
-      toast('修改成功！')
-    }
-  })
+  await updateSqlReq(params)
+  toast('修改成功！')
 }
 
 const commitSql = async (index) => {

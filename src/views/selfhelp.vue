@@ -19,7 +19,8 @@
 </template>
 <script setup>
 import { reactive } from 'vue'
-import { getTaskListReq, updateTaskReq, uploadReq } from '../api/report'
+import dayjs from 'dayjs'
+import { getTaskListReq, updateTaskReq, uploadReq, deleteFileReq } from '../api/report'
 import SelectCommon from '../components/SelectCommon.vue'
 import Upload from '../components/Upload.vue'
 import router from '../router/index'
@@ -45,11 +46,42 @@ const getDemandList = async () => {
   })
 }
 
+const deleteExistFile = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await getTaskListReq({
+        reportId: state.selectTask,
+        pageSize: 100,
+        pageNum: 0
+      })
+      if (result.data.list[0].SourceExcelLink) {
+        // 已经存在
+        //删除文件
+        await deleteFileReq({ fileName: result.data.list[0].SourceExcelLink })
+        resolve()
+      } else {
+        resolve()
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
 const handleFileChange = async (file) => {
+  const now = dayjs().format('YYYYMMDDHHmmss')
+  const fileSuffix = file.name.split('.')[1]
+  const fileName = `${now}.${fileSuffix}`
+  const copyFile = new File([file], `${fileName}`)
   const formData = new FormData()
-  formData.append('file', file)
+  formData.append('file', copyFile)
+  await deleteExistFile()
   await uploadReq(formData)
   toast('上传成功')
+  await updateTaskReq({
+    reportId: props.taskId,
+    SourceExcelLink: copyFile.name
+  })
 }
 
 const goCreate = () => {
