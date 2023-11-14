@@ -18,9 +18,21 @@
         ></el-radio>
       </el-radio-group>
     </div>
-    <WhiteSpace />
+    <div class="input-row font-grey" v-if="item.chooseSqlType === '执行类无输出'">
+      <el-icon><Warning /></el-icon>
+      <span class="margin-right">用作创建表、删除表等</span>
+      <span class="font-ble margin-right">{{ getExample }}</span>
+      <span @click="copyContent(getExample)" class="font-ble">复制</span>
+    </div>
+    <div class="input-row font-grey" v-if="item.chooseSqlType === '上传'">
+      <el-icon><Warning /></el-icon>
+      <span class="margin-right">用作临时表插值等</span>
+      <span class="font-ble margin-right">{{ getExample2 }}</span>
+      <span @click="copyContent(getExample2)" class="font-ble">复制</span>
+    </div>
+    <WhiteSpace v-if="item.chooseSqlType === '查询类有输出'" />
     <div class="input-row">
-      <div v-if="state.commonSqls">
+      <div v-if="state.commonSqls && item.chooseSqlType === '查询类有输出'">
         <span>常用sql语句 </span>
         <SelectCommon
           :selections="state.commonSqls"
@@ -153,15 +165,7 @@ const tableOperations = ref([
   {
     label: '复制',
     fn: (row) => {
-      copyText(row.parameterKey, undefined, (error, event) => {
-        if (error) {
-          toast('复制失败！', 'error')
-          console.log(error)
-        } else {
-          toast('复制成功！')
-          console.log(event)
-        }
-      })
+      copyContent(row.parameterKey)
     }
   }
 ])
@@ -171,6 +175,24 @@ watch(
     state.sqlContent = ''
   }
 )
+
+const getExample = computed(
+  () => `create table tmp_${dayjs().format('MMDD')} (rownumb number, cust_code varchar(255))`
+)
+const getExample2 = computed(
+  () => `insert into tmp_${dayjs().format('MMDD')} (rownumb, cust_code) values (:val1,:val2)`
+)
+const copyContent = (content) => {
+  copyText(content, undefined, (error, event) => {
+    if (error) {
+      toast('复制失败！', 'error')
+      console.log(error)
+    } else {
+      toast('复制成功！')
+      console.log(event)
+    }
+  })
+}
 const addSqlStrs = () => {
   emits('addSqlInput')
 }
@@ -295,5 +317,13 @@ getParamsList()
 .font-ble {
   color: #0076fe;
   cursor: pointer;
+}
+.margin-right {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.font-grey {
+  color: #aaa;
 }
 </style>
