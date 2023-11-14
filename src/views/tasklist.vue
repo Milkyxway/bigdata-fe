@@ -1,12 +1,54 @@
 <template>
   <QueryTask @handleQuery="handleQuery" />
   <WhiteSpace />
-  <Table
+  <!-- <Table
     :table-data="state.tableData"
     :table-total="state.tableTotal"
     :table-columns="state.tableColumns"
     :table-operations="state.tableOperations"
-  />
+  /> -->
+  <el-table :data="state.tableData">
+    <el-table-column
+      v-for="item in state.tableColumns"
+      :label="item.label"
+      :prop="item.prop"
+      :key="item.key"
+      :width="['reportLink', 'logLink'].includes(item.prop) && 200"
+    >
+      <template #default="{ row }">
+        <span
+          v-for="(item, index) in row.reportLink"
+          :v-bind:key="index"
+          v-if="item.prop === 'reportLink'"
+          class="font-ble"
+        >
+          <span @click="downloadUrl(item)">{{ item }}</span>
+        </span>
+      </template>
+    </el-table-column>
+    <el-table-column fixed="right" label="操作" width="150">
+      <template #default="{ row }">
+        <el-button
+          link
+          type="danger"
+          size="small"
+          @click="deleteTask(row.reportId, row.reportTypeId, row.reportName)"
+          >删除</el-button
+        >
+        <el-button
+          link
+          type="primary"
+          size="small"
+          @click="router.push(`/develop/taskdetail/${row.reportId}`)"
+          >查看</el-button
+        >
+
+        <el-button link type="primary" size="small" @click="pauseTask(row.reportId)"
+          >中止</el-button
+        >
+      </template>
+    </el-table-column>
+  </el-table>
 </template>
 <script setup>
 import { reactive } from 'vue'
@@ -69,26 +111,6 @@ const state = reactive({
       label: '创建时间',
       prop: 'createTime'
     }
-  ],
-  tableOperations: [
-    {
-      label: '中止',
-      fn: (row) => {
-        pauseTask(row.reportId)
-      }
-    },
-    {
-      label: '查看',
-      fn: (row) => {
-        router.push(`/develop/taskdetail/${row.reportId}`)
-      }
-    },
-    {
-      label: '删除',
-      fn: (row) => {
-        deleteTask(row.reportId, row.reportTypeId, row.reportName)
-      }
-    }
   ]
 })
 
@@ -116,6 +138,8 @@ const deleteTask = (taskId, reportTypeId, reportName) => {
     }
   })
 }
+
+const downloadUrl = (item) => (window.location.href = item)
 
 const pauseTask = (taskId) => {
   ElMessageBox.confirm('确定要中止这条任务吗?', '警告', {
@@ -176,3 +200,9 @@ const handleQuery = (query) => {
 }
 getTaskList()
 </script>
+<style scoped>
+.font-ble {
+  color: #0076fe;
+  cursor: pointer;
+}
+</style>

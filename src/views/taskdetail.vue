@@ -98,8 +98,10 @@ const getExeTime = computed(() => {
   }
 })
 
-const getExcelLink = computed(
-  () => `http://172.16.179.2:7002/public/upload/${state.detail?.SourceExcelLink}`
+const getExcelLink = computed(() =>
+  state.detail?.SourceExcelLink
+    ? `http://172.16.179.2:7002/public/upload/${state.detail?.SourceExcelLink}`
+    : null
 )
 
 const getPriority = computed(() => {
