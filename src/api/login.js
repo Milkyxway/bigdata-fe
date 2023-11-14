@@ -51,3 +51,42 @@ export const createAccountReq = (data) => {
     data
   })
 }
+
+/**
+ * 获取用户列表
+ * @param {*} data
+ * @returns
+ */
+export const getUsersReq = (data) => {
+  return createRequest()({
+    url: '/api/userlist',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 删除用户
+ * @param {*} data
+ * @returns
+ */
+export const deleteUserReq = (data) => {
+  return createRequest()({
+    url: '/api/userdelete',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 修改用户
+ * @param {*} data
+ * @returns
+ */
+export const updateUserReq = (data) => {
+  return createRequest()({
+    url: '/api/userupdate',
+    method: 'post',
+    data
+  })
+}

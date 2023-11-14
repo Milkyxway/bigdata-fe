@@ -300,7 +300,28 @@ const week = [
     value: 'Sunday'
   }
 ]
-
+const roleList = [
+  {
+    label: '管理员',
+    value: 'admin'
+  },
+  {
+    label: '领导',
+    value: 'leader'
+  },
+  {
+    label: '部门',
+    value: 'section'
+  },
+  {
+    label: '员工',
+    value: 'employee'
+  },
+  {
+    label: '开发者',
+    value: 'developer'
+  }
+]
 const weekMap = {
   Monday: '周一',
   Tuesday: '周二',
@@ -321,5 +342,6 @@ export {
   priorityMap,
   weekMap,
   week,
-  sqlType
+  sqlType,
+  roleList
 }
