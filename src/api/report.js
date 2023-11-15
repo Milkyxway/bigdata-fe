@@ -257,3 +257,16 @@ export const addParamsReq = (data) => {
     data
   })
 }
+
+/**
+ * 删除任务的一条sql语句
+ * @param {*} data
+ * @returns
+ */
+export const deleteTaskSqlReq = (data) => {
+  return createRequest()({
+    url: '/api/report/deletesql',
+    method: 'post',
+    data
+  })
+}

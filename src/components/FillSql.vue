@@ -59,7 +59,7 @@
       <el-input
         type="textarea"
         placeholder="请输入sql语句，用英文;分隔"
-        rows="5"
+        :rows="item.chooseSqlType === '查询类有输出' ? 20 : 1"
         v-model="item.reportSqlData"
         clearable
       />
@@ -91,14 +91,19 @@
     <el-button type="plain" @click="commitSql(index)">{{
       props.sqlArr[index].reportSqlId ? '修改语句' : '提交语句'
     }}</el-button>
-    <el-button type="plain" @click="item.reportSqlData = ''">清空语句</el-button>
+    <el-button type="plain" @click="item.reportSqlData = ''">清空输入框</el-button>
+    <el-button type="plain" @click="deleteTaskSql(item.reportSqlId)" v-if="item.reportSqlId"
+      >删除sql语句</el-button
+    >
     <WhiteSpace />
   </div>
   <WhiteSpace />
-  <el-button type="primary" @click="startExe">完成，开始执行</el-button>
+  <el-button type="primary" @click="startExe" :loading="state.loading">完成，开始执行</el-button>
 </template>
 <script setup>
 import { reactive, ref, watch, computed } from 'vue'
+import { useRouter } from 'vue-router'
+
 // import * as XLSX from 'xlsx'
 import { copyText } from 'vue3-clipboard'
 import Upload from './Upload.vue'
@@ -112,7 +117,8 @@ import {
   getSQLListReq,
   getParamsListReq,
   uploadReq,
-  updateSqlReq
+  updateSqlReq,
+  deleteTaskSqlReq
 } from '../api/report'
 import { toast } from '../util/toast'
 import dayjs from 'dayjs'
@@ -123,8 +129,10 @@ const state = reactive({
   commonSqls: [],
   selectSql: '',
   paramsList: [],
-  selectParamType: ''
+  selectParamType: '',
+  loading: false
 })
+const router = useRouter()
 const props = defineProps({
   taskId: {
     type: Number
@@ -136,7 +144,7 @@ const props = defineProps({
     type: String
   }
 })
-const emits = defineEmits(['addSqlInput', 'deleteSqlInput'])
+const emits = defineEmits(['addSqlInput', 'deleteSqlInput', 'refreshPage'])
 const sqlTypes = ref([
   {
     label: '执行类无输出',
@@ -198,6 +206,12 @@ const addSqlStrs = () => {
 }
 const deleteSqlInput = (index) => {
   emits('deleteSqlInput', index)
+}
+
+const deleteTaskSql = async (reportSqlId) => {
+  await deleteTaskSqlReq({ reportSqlId })
+  toast('删除成功！')
+  emits('refreshPage')
 }
 
 const handleFileChange = async (file, index) => {
@@ -276,11 +290,14 @@ const startExe = async () => {
     taskId: props.taskId
   })
   if (result.data.taskSqls) {
+    state.loading = true
     await updateTaskReq({
       reportId: props.taskId,
       reportState: 1
     })
+    state.loading = false
     toast('提交成功！')
+    router.back()
   } else {
     toast('该任务没有填写sql脚本无法执行', 'warning')
   }

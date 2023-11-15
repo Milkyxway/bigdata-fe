@@ -17,13 +17,16 @@
     >
       <template #default="{ row }">
         <span
-          v-for="(item, index) in row.reportLink"
+          v-for="(i, index) in row.reportLink"
           :v-bind:key="index"
           v-if="item.prop === 'reportLink'"
           class="font-ble"
         >
-          <span @click="downloadUrl(item)">{{ item }}</span>
+          <span @click="downloadUrl(i)">{{ i }}</span>
         </span>
+        <span @click="downloadUrl(row.logLink)" class="font-ble" v-if="item.prop === 'logLink'">{{
+          row.logLink
+        }}</span>
       </template>
     </el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
@@ -32,7 +35,7 @@
           link
           type="danger"
           size="small"
-          @click="deleteTask(row.reportId, row.reportTypeId, row.reportName)"
+          @click="deleteTask(row.reportId, row.reportTypeId, row.reportName, row.SourceExcelLink)"
           >删除</el-button
         >
         <el-button
@@ -57,7 +60,13 @@ import { ElMessageBox } from 'element-plus'
 import Table from '../components/Table.vue'
 import QueryTask from '../components/QueryTask.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
-import { getTaskListReq, updateTaskReq, deleteTaskReq } from '../api/report'
+import {
+  getTaskListReq,
+  updateTaskReq,
+  deleteTaskReq,
+  deleteTaskTypeReq,
+  deleteFileReq
+} from '../api/report'
 import router from '../router/index'
 import { priorityMap, taskStatusMap } from '../constant/index'
 import { toast } from '../util/toast'
@@ -100,11 +109,11 @@ const state = reactive({
       prop: 'lastTime'
     },
     {
-      label: '任务结果文件',
+      label: '结果excel',
       prop: 'reportLink'
     },
     {
-      label: '执行日志文件',
+      label: 'log日志',
       prop: 'logLink'
     },
     {
@@ -114,7 +123,7 @@ const state = reactive({
   ]
 })
 
-const deleteTask = (taskId, reportTypeId, reportName) => {
+const deleteTask = (taskId, reportTypeId, reportName, fileName) => {
   ElMessageBox.confirm(`确定要删除${reportName}吗?`, '警告', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -126,6 +135,11 @@ const deleteTask = (taskId, reportTypeId, reportName) => {
             // 周期性任务先删除reportTypeId
             await deleteTaskTypeReq({
               reportTypeId
+            })
+          }
+          if (fileName) {
+            await deleteFileReq({
+              fileName
             })
           }
           await deleteTaskReq({
@@ -186,6 +200,7 @@ const getTaskList = async () => {
 
 const getLink = (fileName, path) => {
   if (fileName) {
+    if (path === 'log') return `http://172.16.179.2:7002/public/${path}/${fileName}`
     return fileName.split(',').map((i) => `http://172.16.179.2:7002/public/${path}/${i}`)
   }
 }

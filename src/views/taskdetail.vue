@@ -29,6 +29,7 @@
       @deleteSqlInput="deleteSqlInput"
       :taskId="taskId"
       :excelLink="getExcelLink"
+      @refreshPage="getTaskDetail"
     />
   </el-card>
 </template>
@@ -60,7 +61,7 @@ const state = reactive({
   init: false
 })
 const sqlArr = ref([])
-
+console.log(dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
 const getTime = computed(() => {
   return function (time, format = 'YYYY/MM/DD') {
     return dayjs(time).format(format)

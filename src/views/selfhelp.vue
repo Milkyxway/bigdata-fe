@@ -79,20 +79,20 @@ const handleFileChange = async (file) => {
   await uploadReq(formData)
   toast('上传成功')
   await updateTaskReq({
-    reportId: props.taskId,
+    reportId: state.selectTask,
     SourceExcelLink: copyFile.name
   })
 }
 
 const goCreate = () => {
-  // router.push('/report/createdemand')
   router.push('/develop/create/onetime')
 }
 
 const confirm = async () => {
   const result = await updateTaskReq({
     reportId: state.selectTask,
-    reportState: 1
+    reportState: 1,
+    lastTime: dayjs().subtract(1, 'day').format('YYYY-MM-DD 00:00:00')
   })
   toast('收到该需求了，正在努力执行～')
 }
