@@ -109,7 +109,9 @@ import { createTaskReq, createTaskTypeReq, updateTaskReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import { toast } from '../util/toast'
+import { getLocalStore } from '../util/localStorage'
 const formRef = ref()
+const userId = getLocalStore('userInfo').userId
 const month = ref(new Array(31).fill(0))
 const periodTypes = ref(periodType)
 const props = defineProps({
@@ -272,7 +274,7 @@ const commit = () => {
               reportPriority: priority
             }
             const result = !isUpdate
-              ? await createTaskReq({ ...params })
+              ? await createTaskReq({ ...params, custID: userId })
               : await updateTaskReq({ ...params, reportId: isUpdate, reportState })
             if (result.data.reportId && !isUpdate) {
               state.taskId = result.data.reportId

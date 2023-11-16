@@ -17,14 +17,16 @@ export const routeList = [
         path: '/report',
         name: '报表模块',
         iconName: 'view',
+        auth: ['section', 'developer'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
-          // {
-          //   path: '/report/list',
-          //   name: '报表列表',
-          //   isSider: true,
-          //   component: () => import('../views/reportlist.vue')
-          // },
+          {
+            path: '/report/list',
+            name: '报表列表',
+            isSider: true,
+            auth: ['developer', 'section'],
+            component: () => import('../views/reportlist.vue')
+          },
           {
             path: '/report/selfhelp',
             name: '自助提数',
@@ -38,6 +40,7 @@ export const routeList = [
         path: '/develop',
         name: '任务模块',
         iconName: 'view',
+        auth: ['developer'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           // {

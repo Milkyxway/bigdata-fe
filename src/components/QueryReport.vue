@@ -2,7 +2,7 @@
   <el-card class="card-admin">
     <form :v-model="queryForm">
       <div class="row-item">
-        <div class="query-select">
+        <!-- <div class="query-select">
           <span class="query-title">报表时间范围</span>
           <el-date-picker
             type="daterange"
@@ -12,7 +12,7 @@
             v-model="queryForm.createTime"
             clearable
           ></el-date-picker>
-        </div>
+        </div> -->
         <div class="query-select-keyword">
           <span class="query-title">关键字</span>
           <el-input placeholder="请输入关键字" v-model="queryForm.keyword" clearable></el-input>
@@ -21,23 +21,9 @@
     </form>
     <div class="btn-wrap">
       <el-button type="primary" @click="handleQuery">查询</el-button>
-      <el-button type="danger" @click="uploadFn">上传脚本</el-button>
+      <!-- <el-button type="danger" @click="uploadFn">上传脚本</el-button> -->
     </div>
   </el-card>
-  <el-dialog
-    :show-close="false"
-    :close-on-press-escape="false"
-    v-model="state.showUploadDialog"
-    title="上传报表"
-  >
-    <el-select placeholder="请选择报表周期类型" v-model="state.selectPeriodType">
-      <el-option v-for="item in periodType" :label="item.label" :value="item.value">{{
-        item.label
-      }}</el-option>
-    </el-select>
-    <el-button type="primary" @click="state.showUploadDialog = false">取消</el-button>
-    <Upload btn-txt="上传报表" @handleFileChange="handleFileChange" btn-type="danger" />
-  </el-dialog>
 </template>
 <script setup>
 import { ref, reactive, computed } from 'vue'

@@ -55,9 +55,11 @@ import { createTaskReq, updateTaskReq } from '../api/report'
 import { periodType, priority, periodTypeMap, priorityMap, taskStatusList } from '../constant/index'
 import SelectCommon from './SelectCommon.vue'
 import { toast } from '../util/toast'
+import { getLocalStore } from '../util/localStorage'
 import dayjs from 'dayjs'
 
 const formRef = ref()
+const userId = getLocalStore('userInfo').userId
 // const formLabelWidth = '140px'
 const state = reactive({
   formData: {
@@ -116,7 +118,7 @@ const submit = () => {
       }
       const result = props.detail?.reportId
         ? await updateTaskReq({ ...params, reportId: props.detail.reportId, reportState })
-        : await createTaskReq({ ...params })
+        : await createTaskReq({ ...params, custID: userId })
       toast('操作成功！')
       if (!props.detail?.reportId) {
         state.taskId = result.data.reportId

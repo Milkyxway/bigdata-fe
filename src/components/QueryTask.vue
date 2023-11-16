@@ -49,7 +49,7 @@
 import { reactive, ref } from 'vue'
 import SelectCommon from './SelectCommon.vue'
 import { taskStatusList, priority } from '../constant'
-import { createTaskReq } from '../api/report'
+
 import router from '../router/index'
 const state = reactive({
   formData: {

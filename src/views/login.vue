@@ -78,7 +78,12 @@ const login = () => {
     .then(async (res) => {
       const result = await loginReq(formData.value)
       setLocalStore('userInfo', result.data.userInfo)
-      router.replace('/develop/tasklist')
+      const role = result.data.userInfo.role
+      role === 'admin'
+        ? router.replace('/personal/users')
+        : role === 'developer'
+        ? router.replace('/develop/tasklist')
+        : router.replace('/report/list')
     })
     .catch((err) => {
       // console.log(err)
