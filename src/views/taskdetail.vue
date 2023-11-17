@@ -29,7 +29,7 @@
       @deleteSqlInput="deleteSqlInput"
       :taskId="taskId"
       :excelLink="getExcelLink"
-      @refreshPage="getTaskDetail"
+      @refreshPage="refreshPage"
     />
   </el-card>
 </template>
@@ -41,7 +41,6 @@ import NavBack from '../components/NavBack.vue'
 import PeriodForm from '../components/PeriodForm.vue'
 import OneTimeForm from '../components/OneTimeForm.vue'
 import { getTaskDetailReq, getReportTypeReq, getTaskSqlsReq } from '../api/report'
-import { priorityMap, periodTypeMap, taskStatusMap, weekMap } from '../constant/index'
 import FillSql from '../components/FillSql.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 const route = useRoute()
@@ -61,43 +60,11 @@ const state = reactive({
   init: false
 })
 const sqlArr = ref([])
-console.log(dayjs().subtract(1, 'day').format('YYYY-MM-DD'))
-const getTime = computed(() => {
-  return function (time, format = 'YYYY/MM/DD') {
-    return dayjs(time).format(format)
-  }
-})
 
-const getTaskStatus = computed(() => {
-  return taskStatusMap[state.detail?.reportState]
-})
-const getExeTime = computed(() => {
-  let time
-  if (!state.detail?.reportTypeName) {
-    return '-'
-  } else {
-    const {
-      detail: { modeName, reportTypeName }
-    } = state
-    switch (state.detail?.reportTypeName) {
-      case '月报':
-      case '周报':
-        const list = modeName.split(',')
-        const date = list[0]
-        const hour = list[1].substr(0, 2)
-        const min = list[1].substr(2, 2)
-        time =
-          reportTypeName === '月报'
-            ? `每月${date}日 ${hour}:${min}`
-            : `${weekMap[date]} ${hour}:${min}`
-        break
-      case '日报':
-        time = `每天${modeName.substr(0, 2)}:${modeName.substr(2, 2)}`
-        break
-    }
-    return time
-  }
-})
+const refreshPage = () => {
+  getTaskDetail()
+  getTaskSqls()
+}
 
 const getExcelLink = computed(() =>
   state.detail?.SourceExcelLink
@@ -105,21 +72,11 @@ const getExcelLink = computed(() =>
     : null
 )
 
-const getPriority = computed(() => {
-  return function (priority) {
-    return priorityMap[priority]
-  }
-})
-
 const addSqlStrs = () => {
   sqlArr.value.push({
     reportSqlData: '',
     chooseSqlType: typeToCn(1)
   })
-}
-
-const downloadFile = () => {
-  window.location.href = getExcelLink.value
 }
 
 const deleteSqlInput = (index) => {
@@ -140,10 +97,6 @@ const getReportType = async (reportTypeId) => {
   })
   state.reportTypeDetail = result.data
   state.init = true
-  // state.detail = {
-  //   ...state.detail,
-  //   ...result.data
-  // }
 }
 const getTaskSqls = async () => {
   const result = await getTaskSqlsReq({

@@ -185,7 +185,10 @@ watch(
 )
 
 const getExample = computed(
-  () => `create table tmp_${dayjs().format('MMDD')} (rownumb number, cust_code varchar(255))`
+  () =>
+    `drop table tmp_${dayjs().format('MMDD')};create table tmp_${dayjs().format(
+      'MMDD'
+    )} (rownumb number, cust_code varchar(255))`
 )
 const getExample2 = computed(
   () => `insert into tmp_${dayjs().format('MMDD')} (rownumb, cust_code) values (:val1,:val2)`
@@ -242,7 +245,7 @@ const sqlTypeMap = (type) => {
   return map[type]
 }
 
-const addSqlForTask = (index) => {
+const addSqlForTask = async (index) => {
   if (!props.sqlArr[index].reportSqlData) {
     return toast('请填写sql语句', 'warning')
   }
@@ -253,16 +256,12 @@ const addSqlForTask = (index) => {
     TargetSheet: props.sqlArr[index].TargetSheet,
     ExcelTable: props.sqlArr[index].ExcelTable
   }
-  props.sqlArr[index].reportSqlData.split(';').map(async (i) => {
-    if (i) {
-      const result = await addSqlReq({
-        ...params,
-        reportSqlData: i
-      })
-      toast('提交成功！')
-      //  state.commitSuccess += i
-    }
+  await addSqlReq({
+    ...params,
+    reportSqlData: props.sqlArr[index].reportSqlData
   })
+  toast('提交成功！')
+  emits('refreshPage')
 }
 
 const updateSqlForTask = async (index) => {
