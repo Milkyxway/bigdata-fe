@@ -56,16 +56,12 @@
 </template>
 
 <script setup>
-import { reactive, watch, ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-// import QueryHeader from '../components/QueryHeader.vue'
+import { reactive } from 'vue'
 import QueryReport from '../components/QueryReport.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
-import Table from '../components/Table.vue'
 import { getTaskListReq } from '../api/report'
-import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
-import { dayjs } from 'element-plus'
+import { formatLink, downloadUrl } from '../util/formatLink'
 import { periodType, periodTypeMap, taskStatusMap } from '../constant/index'
 
 const userId = getLocalStore('userInfo').userId
@@ -106,16 +102,6 @@ const state = reactive({
   total: 0,
   tableOperations: []
 })
-const getExcelLink = computed(() => {
-  return function (link) {
-    // if (row.SourceExcelLink) {
-    return `http://172.16.179.2:7002/public/upload/${link}`
-    // }
-    // return null
-  }
-})
-
-const downloadUrl = (item) => (window.location.href = item)
 
 const getReportList = async () => {
   const params = {
@@ -139,8 +125,6 @@ const getReportList = async () => {
   })
   state.total = result.data.total
 }
-
-const formatLink = (link, path) => `http://172.16.179.2:7002/public/${path}/${link}`
 
 getReportList()
 </script>

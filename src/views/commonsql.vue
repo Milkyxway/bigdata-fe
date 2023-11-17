@@ -93,10 +93,6 @@ const handleQuery = (query) => {
   getSqlList()
 }
 
-const download = async (link) => {
-  window.location.href = `http://172.16.179.5:7002${link}`
-}
-
 const deleteSQL = async (sqlId, sqlName) => {
   ElMessageBox.confirm(`确定要删除${sqlName}?`, '警告', {
     type: 'warning',

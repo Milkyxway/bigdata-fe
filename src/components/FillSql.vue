@@ -73,7 +73,7 @@
         <el-input placeholder="请输入匹配列名" v-model="item.ExcelTable"></el-input>
       </div>
       <WhiteSpace />
-      <div v-if="props.excelLink" class="input-row" @click="downloadLink">
+      <div v-if="props.excelLink" class="input-row" @click="downloadUrl(props.excelLink)">
         <span>上传文件：</span><span class="font-ble">{{ props.excelLink }}</span>
       </div>
       <Upload
@@ -103,13 +103,13 @@
 <script setup>
 import { reactive, ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-
-// import * as XLSX from 'xlsx'
 import { copyText } from 'vue3-clipboard'
+import dayjs from 'dayjs'
 import Upload from './Upload.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import SelectCommon from './SelectCommon.vue'
 import Table from './Table.vue'
+
 import {
   addSqlReq,
   updateTaskReq,
@@ -118,10 +118,12 @@ import {
   getParamsListReq,
   uploadReq,
   updateSqlReq,
-  deleteTaskSqlReq
+  deleteTaskSqlReq,
+  deleteFileReq
 } from '../api/report'
 import { toast } from '../util/toast'
-import dayjs from 'dayjs'
+import { downloadUrl } from '../util/formatLink'
+
 const state = reactive({
   chooseSqlType: '执行类无输出',
   sqlContent: '',
@@ -230,10 +232,6 @@ const handleFileChange = async (file, index) => {
     reportId: props.taskId,
     SourceExcelLink: copyFile.name
   })
-}
-
-const downloadLink = () => {
-  window.location.href = props.excelLink
 }
 
 const sqlTypeMap = (type) => {

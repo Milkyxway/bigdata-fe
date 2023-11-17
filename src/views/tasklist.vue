@@ -70,6 +70,7 @@ import {
 import router from '../router/index'
 import { priorityMap, taskStatusMap } from '../constant/index'
 import { toast } from '../util/toast'
+import { formatLink, downloadUrl } from '../util/formatLink'
 const state = reactive({
   page: {
     pageNum: 0,
@@ -153,8 +154,6 @@ const deleteTask = (taskId, reportTypeId, reportName, fileName) => {
   })
 }
 
-const downloadUrl = (item) => (window.location.href = item)
-
 const pauseTask = (taskId) => {
   ElMessageBox.confirm('确定要中止这条任务吗?', '警告', {
     type: 'warning',
@@ -200,8 +199,8 @@ const getTaskList = async () => {
 
 const getLink = (fileName, path) => {
   if (fileName) {
-    if (path === 'log') return `http://172.16.179.2:7002/public/${path}/${fileName}`
-    return fileName.split(',').map((i) => `http://172.16.179.2:7002/public/${path}/${i}`)
+    if (path === 'log') return formatLink(fileName, path)
+    return fileName.split(',').map((i) => formatLink(i, path))
   }
 }
 

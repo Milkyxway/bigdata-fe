@@ -43,6 +43,7 @@ import OneTimeForm from '../components/OneTimeForm.vue'
 import { getTaskDetailReq, getReportTypeReq, getTaskSqlsReq } from '../api/report'
 import FillSql from '../components/FillSql.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
+import { formatLink } from '../util/formatLink'
 const route = useRoute()
 const taskId = ref(route.params.taskId)
 const typeToCn = (sqlTypeId) => {
@@ -66,11 +67,7 @@ const refreshPage = () => {
   getTaskSqls()
 }
 
-const getExcelLink = computed(() =>
-  state.detail?.SourceExcelLink
-    ? `http://172.16.179.2:7002/public/upload/${state.detail?.SourceExcelLink}`
-    : null
-)
+const getExcelLink = computed(() => formatLink(state.detail?.SourceExcelLink, 'upload'))
 
 const addSqlStrs = () => {
   sqlArr.value.push({

@@ -95,7 +95,8 @@ const deleteExistFile = () => {
 
 const handleFileChange = async (file) => {
   const now = dayjs().format('YYYYMMDDHHmmss')
-  const fileSuffix = file.name.split('.')[1]
+  const fileSplitLength = file.name.split('.').length
+  const fileSuffix = file.name.split('.')[fileSplitLength - 1]
   const fileName = `${now}.${fileSuffix}`
   const copyFile = new File([file], `${fileName}`)
   const formData = new FormData()
@@ -197,7 +198,7 @@ getDemandList()
 }
 .label {
   display: inline-block;
-  width: 100px;
+  width: 300px;
   text-align: left;
 }
 .btn-wrap {
