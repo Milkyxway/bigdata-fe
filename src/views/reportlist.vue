@@ -95,7 +95,7 @@ const state = reactive({
     },
     {
       label: '创建人',
-      prop: 'custID'
+      prop: 'username'
     }
   ],
   tableData: [],

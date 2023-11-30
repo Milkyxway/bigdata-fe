@@ -35,7 +35,16 @@
           link
           type="danger"
           size="small"
-          @click="deleteTask(row.reportId, row.reportTypeId, row.reportName, row.SourceExcelLink)"
+          @click="
+            deleteTask(
+              row.reportId,
+              row.reportTypeId,
+              row.reportName,
+              row.SourceExcelLink,
+              row.logLinkCopy,
+              row.reportLinkCopy
+            )
+          "
           >删除</el-button
         >
         <el-button
@@ -57,7 +66,6 @@
 import { reactive } from 'vue'
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
-import Table from '../components/Table.vue'
 import QueryTask from '../components/QueryTask.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import {
@@ -120,11 +128,15 @@ const state = reactive({
     {
       label: '创建时间',
       prop: 'createTime'
+    },
+    {
+      label: '创建人',
+      prop: 'username'
     }
   ]
 })
 
-const deleteTask = (taskId, reportTypeId, reportName, fileName) => {
+const deleteTask = (taskId, reportTypeId, reportName, sourceLink, logLink, reportLink) => {
   ElMessageBox.confirm(`确定要删除${reportName}吗?`, '警告', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -138,9 +150,22 @@ const deleteTask = (taskId, reportTypeId, reportName, fileName) => {
               reportTypeId
             })
           }
-          if (fileName) {
+          if (sourceLink) {
             await deleteFileReq({
-              fileName
+              fileName: sourceLink,
+              path: 'upload'
+            })
+          }
+          if (logLink) {
+            await deleteFileReq({
+              fileName: logLink,
+              path: 'log'
+            })
+          }
+          if (reportLink) {
+            await deleteFileReq({
+              fileName: reportLink,
+              path: 'out'
             })
           }
           await deleteTaskReq({
@@ -191,7 +216,9 @@ const getTaskList = async () => {
       reportState: taskStatusMap[i.reportState],
       lastTime: i.lastTime ? formatDate(i.lastTime, 'YYYY-MM-DD HH:mm:ss') : '',
       reportLink: getLink(i.reportLink, 'out'),
-      logLink: getLink(i.logLink, 'log')
+      logLink: getLink(i.logLink, 'log'),
+      reportLinkCopy: i.reportLink,
+      logLinkCopy: i.logLink
     }
   })
   state.tableTotal = result.data.total
