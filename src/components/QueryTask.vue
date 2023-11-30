@@ -2,38 +2,14 @@
   <el-card>
     <el-form ref="formRef">
       <el-row>
-        <el-col :span="8">
-          <el-form-item label="任务名称" :label-width="formLabelWidth">
+        <el-col :span="12">
+          <el-form-item label="任务名称">
             <el-input placeholder="请输入任务名称" v-model="state.formData.reportName"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label="任务类型" :label-width="formLabelWidth">
-            <SelectCommon
-              :selections="periodTypes"
-              v-model:select="state.formData.periodType"
-              @updateSelect="(val) => (state.formData.periodType = val)"
-            ></SelectCommon>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="任务状态" :label-width="formLabelWidth">
-            <SelectCommon
-              :selections="state.taskStatusList"
-              v-model:select="state.formData.reportState"
-              @updateSelect="(val) => (state.formData.reportState = val)"
-            ></SelectCommon>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="8">
-          <el-form-item label="任务优先级" :label-width="formLabelWidth">
-            <SelectCommon
-              :selections="priority"
-              v-model:select="state.formData.reportPriority"
-              @updateSelect="(val) => (state.formData.reportPriority = val)"
-            ></SelectCommon>
+        <el-col :span="12">
+          <el-form-item label="任务创建人">
+            <el-input placeholder="请输入任务创建人" v-model="state.formData.username"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -47,22 +23,18 @@
 </template>
 <script setup>
 import { reactive, ref } from 'vue'
-import SelectCommon from './SelectCommon.vue'
 import { taskStatusList, priority } from '../constant'
 
 import router from '../router/index'
 const state = reactive({
   formData: {
     reportName: '',
-    periodType: '',
-    reportPriority: '',
-    reportState: ''
+    username: ''
   },
   taskStatusList,
   priority
 })
 const formRef = ref(null)
-const formLabelWidth = '150px'
 const emits = defineEmits('handleQuery')
 const handleQuery = () => {
   emits('handleQuery', state.formData)

@@ -13,7 +13,7 @@
       :label="item.label"
       :prop="item.prop"
       :key="item.key"
-      :width="['reportLink', 'logLink'].includes(item.prop) && 200"
+      :width="['reportLink', 'logLink', 'reportName'].includes(item.prop) && 200"
     >
       <template #default="{ row }">
         <span
