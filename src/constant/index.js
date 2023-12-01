@@ -264,6 +264,11 @@ const priorityMap = {
   50: '中',
   1: '低'
 }
+const priorityMapNum = {
+  高: ' 99',
+  中: ' 50',
+  低: '1'
+}
 const periodTypeMap = {
   1: '日报',
   2: '周报',
@@ -340,6 +345,7 @@ export {
   periodType,
   priority,
   priorityMap,
+  priorityMapNum,
   weekMap,
   week,
   sqlType,

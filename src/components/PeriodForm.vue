@@ -105,7 +105,7 @@ import {
   week,
   taskStatusList
 } from '../constant/index'
-import { createTaskReq, createTaskTypeReq, updateTaskReq } from '../api/report'
+import { createTaskReq, createTaskTypeReq, updateTaskReq, updateTaskTypeReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
 import WhiteSpace from './WhiteSpace.vue'
 import { toast } from '../util/toast'
@@ -162,7 +162,7 @@ const initVal = () => {
       reportState: props.detail.reportState
     }
     state.day = props.typeDetail.modeName.split(',')[0]
-    state.noon = props.typeDetail.modeName.split(',')[1] <= '0900' ? '0900' : '1200'
+    state.noon = getNoon(props.typeDetail.modeName)
     state.date = props.typeDetail.modeName.split(',')[0]
   }
 }
@@ -171,6 +171,10 @@ const emits = defineEmits(['updateTaskId'])
 
 const updateSelect = (data, type) => {
   state[type] = data
+}
+const getNoon = (modeName) => {
+  const formatModeName = (val) => (val <= '0900' ? '0900' : '1200')
+  return modeName.indexOf(',') > -1 ? formatModeName(modeName.split(',')[1]) : modeName
 }
 
 const formatArr = (arr, addOne = true) => {
@@ -260,23 +264,29 @@ const commit = () => {
           formData: { timeRange, reportName, periodType, priority, reportState }
         } = state
         try {
-          const typeRes = await createTaskTypeReq({
+          const params = {
             reportTypeName: periodTypeMap[periodType],
             modeName: getModeName()
-          })
+          }
+          const typeRes = isUpdate
+            ? await updateTaskTypeReq({
+                ...params,
+                reportTypeId: props.typeDetail.reportTypeId
+              })
+            : await createTaskTypeReq({ ...params })
           if (typeRes.code == 200) {
             const params = {
               reportName,
               LargeCategory: '周期性',
               TimeOn: formatDate(timeRange[0]),
               endTime: formatDate(timeRange[1]),
-              reportTypeId: typeRes.data.reportTypeId,
+              reportTypeId: isUpdate ? props.typeDetail.reportTypeId : typeRes.data.reportTypeId,
               reportPriority: priority
             }
             const result = !isUpdate
               ? await createTaskReq({ ...params, custID: userId })
               : await updateTaskReq({ ...params, reportId: isUpdate, reportState })
-            if (result.data.reportId && !isUpdate) {
+            if (!isUpdate) {
               state.taskId = result.data.reportId
               toast('创建任务成功！')
               emits('updateTaskId', result.data.reportId)

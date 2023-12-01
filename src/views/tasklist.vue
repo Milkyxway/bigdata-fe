@@ -22,10 +22,10 @@
           v-if="item.prop === 'reportLink'"
           class="font-ble"
         >
-          <span @click="downloadUrl(i)">{{ i }}</span>
+          <span @click="downloadUrl(i)">结果excel</span>
         </span>
         <span @click="downloadUrl(row.logLink)" class="font-ble" v-if="item.prop === 'logLink'">{{
-          row.logLink
+          row.logLink ? '执行日志' : ''
         }}</span>
       </template>
     </el-table-column>
@@ -61,9 +61,17 @@
       </template>
     </el-table-column>
   </el-table>
+  <el-pagination
+    class="pagination"
+    v-model:current-page="state.pageNum"
+    v-model:page-size="state.pageSize"
+    :page-sizes="[10, 20, 30, 40]"
+    layout="total,sizes, prev, pager, next, jumper"
+    :total="state.tableTotal"
+  />
 </template>
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
 import QueryTask from '../components/QueryTask.vue'
@@ -84,6 +92,8 @@ const state = reactive({
     pageNum: 0,
     pageSize: 10
   },
+  pageNum: 1,
+  pageSize: 10,
   query: {},
   tableData: [],
   tableTotal: 0,
@@ -135,6 +145,15 @@ const state = reactive({
     }
   ]
 })
+
+watch(
+  () => [state.pageNum, state.pageSize],
+  (val) => {
+    state.page.pageNum = val[0] - 1
+    state.page.pageSize = val[1]
+    getTaskList()
+  }
+)
 
 const deleteTask = (taskId, reportTypeId, reportName, sourceLink, logLink, reportLink) => {
   ElMessageBox.confirm(`确定要删除${reportName}吗?`, '警告', {
@@ -245,5 +264,10 @@ getTaskList()
 .font-ble {
   color: #0076fe;
   cursor: pointer;
+}
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row-reverse;
 }
 </style>

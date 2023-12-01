@@ -52,7 +52,14 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { createTaskReq, updateTaskReq } from '../api/report'
-import { periodType, priority, periodTypeMap, priorityMap, taskStatusList } from '../constant/index'
+import {
+  periodType,
+  priority,
+  periodTypeMap,
+  priorityMap,
+  taskStatusList,
+  priorityMapNum
+} from '../constant/index'
 import SelectCommon from './SelectCommon.vue'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
@@ -93,8 +100,8 @@ const initVal = () => {
   if (props.detail?.reportId) {
     state.formData = {
       reportName: props.detail.reportName,
-      reportPriority: priorityMap[props.detail.reportPriority],
-      date: dayjs(props.detail.OneTime).format('YYYYMMDD'),
+      reportPriority: props.detail.reportPriority,
+      date: dayjs(props.detail.OneTime).format('YYYY-MM-DD'),
       hour: dayjs(props.detail.OneTime).format('HH') == 12 ? '下午' : ' 上午',
       reportState: props.detail.reportState
     }
@@ -103,7 +110,6 @@ const initVal = () => {
 initVal()
 
 const emit = defineEmits(['updateTaskId'])
-const formatHour = (time) => (time > 10 ? `${time}:00:00` : `0${time}:00:00`)
 const submit = () => {
   formRef.value.validate(async (resolve) => {
     if (resolve) {
@@ -114,7 +120,7 @@ const submit = () => {
         LargeCategory: '一次性',
         reportName,
         reportPriority,
-        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${formatHour(hour)}`
+        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${hour === '上午' ? '09:00:00' : '12:00:00'}`
       }
       const result = props.detail?.reportId
         ? await updateTaskReq({ ...params, reportId: props.detail.reportId, reportState })
