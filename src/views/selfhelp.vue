@@ -1,26 +1,33 @@
 <template>
-  <div class="row-item">
-    <span class="label">无需匹配类型需求</span>
-    <SelectCommon
-      :selections="state.noMatch"
-      v-model:select="state.selectTask"
-      @updateSelect="(val) => (state.selectTask = val)"
-    />
-    <el-button type="primary" plain @click="createTask('noMatch')">确认</el-button>
-  </div>
-  <div class="row-item">
-    <span class="label">匹配类型需求</span>
-    <SelectCommon
-      :selections="state.needMatch"
-      v-model:select="state.selectTask"
-      @updateSelect="(val) => (state.selectTask = val)"
-    />
-    <el-button type="primary" plain @click="createTask('needMatch')">确认</el-button>
-    <div class="btn-wrap">
-      <Upload :btnTxt="'上传匹配文件并执行'" @handleFileChange="handleFileChange" />
+  <el-card>
+    <div class="row-item">
+      <span class="label">无需匹配类型需求</span>
+      <SelectCommon
+        :selections="state.noMatch"
+        v-model:select="state.selectTask"
+        @updateSelect="(val) => (state.selectTask = val)"
+      />
+      <el-button type="primary" plain @click="createTask('noMatch')" class="confirm-btn"
+        >确认</el-button
+      >
     </div>
-    <!-- <el-button type="primary" plain @click="confirm">开始执行</el-button> -->
-  </div>
+    <WhiteSpace />
+    <div class="row-item">
+      <span class="label">匹配类型需求</span>
+      <SelectCommon
+        :selections="state.needMatch"
+        v-model:select="state.selectTask"
+        @updateSelect="(val) => (state.selectTask = val)"
+      />
+      <el-button type="primary" plain @click="createTask('needMatch')" class="confirm-btn"
+        >确认</el-button
+      >
+      <div class="btn-wrap">
+        <Upload :btnTxt="'上传匹配文件并执行'" @handleFileChange="handleFileChange" />
+      </div>
+      <!-- <el-button type="primary" plain @click="confirm">开始执行</el-button> -->
+    </div>
+  </el-card>
 </template>
 <script setup>
 import { reactive } from 'vue'
@@ -29,14 +36,13 @@ import {
   getTaskListReq,
   updateTaskReq,
   uploadReq,
-  deleteFileReq,
   createTaskReq,
-  addSqlReq,
-  getTaskSqlsReq
+  getTaskSqlsReq,
+  addSqlBatchReq
 } from '../api/report'
 import SelectCommon from '../components/SelectCommon.vue'
+import WhiteSpace from '../components/WhiteSpace.vue'
 import Upload from '../components/Upload.vue'
-import router from '../router/index'
 import { getLocalStore } from '../util/localStorage'
 import { toast } from '../util/toast'
 const state = reactive({
@@ -71,28 +77,6 @@ const getDemandList = async () => {
   )
 }
 
-const deleteExistFile = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const result = await getTaskListReq({
-        reportId: state.selectTask,
-        pageSize: 100,
-        pageNum: 0
-      })
-      if (result.data.list[0].SourceExcelLink) {
-        // 已经存在
-        //删除文件
-        await deleteFileReq({ fileName: result.data.list[0].SourceExcelLink })
-        resolve()
-      } else {
-        resolve()
-      }
-    } catch (e) {
-      reject(e)
-    }
-  })
-}
-
 const handleFileChange = async (file) => {
   const now = dayjs().format('YYYYMMDDHHmmss')
   const fileSplitLength = file.name.split('.').length
@@ -107,21 +91,6 @@ const handleFileChange = async (file) => {
     reportId: state.newReportId,
     SourceExcelLink: copyFile.name,
     reportState: 1
-  })
-  toast('收到该需求了，正在努力执行～')
-}
-
-const goCreate = () => {
-  router.push('/develop/create/onetime')
-}
-
-const confirm = async () => {
-  const now = new Date().getHours() < 9 ? '09:00:00' : '12:00:00'
-  const result = await updateTaskReq({
-    reportId: state.selectTask,
-    reportState: 1,
-    lastTime: dayjs().subtract(1, 'day').format('YYYY-MM-DD 00:00:00'),
-    OneTime: `${dayjs().format('YYYY-MM-DD')} ${now}`
   })
   toast('收到该需求了，正在努力执行～')
 }
@@ -141,18 +110,14 @@ const getTaskRelatedSql = () => {
 // 把所选任务的sql插入到新的任务中 复制
 const insertSqlToTask = (reportId) => {
   return new Promise(async (resolve, reject) => {
-    let count = 0
     try {
       const sqls = await getTaskRelatedSql()
-      sqls.map(async (i) => {
-        const { reportSqlId, ...rest } = i
-        await addSqlReq({
-          ...rest,
-          reportId
+      await addSqlBatchReq(
+        sqls.map((i) => {
+          return [reportId, i.reportSqlData, i.sqlType, i.ExcelTable, i.SourceSheet, i.TargetSheet]
         })
-        count === sqls.length - 1 && resolve()
-        count++
-      })
+      )
+      resolve()
     } catch (e) {
       reject(e)
     }
@@ -162,6 +127,9 @@ const insertSqlToTask = (reportId) => {
  * 创建任务 塞sql 更新状态变成执行
  */
 const createTask = async (type) => {
+  if (!state.selectTask) {
+    return toast('请先选择一种需求', 'error')
+  }
   const selectTask = state.taskList.filter((i) => i.reportId === state.selectTask)[0]
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
   const { reportId, username, reportTypeName, ...rest } = selectTask
@@ -184,6 +152,7 @@ const createTask = async (type) => {
     })
     toast('收到该需求了，正在努力执行～')
   } else {
+    toast('创建任务成功！')
     state.newReportId = res.data.reportId
   }
 }
@@ -198,10 +167,14 @@ getDemandList()
 }
 .label {
   display: inline-block;
-  width: 300px;
+  width: max-content;
   text-align: left;
+  margin-right: 10px;
 }
 .btn-wrap {
   margin: 0 10px;
+}
+.confirm-btn {
+  margin-left: 10px;
 }
 </style>

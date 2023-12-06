@@ -290,7 +290,8 @@ const startExe = async () => {
     state.loading = true
     await updateTaskReq({
       reportId: props.taskId,
-      reportState: 1
+      reportState: 1,
+      lastTime: '2020-01-01 00:00:00'
     })
     state.loading = false
     toast('提交成功！')

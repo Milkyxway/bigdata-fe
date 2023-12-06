@@ -283,3 +283,14 @@ export const deleteTaskSqlReq = (data) => {
     data
   })
 }
+
+/**
+ * 批量插入sql
+ */
+export const addSqlBatchReq = (data) => {
+  return createRequest()({
+    url: '/api/report/addsqlbatch',
+    method: 'post',
+    data
+  })
+}

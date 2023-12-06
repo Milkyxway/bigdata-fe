@@ -16,6 +16,9 @@
       :width="['reportLink', 'logLink', 'reportName'].includes(item.prop) && 200"
     >
       <template #default="{ row }">
+        <span :class="getColorByState(row.reportState)" v-if="item.prop === 'reportState'">{{
+          row.reportState
+        }}</span>
         <span
           v-for="(i, index) in row.reportLink"
           :v-bind:key="index"
@@ -84,8 +87,9 @@ import {
   deleteFileReq
 } from '../api/report'
 import router from '../router/index'
-import { priorityMap, taskStatusMap } from '../constant/index'
+import { priorityMap, taskStatusMap, orgMap } from '../constant/index'
 import { toast } from '../util/toast'
+import { getColorByState } from '../util/statefont'
 import { formatLink, downloadUrl } from '../util/formatLink'
 const state = reactive({
   page: {
@@ -122,7 +126,10 @@ const state = reactive({
       label: '任务优先级',
       prop: 'reportPriority'
     },
-
+    {
+      label: '任务所属部门',
+      prop: 'taskAssignOrg'
+    },
     {
       label: '最后执行时间',
       prop: 'lastTime'
@@ -192,7 +199,11 @@ const deleteTask = (taskId, reportTypeId, reportName, sourceLink, logLink, repor
           })
           toast('任务已删除')
           getTaskList()
-        } catch (e) {}
+        } catch (e) {
+          await deleteTaskReq({
+            reportId: taskId
+          })
+        }
       }
     }
   })
@@ -237,7 +248,8 @@ const getTaskList = async () => {
       reportLink: getLink(i.reportLink, 'out'),
       logLink: getLink(i.logLink, 'log'),
       reportLinkCopy: i.reportLink,
-      logLinkCopy: i.logLink
+      logLinkCopy: i.logLink,
+      taskAssignOrg: orgMap[i.taskAssignOrg]
     }
   })
   state.tableTotal = result.data.total
@@ -269,5 +281,18 @@ getTaskList()
   margin-top: 10px;
   display: flex;
   flex-direction: row-reverse;
+}
+.font-grey {
+  color: #b1b3b8;
+}
+.font-yellow {
+  color: #e6a23c;
+}
+.font-red {
+  color: #f56c6c;
+}
+
+.font-green {
+  color: #67c23a;
 }
 </style>

@@ -2,7 +2,8 @@ const taskStatusMap = {
   0: '已创建',
   1: '执行中',
   2: '完结归档',
-  3: '中止'
+  3: '中止',
+  4: '执行错误'
 }
 
 const taskStatusList = [
@@ -21,6 +22,10 @@ const taskStatusList = [
   {
     label: '中止',
     value: 3
+  },
+  {
+    label: '执行错误',
+    value: 4
   }
 ]
 
@@ -219,6 +224,20 @@ const orgnizationTree = [
   // }
 ]
 
+const orgMap = {
+  1: '综合管理部',
+  2: '党群工作部',
+  3: '人力资源部',
+  4: '财务资产部',
+  5: '企业发展部',
+  6: '市场运营部',
+  7: '政企客户部',
+  8: '公众客户部',
+  9: '技术支撑部',
+  10: '工程建设部',
+  11: '安播运维部'
+}
+
 const periodType = [
   {
     label: '日报',
@@ -340,6 +359,7 @@ export {
   taskStatusMap,
   taskStatusList,
   orgnizationTree,
+  orgMap,
   statusWeight,
   periodTypeMap,
   periodType,

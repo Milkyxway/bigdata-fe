@@ -20,6 +20,9 @@
       :width="['reportLink'].includes(item.prop) && 200"
     >
       <template #default="{ row }">
+        <span :class="getColorByState(row.reportState)" v-if="item.prop === 'reportState'">{{
+          row.reportState
+        }}</span>
         <span
           v-if="item.prop === 'SourceExcelLink'"
           @click="row.SourceExcelLink && downloadUrl(row.SourceExcelLink)"
@@ -55,7 +58,8 @@ import WhiteSpace from '../components/WhiteSpace.vue'
 import { getTaskListReq } from '../api/report'
 import { getLocalStore } from '../util/localStorage'
 import { formatLink, downloadUrl } from '../util/formatLink'
-import { periodType, periodTypeMap, taskStatusMap } from '../constant/index'
+import { orgMap, periodType, periodTypeMap, taskStatusMap } from '../constant/index'
+import { getColorByState } from '../util/statefont'
 
 const userId = getLocalStore('userInfo').userId
 const tabs = ref([{ label: '一次性任务', value: 0 }, ...periodType])
@@ -87,6 +91,10 @@ const state = reactive({
     {
       label: '上传匹配文件',
       prop: 'SourceExcelLink'
+    },
+    {
+      label: '任务所属部门',
+      prop: 'taskAssignOrg'
     },
     {
       label: '创建人',
@@ -140,8 +148,8 @@ watch(
 
 const getReportLinkTxt = computed(() => {
   return function (row) {
-    if (row.isChild && row.LargeCategory === '周期性') {
-      return `结果excel(${dayjs(row.createTime).subtract(1, 'month').format('YYYYMM')}月)`
+    if (row.isChild && row.LargeCategory === '周期性' && row.reportLink) {
+      return `结果excel(生成日期${row.reportLink.substr(36, 8)})`
     }
     if (row.LargeCategory === '一次性' && row.reportLink) {
       return '结果excel'
@@ -168,7 +176,6 @@ const insertIdIntoArr = (data) => {
     }
     return i
   })
-  console.log(result)
   return result
 }
 const formatDate = (date, format) => dayjs(date).format(format || 'YYYY-MM-DD')
@@ -197,7 +204,8 @@ const getReportList = async () => {
           })
         : '',
       SourceExcelLink: formatLink(i.SourceExcelLink, 'upload'),
-      createTime: formatDate(i.createTime, 'YYYY-MM-DD HH:mm:ss')
+      createTime: formatDate(i.createTime, 'YYYY-MM-DD HH:mm:ss'),
+      taskAssignOrg: orgMap[i.taskAssignOrg]
     }
   })
   state.tableData = insertIdIntoArr(state.tableData)
@@ -215,5 +223,18 @@ getReportList()
   margin-top: 10px;
   display: flex;
   flex-direction: row-reverse;
+}
+.font-grey {
+  color: #b1b3b8;
+}
+.font-yellow {
+  color: #e6a23c;
+}
+.font-red {
+  color: #f56c6c;
+}
+
+.font-green {
+  color: #67c23a;
 }
 </style>

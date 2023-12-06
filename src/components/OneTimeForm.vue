@@ -45,6 +45,19 @@
     >
     </SelectCommon>
   </el-form-item>
+  <el-form-item
+    :label-width="formLabelWidth"
+    label="任务所属部门"
+    prop="taskAssignOrg"
+    :rules="[{ required: true, message: '请选择任务所属部门', trigger: 'blur' }]"
+  >
+    <SelectCommon
+      :selections="orgnizationTree"
+      v-model:select="state.formData.taskAssignOrg"
+      @updateSelect="(val) => (state.formData.taskAssignOrg = val)"
+    >
+    </SelectCommon>
+  </el-form-item>
   <el-button type="primary" @click="submit">{{
     props.detail?.reportId ? '修改' : '提交'
   }}</el-button>
@@ -52,14 +65,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { createTaskReq, updateTaskReq } from '../api/report'
-import {
-  periodType,
-  priority,
-  periodTypeMap,
-  priorityMap,
-  taskStatusList,
-  priorityMapNum
-} from '../constant/index'
+import { priority, taskStatusList, orgnizationTree } from '../constant/index'
 import SelectCommon from './SelectCommon.vue'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
@@ -74,7 +80,8 @@ const state = reactive({
     reportPriority: 99,
     hour: '',
     date: '',
-    reportState: ''
+    reportState: '',
+    taskAssignOrg: ''
   },
   taskId: ''
 })

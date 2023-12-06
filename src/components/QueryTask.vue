@@ -4,12 +4,20 @@
       <el-row>
         <el-col :span="12">
           <el-form-item label="任务名称">
-            <el-input placeholder="请输入任务名称" v-model="state.formData.reportName"></el-input>
+            <el-input
+              placeholder="请输入任务名称"
+              v-model="state.formData.reportName"
+              clearable
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="任务创建人">
-            <el-input placeholder="请输入任务创建人" v-model="state.formData.username"></el-input>
+            <el-input
+              placeholder="请输入任务创建人"
+              v-model="state.formData.username"
+              clearable
+            ></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -43,6 +51,7 @@ const reset = () => {
   Object.keys(state.formData).map((i) => {
     state.formData[i] = ''
   })
+  emits('handleQuery', state.formData)
 }
 
 const createTask = () => {

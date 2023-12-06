@@ -93,7 +93,20 @@ const login = () => {
 const redirect = () => {
   const userInfo = getLocalStore('userInfo')
   if (userInfo && userInfo.role) {
-    router.replace('/develop/tasklist')
+    switch (userInfo.role) {
+      case 'admin':
+        router.replace('/personal/users')
+        break
+      case 'developer':
+        router.replace('/develop/tasklist')
+        break
+      case 'section':
+        router.replace('/report/list')
+        break
+      case 'employee':
+        router.replace('/report/list')
+        break
+    }
   }
 }
 redirect()
