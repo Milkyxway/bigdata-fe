@@ -88,6 +88,19 @@
       >
       </SelectCommon>
     </el-form-item>
+    <el-form-item
+      :label-width="formLabelWidth"
+      label="任务所属部门"
+      prop="taskAssignOrg"
+      :rules="[{ required: true, message: '请选择任务所属部门', trigger: 'blur' }]"
+    >
+      <SelectCommon
+        :selections="orgnizationTree"
+        v-model:select="state.formData.taskAssignOrg"
+        @updateSelect="(val) => (state.formData.taskAssignOrg = val)"
+      >
+      </SelectCommon>
+    </el-form-item>
     <el-button type="primary" @click="commit" v-if="!state.taskId">{{
       props.detail?.reportId ? '修改任务' : '创建任务'
     }}</el-button>
@@ -103,7 +116,8 @@ import {
   periodTypeMap,
   priorityMap,
   week,
-  taskStatusList
+  taskStatusList,
+  orgnizationTree
 } from '../constant/index'
 import { createTaskReq, createTaskTypeReq, updateTaskReq, updateTaskTypeReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
@@ -136,7 +150,8 @@ const state = reactive({
     timeRange: [],
     periodType: 1,
     priority: 99,
-    reportState: ''
+    reportState: '',
+    taskAssignOrg: ''
   },
   taskId: '',
   sqlStrs: [0]
@@ -159,7 +174,8 @@ const initVal = () => {
       priority: props.detail.reportPriority,
       timeRange: [props.detail.TimeOn, props.detail.endTime],
       periodType: periodType.filter((i) => i.label === props.typeDetail.reportTypeName)[0].value,
-      reportState: props.detail.reportState
+      reportState: props.detail.reportState,
+      taskAssignOrg: props.detail.taskAssignOrg
     }
     state.day = props.typeDetail.modeName.split(',')[0]
     state.noon = getNoon(props.typeDetail.modeName)
@@ -261,7 +277,7 @@ const commit = () => {
     if (res) {
       if (validateData()) {
         const {
-          formData: { timeRange, reportName, periodType, priority, reportState }
+          formData: { timeRange, reportName, periodType, priority, reportState, taskAssignOrg }
         } = state
         try {
           const params = {
@@ -281,7 +297,8 @@ const commit = () => {
               TimeOn: formatDate(timeRange[0]),
               endTime: formatDate(timeRange[1]),
               reportTypeId: isUpdate ? props.typeDetail.reportTypeId : typeRes.data.reportTypeId,
-              reportPriority: priority
+              reportPriority: priority,
+              taskAssignOrg
             }
             const result = !isUpdate
               ? await createTaskReq({ ...params, custID: userId })

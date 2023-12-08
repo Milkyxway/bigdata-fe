@@ -110,7 +110,8 @@ const initVal = () => {
       reportPriority: props.detail.reportPriority,
       date: dayjs(props.detail.OneTime).format('YYYY-MM-DD'),
       hour: dayjs(props.detail.OneTime).format('HH') == 12 ? '下午' : ' 上午',
-      reportState: props.detail.reportState
+      reportState: props.detail.reportState,
+      taskAssignOrg: props.detail.taskAssignOrg
     }
   }
 }
@@ -121,13 +122,14 @@ const submit = () => {
   formRef.value.validate(async (resolve) => {
     if (resolve) {
       const {
-        formData: { reportName, reportPriority, date, hour, reportState }
+        formData: { reportName, reportPriority, date, hour, reportState, taskAssignOrg }
       } = state
       const params = {
         LargeCategory: '一次性',
         reportName,
         reportPriority,
-        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${hour === '上午' ? '09:00:00' : '12:00:00'}`
+        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${hour === '上午' ? '09:00:00' : '12:00:00'}`,
+        taskAssignOrg
       }
       const result = props.detail?.reportId
         ? await updateTaskReq({ ...params, reportId: props.detail.reportId, reportState })

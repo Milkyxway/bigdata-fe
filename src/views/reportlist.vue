@@ -62,6 +62,7 @@ import { orgMap, periodType, periodTypeMap, taskStatusMap } from '../constant/in
 import { getColorByState } from '../util/statefont'
 
 const userId = getLocalStore('userInfo').userId
+const orgId = getLocalStore('userInfo').orgnization
 const tabs = ref([{ label: '一次性任务', value: 0 }, ...periodType])
 const state = reactive({
   chooseTab: 0,
@@ -185,12 +186,14 @@ const getReportList = async () => {
     ...state.querys,
     ...state.page,
     custID: userId,
+    orgId,
     LargeCategory: '一次性'
   }
   if (state.chooseTab !== 0) {
     params = {
       ...state.querys,
-      ...state.page
+      ...state.page,
+      orgId
     }
   }
   const result = await getTaskListReq(params)
