@@ -7,8 +7,27 @@
         v-model:select="state.selectTask"
         @updateSelect="(val) => (state.selectTask = val)"
       />
+      <el-date-picker
+        type="daterange"
+        v-model="state.timeRange"
+        start-placeholder="起始日期"
+        end-placeholder="结束日期"
+      ></el-date-picker>
+      <el-select
+        v-model="state.selectStand"
+        multiple
+        collapse-tags
+        placeholder="请选择广电站 不选为全部"
+      >
+        <el-option
+          v-for="item in stands"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
       <el-button type="primary" plain @click="createTask('noMatch')" class="confirm-btn"
-        >确认</el-button
+        >立即执行</el-button
       >
     </div>
     <WhiteSpace />
@@ -20,17 +39,18 @@
         @updateSelect="(val) => (state.selectTask = val)"
       />
       <el-button type="primary" plain @click="createTask('needMatch')" class="confirm-btn"
-        >确认</el-button
+        >创建任务</el-button
       >
       <div class="btn-wrap">
         <Upload :btnTxt="'上传匹配文件并执行'" @handleFileChange="handleFileChange" />
       </div>
       <!-- <el-button type="primary" plain @click="confirm">开始执行</el-button> -->
     </div>
+    <WhiteSpace />
   </el-card>
 </template>
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import dayjs from 'dayjs'
 import {
   getTaskListReq,
@@ -45,14 +65,18 @@ import WhiteSpace from '../components/WhiteSpace.vue'
 import Upload from '../components/Upload.vue'
 import { getLocalStore } from '../util/localStorage'
 import { toast } from '../util/toast'
+import { stands, standMap } from '../constant/index'
 const state = reactive({
   taskList: [],
   selectTask: '',
   taskId: 0,
   noMatch: [],
   needMatch: [],
-  newReportId: ''
+  newReportId: '',
+  timeRange: null,
+  selectStand: null
 })
+
 const userId = getLocalStore('userInfo').userId
 const formatArr = (arr) => {
   return arr.map((i) => {
@@ -96,22 +120,40 @@ const handleFileChange = async (file) => {
 }
 
 // 获取所选任务对应的sql
-const getTaskRelatedSql = () => {
+const getTaskRelatedSql = (type) => {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await getTaskSqlsReq({ taskId: state.selectTask })
-      resolve(res.data.taskSqls)
+      resolve(type === 'needMatch' ? res.data.taskSqls : modifySql(res.data.taskSqls[0]))
     } catch (e) {
       reject(e)
     }
   })
 }
 
+const modifySql = (result) => {
+  let sqlModify = result.reportSqlData
+  if (state.timeRange) {
+    const { timeRange } = state
+    const startTime = dayjs(timeRange[0]).format('YYYYMMDD')
+    const endTime = dayjs(timeRange[1]).format('YYYYMMDD')
+    sqlModify = sqlModify.replace('#startTime', startTime).replace('#endTime', endTime)
+  }
+  if (state.selectStand) {
+    const condition = `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
+    sqlModify = sqlModify.replace(' #standList', condition)
+  } else {
+    const condition = `(${stands.map((i) => standMap[i]).join(',')})`
+    sqlModify = sqlModify.replace(' #standList', condition)
+  }
+  return [{ ...result, reportSqlData: sqlModify }]
+}
+
 // 把所选任务的sql插入到新的任务中 复制
-const insertSqlToTask = (reportId) => {
+const insertSqlToTask = (reportId, type) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const sqls = await getTaskRelatedSql()
+      const sqls = await getTaskRelatedSql(type)
       await addSqlBatchReq(
         sqls.map((i) => {
           return [reportId, i.reportSqlData, i.sqlType, i.ExcelTable, i.SourceSheet, i.TargetSheet]
@@ -144,7 +186,8 @@ const createTask = async (type) => {
     reportState: 0,
     custID: userId
   })
-  await insertSqlToTask(res.data.reportId)
+  await insertSqlToTask(res.data.reportId, type)
+  state.newReportId = res.data.reportId
   if (type === 'noMatch') {
     await updateTaskReq({
       reportId: res.data.reportId,
@@ -153,7 +196,6 @@ const createTask = async (type) => {
     toast('收到该需求了，正在努力执行～')
   } else {
     toast('创建任务成功！')
-    state.newReportId = res.data.reportId
   }
 }
 getDemandList()

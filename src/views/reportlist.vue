@@ -157,7 +157,12 @@ const getReportLinkTxt = computed(() => {
     }
   }
 })
-
+const handleQuery = (form) => {
+  state.querys = {
+    reportName: form.keyword
+  }
+  getReportList()
+}
 const insertIdIntoArr = (data) => {
   const result = data.map((i) => {
     if (i.LargeCategory === '周期性') {

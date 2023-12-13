@@ -35,14 +35,7 @@ import { periodType, periodTypeMap } from '../constant/index'
 const emit = defineEmits(['handleQuery', 'createTask'])
 const role = getLocalStore('userInfo').role
 let queryForm = reactive({
-  category: null,
-  status: null,
-  keyword: '',
-  createTime: null,
-  leadOrg: null,
-  assistOrg: null,
-  taskSource: null,
-  ariseOrg: null
+  keyword: ''
 })
 const state = reactive({
   showUploadDialog: false,
