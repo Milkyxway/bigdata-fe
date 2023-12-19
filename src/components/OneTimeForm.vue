@@ -52,7 +52,7 @@
     :rules="[{ required: true, message: '请选择任务所属部门', trigger: 'blur' }]"
   >
     <SelectCommon
-      :selections="orgnizationTree"
+      :selections="getOrgTreeByRegion()"
       v-model:select="state.formData.taskAssignOrg"
       @updateSelect="(val) => (state.formData.taskAssignOrg = val)"
     >
@@ -63,17 +63,20 @@
   }}</el-button>
 </template>
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import { createTaskReq, updateTaskReq } from '../api/report'
-import { priority, taskStatusList, orgnizationTree } from '../constant/index'
+import { priority, taskStatusList } from '../constant/index'
 import SelectCommon from './SelectCommon.vue'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
+import { getOrgTreeByRegion } from '../util/orgnization'
 import dayjs from 'dayjs'
 
 const formRef = ref()
+
 const userId = getLocalStore('userInfo').userId
-// const formLabelWidth = '140px'
+const region = getLocalStore('userInfo').region
+
 const state = reactive({
   formData: {
     reportName: '',
@@ -133,7 +136,7 @@ const submit = () => {
       }
       const result = props.detail?.reportId
         ? await updateTaskReq({ ...params, reportId: props.detail.reportId, reportState })
-        : await createTaskReq({ ...params, custID: userId })
+        : await createTaskReq({ ...params, custID: userId, region })
       toast('操作成功！')
       if (!props.detail?.reportId) {
         state.taskId = result.data.reportId

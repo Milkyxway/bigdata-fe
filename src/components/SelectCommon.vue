@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="selectVal" clearable>
+  <el-select v-model="selectVal" clearable :disabled="props.disabled">
     <el-option
       v-for="(item, index) in selections"
       v-bind:key="index"
@@ -18,6 +18,10 @@ const props = defineProps({
   },
   select: {
     type: String
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['updateSelect'])

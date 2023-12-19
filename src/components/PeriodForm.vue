@@ -6,7 +6,11 @@
       prop="reportName"
       :rules="[{ required: true, message: '请输入任务名称', trigger: 'blur' }]"
     >
-      <el-input v-model="state.formData.reportName" placeholder="请输入任务名称"></el-input>
+      <el-input
+        v-model="state.formData.reportName"
+        placeholder="请输入任务名称"
+        :disabled="disableCondition"
+      ></el-input>
     </el-form-item>
     <el-form-item
       :label-width="formLabelWidth"
@@ -14,7 +18,11 @@
       prop="timeRange"
       :rules="[{ required: true, message: '请选择任务时间范围', trigger: 'blur' }]"
     >
-      <el-date-picker type="daterange" v-model="state.formData.timeRange"></el-date-picker>
+      <el-date-picker
+        type="daterange"
+        v-model="state.formData.timeRange"
+        :disabled="disableCondition"
+      ></el-date-picker>
     </el-form-item>
     <el-form-item
       :label-width="formLabelWidth"
@@ -26,6 +34,7 @@
         :selections="periodTypes"
         v-model:select="state.formData.periodType"
         @updateSelect="(val) => (state.formData.periodType = val)"
+        :disabled="disableCondition"
       />
     </el-form-item>
     <el-form-item :label-width="formLabelWidth" label="周期任务执行时间">
@@ -34,6 +43,7 @@
           :selections="noon"
           v-model:select="state.noon"
           @updateSelect="(val) => updateSelect(val, 'noon')"
+          :disabled="disableCondition"
         />
       </div>
       <div v-if="state.formData.periodType == 2" class="time-row">
@@ -41,11 +51,13 @@
           :selections="week"
           v-model:select="state.day"
           @updateSelect="(val) => updateSelect(val, 'day')"
+          :disabled="disableCondition"
         />
         <SelectCommon
           :selections="noon"
           v-model:select="state.noon"
           @updateSelect="(val) => updateSelect(val, 'noon')"
+          :disabled="disableCondition"
         />
       </div>
       <div v-if="state.formData.periodType == 3" class="time-row">
@@ -53,12 +65,14 @@
           :selections="month"
           v-model:select="state.date"
           @updateSelect="(val) => updateSelect(val, 'date')"
+          :disabled="disableCondition"
         />
         <span>日</span>
         <SelectCommon
           :selections="noon"
           v-model:select="state.noon"
           @updateSelect="(val) => updateSelect(val, 'noon')"
+          :disabled="disableCondition"
         />
       </div>
     </el-form-item>
@@ -72,6 +86,7 @@
         :selections="priority"
         v-model:select="state.formData.priority"
         @updateSelect="(val) => (state.formData.priority = val)"
+        :disabled="disableCondition"
       />
     </el-form-item>
     <el-form-item
@@ -85,6 +100,7 @@
         :selections="taskStatusList"
         v-model:select="state.formData.reportState"
         @updateSelect="(val) => (state.formData.reportState = val)"
+        :disabled="disableCondition"
       >
       </SelectCommon>
     </el-form-item>
@@ -95,37 +111,41 @@
       :rules="[{ required: true, message: '请选择任务所属部门', trigger: 'blur' }]"
     >
       <SelectCommon
-        :selections="orgnizationTree"
+        :selections="getOrgTreeByRegion()"
         v-model:select="state.formData.taskAssignOrg"
         @updateSelect="(val) => (state.formData.taskAssignOrg = val)"
+        :disabled="disableCondition"
       >
       </SelectCommon>
     </el-form-item>
-    <el-button type="primary" @click="commit" v-if="!state.taskId">{{
-      props.detail?.reportId ? '修改任务' : '创建任务'
-    }}</el-button>
+    <UploadBtn
+      v-showByAuth="{ role: userInfo.role, showCondition: ['section'] }"
+      @update-file="modifyTaskFile"
+    />
+    <el-button
+      type="primary"
+      @click="commit"
+      v-if="!state.taskId && userInfo.role === 'developer'"
+      >{{ props.detail?.reportId ? '修改任务' : '创建任务' }}</el-button
+    >
   </el-form>
   <WhiteSpace />
 </template>
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import dayjs from 'dayjs'
-import {
-  periodType,
-  priority,
-  periodTypeMap,
-  priorityMap,
-  week,
-  taskStatusList,
-  orgnizationTree
-} from '../constant/index'
+import { periodType, priority, periodTypeMap, week, taskStatusList } from '../constant/index'
+import { getOrgTreeByRegion } from '../util/orgnization'
 import { createTaskReq, createTaskTypeReq, updateTaskReq, updateTaskTypeReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
 import WhiteSpace from './WhiteSpace.vue'
+import UploadBtn from './UploadBtn.vue'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
+
 const formRef = ref()
-const userId = getLocalStore('userInfo').userId
+
+const userInfo = getLocalStore('userInfo')
 const month = ref(new Array(31).fill(0))
 const periodTypes = ref(periodType)
 const props = defineProps({
@@ -137,7 +157,6 @@ const props = defineProps({
   }
 })
 
-// const formLabelWidth = '200px'
 const state = reactive({
   modeName: '',
   day: '',
@@ -167,6 +186,17 @@ const noon = ref([
     value: '1200'
   }
 ])
+
+const disableCondition = computed(() => ['section'].includes(userInfo.role))
+const modifyTaskFile = async (SourceExcelLink) => {
+  await updateTaskReq({
+    reportId: props.detail.reportId,
+    SourceExcelLink,
+    reportState: 1,
+    lastTime: '2020-01-01 00:00:00'
+  })
+  toast('收到该需求了，正在努力执行')
+}
 const initVal = () => {
   if (props.detail?.reportId) {
     state.formData = {
@@ -301,7 +331,7 @@ const commit = () => {
               taskAssignOrg
             }
             const result = !isUpdate
-              ? await createTaskReq({ ...params, custID: userId })
+              ? await createTaskReq({ ...params, custID: userInfo.userId, region: userInfo.region })
               : await updateTaskReq({ ...params, reportId: isUpdate, reportState })
             if (!isUpdate) {
               state.taskId = result.data.reportId

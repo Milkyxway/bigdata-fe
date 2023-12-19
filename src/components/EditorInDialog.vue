@@ -25,6 +25,7 @@ import WhiteSpace from './WhiteSpace.vue'
 import 'md-editor-v3/lib/style.css'
 import { addCommonUseSqlAddReq, updateCommonSqlReq } from '../api/report'
 import { toast } from '../util/toast'
+import { getLocalStore } from '../util/localStorage'
 const props = defineProps({
   content: {},
   showUploadDialog: {
@@ -43,6 +44,7 @@ const props = defineProps({
 const emits = defineEmits(['updateContent', 'refreshList'])
 const sqlContent = ref()
 const sqlName = ref()
+const region = getLocalStore('userInfo').region
 watch(
   () => props.content,
   (val) => {
@@ -69,7 +71,8 @@ const uploadSqls = async () => {
 
   const params = {
     sqlContent: sqlContent.value,
-    sqlName: sqlName.value
+    sqlName: sqlName.value,
+    region
   }
 
   const result =

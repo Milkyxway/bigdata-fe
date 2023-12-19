@@ -86,142 +86,6 @@ const orgnizationTree = [
     value: 11,
     label: '安播运维部'
   }
-  // {
-  //   value: 12,
-  //   label: '锡山广电中心'
-  // },
-  // {
-  //   value: 13,
-  //   label: '惠山广电中心'
-  // },
-  // {
-  //   value: 14,
-  //   label: '滨湖广电中心'
-  // },
-  // {
-  //   value: 15,
-  //   label: '经开广电中心'
-  // },
-  // {
-  //   value: 16,
-  //   label: '新吴广电中心'
-  // },
-  // {
-  //   value: 17,
-  //   label: '梁溪广电中心'
-  // },
-  // {
-  //   value: 18,
-  //   label: '安镇广电站'
-  // },
-  // {
-  //   value: 19,
-  //   label: '东亭广电站'
-  // },
-  // {
-  //   value: 20,
-  //   label: '东北塘广电站'
-  // },
-  // {
-  //   value: 21,
-  //   label: '羊尖广电站'
-  // },
-  // {
-  //   value: 22,
-  //   label: '锡北广电站'
-  // },
-  // {
-  //   value: 23,
-  //   label: '东港广电站'
-  // },
-  // {
-  //   value: 24,
-  //   label: '钱桥阳山广电站'
-  // },
-  // {
-  //   value: 25,
-  //   label: '洛社广电站'
-  // },
-  // {
-  //   value: 26,
-  //   label: '堰桥长安广电站'
-  // },
-  // {
-  //   value: 27,
-  //   label: '前洲玉祁长安广电站'
-  // },
-  // {
-  //   value: 28,
-  //   label: '山北黄巷广电站'
-  // },
-  // {
-  //   value: 29,
-  //   label: '太湖滨湖黄巷广电站'
-  // },
-  // {
-  //   value: 30,
-  //   label: '华庄广电站'
-  // },
-  // {
-  //   value: 31,
-  //   label: '马山广电站'
-  // },
-  // {
-  //   value: 32,
-  //   label: '胡埭广电站'
-  // },
-  // {
-  //   value: 33,
-  //   label: '河埒广电站'
-  // },
-  // {
-  //   value: 34,
-  //   label: '蠡园广电站'
-  // },
-  // {
-  //   value: 35,
-  //   label: '鸿山梅村广电站'
-  // },
-  // {
-  //   value: 36,
-  //   label: '硕放西南广电站'
-  // },
-  // {
-  //   value: 37,
-  //   label: '鹅湖广电站'
-  // },
-  // {
-  //   value: 38,
-  //   label: '旺庄广电站'
-  // },
-  // {
-  //   value: 39,
-  //   label: '江溪广益扬名广电站'
-  // },
-  // {
-  //   value: 40,
-  //   label: '湖滨广电站'
-  // },
-  // {
-  //   value: 41,
-  //   label: '崇安广电站'
-  // },
-  // {
-  //   value: 42,
-  //   label: '盛岸广电站'
-  // },
-  // {
-  //   value: 43,
-  //   label: '长江路广电站'
-  // },
-  // {
-  //   value: 44,
-  //   label: '中桥广电站'
-  // },
-  // {
-  //   value: 45,
-  //   label: '北塘广电站'
-  // }
 ]
 
 const stands = [
@@ -369,6 +233,72 @@ const standMap = {
   45: '北塘广电站'
 }
 
+const orgnizationTree_jy = [
+  {
+    label: '党群工作部',
+    value: 12
+  },
+  {
+    label: '公众客户部',
+    value: 13
+  },
+  {
+    label: '政企客户部',
+    value: 14
+  },
+  {
+    label: '综合管理部',
+    value: 15
+  },
+  {
+    label: '安播运维部',
+    value: 16
+  },
+  {
+    label: '技术工程部',
+    value: 17
+  }
+]
+
+const orgnizationTree_yx = [
+  {
+    label: '综合管理部',
+    value: 18
+  },
+  {
+    label: '公众客户部',
+    value: 19
+  },
+  {
+    label: '政企客户部',
+    value: 20
+  },
+  {
+    label: '技术工程部',
+    value: 21
+  },
+  {
+    label: '安播运维部',
+    value: 22
+  },
+  {
+    label: '党群工作部',
+    value: 23
+  },
+  {
+    label: '企业发展科',
+    value: 24
+  },
+  {
+    label: '人力资源科',
+    value: 25
+  },
+  {
+    label: '工会',
+    value: 26
+  }
+]
+
 const orgMap = {
   1: '综合管理部',
   2: '党群工作部',
@@ -380,7 +310,22 @@ const orgMap = {
   8: '公众客户部',
   9: '技术支撑部',
   10: '工程建设部',
-  11: '安播运维部'
+  11: '安播运维部',
+  12: '党群工作部',
+  13: '公众客户部',
+  14: '政企客户部',
+  15: '综合管理部',
+  16: '安播运维部',
+  17: '技术工程部',
+  18: '综合管理部',
+  19: '公众客户部',
+  20: '政企客户部',
+  21: '技术工程部',
+  22: '安播运维部',
+  23: '党群工作部',
+  24: '企业发展科',
+  25: '人力资源科',
+  26: '工会'
 }
 
 const periodType = [
@@ -491,6 +436,24 @@ const roleList = [
     value: 'developer'
   }
 ]
+
+const regions = [
+  {
+    label: '无锡分公司',
+    value: 'wx',
+    name: '无锡分公司'
+  },
+  {
+    label: '江阴分公司',
+    value: 'jy',
+    name: '江阴分公司'
+  },
+  {
+    label: '宜兴分公司',
+    value: 'yx',
+    name: '宜兴分公司'
+  }
+]
 const weekMap = {
   Monday: '周一',
   Tuesday: '周二',
@@ -516,5 +479,8 @@ export {
   sqlType,
   roleList,
   stands,
-  standMap
+  standMap,
+  regions,
+  orgnizationTree_jy,
+  orgnizationTree_yx
 }

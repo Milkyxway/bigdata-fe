@@ -38,6 +38,20 @@
         >
       </template>
     </el-table-column>
+    <el-table-column fixed="right" label="操作" width="150">
+      <template #default="{ row }">
+        <!-- <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button> -->
+
+        <el-button
+          link
+          type="primary"
+          size="small"
+          v-if="row.LargeCategory === '周期性'"
+          @click="router.push(`/develop/taskdetail/${row.reportId}`)"
+          >查看</el-button
+        >
+      </template>
+    </el-table-column>
   </el-table>
 
   <el-pagination
@@ -60,6 +74,7 @@ import { getLocalStore } from '../util/localStorage'
 import { formatLink, downloadUrl } from '../util/formatLink'
 import { orgMap, periodType, periodTypeMap, taskStatusMap } from '../constant/index'
 import { getColorByState } from '../util/statefont'
+import router from '../router/index'
 
 const userId = getLocalStore('userInfo').userId
 const orgId = getLocalStore('userInfo').orgnization
@@ -191,7 +206,6 @@ const getReportList = async () => {
     ...state.querys,
     ...state.page,
     custID: userId,
-    orgId,
     LargeCategory: '一次性'
   }
   if (state.chooseTab !== 0) {

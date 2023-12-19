@@ -1,6 +1,23 @@
 <template>
-  <QuerySql @handleQuery="handleQuery" @refreshList="getSqlList" />
+  <QuerySql
+    @handleQuery="handleQuery"
+    @refreshList="
+      () => {
+        selectTabByRegion()
+        getSqlList()
+      }
+    "
+  />
   <WhiteSpace />
+  <el-tabs v-model="state.chooseTab">
+    <el-tab-pane
+      v-for="(item, index) in regions"
+      v-bind:key="index"
+      :label="item.label"
+      :name="item.value"
+    >
+    </el-tab-pane>
+  </el-tabs>
   <el-table :data="state.tableData">
     <el-table-column
       v-for="item in state.tableColumns"
@@ -38,7 +55,12 @@
     v-model:showUploadDialog="state.showEdit"
     @updateContent="(val, type) => (state[type] = val)"
     @closeModal="state.showEdit = false"
-    @refreshList="getSqlList"
+    @refreshList="
+      () => {
+        selectTabByRegion()
+        getSqlList()
+      }
+    "
     type="update"
   />
 </template>
@@ -52,19 +74,27 @@ import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
 import { ElMessageBox } from 'element-plus'
 import WhiteSpace from '../components/WhiteSpace.vue'
+import { regions } from '../constant/index'
+const region = getLocalStore('userInfo').region
 const state = reactive({
   showEdit: false,
-  chooseTab: 3,
+  chooseTab: '',
   page: {
     pageSize: 10,
     pageNum: 0
   },
-  querys: {},
+  querys: {
+    region: ''
+  },
 
   tableColumns: [
     {
       columnName: '脚本名称',
       prop: 'sqlName'
+    },
+    {
+      columnName: '所属分公司',
+      prop: 'region'
     }
   ],
   tableData: [],
@@ -73,6 +103,15 @@ const state = reactive({
   sqlName: '',
   selectSqlId: ''
 })
+watch(
+  () => state.chooseTab,
+  (val) => {
+    if (val) {
+      state.querys.region = val
+      getSqlList()
+    }
+  }
+)
 
 const getSqlList = async () => {
   state.tableData = []
@@ -80,14 +119,18 @@ const getSqlList = async () => {
     ...state.page,
     ...state.querys
   })
-  state.tableData = result.data.list
+  state.tableData = result.data.list.map((i) => {
+    return {
+      ...i,
+      region: regions.filter((j) => j.value === i.region)[0].name
+    }
+  })
   state.total = result.data.total
 }
 
-getSqlList()
-
 const handleQuery = (query) => {
   state.querys = {
+    ...state.querys,
     ...query
   }
   getSqlList()
@@ -109,4 +152,9 @@ const deleteSQL = async (sqlId, sqlName) => {
     }
   })
 }
+const selectTabByRegion = () => {
+  state.chooseTab = region
+  state.querys.region = region
+}
+selectTabByRegion()
 </script>

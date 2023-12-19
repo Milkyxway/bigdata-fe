@@ -17,7 +17,12 @@
     />
   </el-card>
   <WhiteSpace />
-  <el-card>
+  <el-card
+    v-showByAuth="{
+      role,
+      showCondition: ['developer']
+    }"
+  >
     <template #header>
       <div class="card-header">
         <span class="bold">分步填写sql</span>
@@ -36,7 +41,6 @@
 <script setup>
 import { watch, ref, reactive, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import dayjs from 'dayjs'
 import NavBack from '../components/NavBack.vue'
 import PeriodForm from '../components/PeriodForm.vue'
 import OneTimeForm from '../components/OneTimeForm.vue'
@@ -44,6 +48,7 @@ import { getTaskDetailReq, getReportTypeReq, getTaskSqlsReq } from '../api/repor
 import FillSql from '../components/FillSql.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import { formatLink } from '../util/formatLink'
+import { getLocalStore } from '../util/localStorage'
 const route = useRoute()
 const taskId = ref(route.params.taskId)
 const typeToCn = (sqlTypeId) => {
@@ -61,6 +66,7 @@ const state = reactive({
   init: false
 })
 const sqlArr = ref([])
+const role = getLocalStore('userInfo').role
 
 const refreshPage = () => {
   getTaskDetail()

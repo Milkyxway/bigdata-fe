@@ -91,6 +91,7 @@ import { priorityMap, taskStatusMap, orgMap } from '../constant/index'
 import { toast } from '../util/toast'
 import { getColorByState } from '../util/statefont'
 import { formatLink, downloadUrl } from '../util/formatLink'
+import { getLocalStore } from '../util/localStorage'
 const state = reactive({
   page: {
     pageNum: 0,
@@ -233,7 +234,8 @@ const getTaskList = async () => {
   state.tableData = []
   const result = await getTaskListReq({
     ...state.page,
-    ...state.query
+    ...state.query,
+    region: getLocalStore('userInfo').region
   })
   state.tableData = result.data.list.map((i) => {
     return {

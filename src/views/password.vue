@@ -11,6 +11,7 @@
         prop="oldPwd"
         label="旧密码"
         :rules="[{ required: true, message: '请输入旧密码', trigger: 'blur' }]"
+        :show-password="true"
       >
         <el-input placeholder="请输入旧密码" v-model="form.oldPwd" type="password"></el-input>
       </el-form-item>
@@ -18,7 +19,16 @@
         :label-width="formLabelWidth"
         prop="newPwd"
         label="新密码"
-        :rules="[{ required: true, message: '请输入新密码', trigger: 'blur' }]"
+        :rules="[
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          {
+            pattern:
+              /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*,\._\.=\.-])[0-9a-zA-Z!@#$%^&*,\\._\.=\.-]{8,20}$/,
+            trigger: 'blur',
+            message: '密码必须包含大小写字母,特殊字符和数字，且长度8-20位'
+          }
+        ]"
+        :show-password="true"
       >
         <el-input placeholder="请输入新密码" v-model="form.newPwd" type="password"></el-input>
       </el-form-item>

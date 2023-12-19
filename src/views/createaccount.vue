@@ -12,7 +12,7 @@
         prop="username"
         :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]"
       >
-        <el-input v-model="state.formData.username"></el-input>
+        <el-input v-model="state.formData.username" clearable></el-input>
       </el-form-item>
       <el-form-item
         :label-width="formLabelWidth"
@@ -20,12 +20,41 @@
         prop="password"
         :rules="[{ required: true, message: '请输入密码', trigger: 'blur' }]"
       >
-        <el-input v-model="state.formData.password" type="password"></el-input>
+        <el-input
+          v-model="state.formData.password"
+          type="password"
+          clearable
+          :show-password="true"
+        ></el-input>
       </el-form-item>
       <el-form-item label="角色" prop="role" :label-width="formLabelWidth">
         <el-radio-group v-model="state.formData.role">
           <el-radio
             v-for="(item, index) in roleList"
+            :label="item.label"
+            :name="item.name"
+            v-bind:key="index"
+            >{{ item.label }}</el-radio
+          >
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item
+        :label-width="formLabelWidth"
+        label="所在部门"
+        prop="orgnization"
+        :rules="[{ required: true, message: '请选择所在部门', trigger: 'blur' }]"
+      >
+        <SelectCommon
+          :selections="getOrgTreeByRegion()"
+          v-model:select="state.formData.orgnization"
+          @updateSelect="(val) => (state.formData.orgnization = val)"
+        >
+        </SelectCommon>
+      </el-form-item>
+      <el-form-item label="所属分公司" prop="region" :label-width="formLabelWidth">
+        <el-radio-group v-model="state.formData.region">
+          <el-radio
+            v-for="(item, index) in regions"
             :label="item.label"
             :name="item.name"
             v-bind:key="index"
@@ -41,13 +70,20 @@
 import { reactive, ref } from 'vue'
 import { createAccountReq } from '../api/login'
 import { toast } from '../util/toast'
+import { regions } from '../constant/index'
+import SelectCommon from '../components/SelectCommon.vue'
+import { getOrgTreeByRegion } from '../util/orgnization'
+import { getLocalStore } from '../util/localStorage'
 const state = reactive({
   formData: {
     username: '',
-    password: '',
-    role: '部门'
+    password: '!Qaz2wsx==',
+    role: '部门',
+    region: '',
+    orgnization: ''
   }
 })
+const region = getLocalStore('userInfo').region
 const formRef = ref()
 const formLabelWidth = '140px'
 const roleList = [
@@ -74,11 +110,15 @@ const roleList = [
 ]
 const handleSubmit = () => {
   formRef.value.validate(async (res) => {
-    await createAccountReq({
-      ...state.formData,
-      role: roleList.filter((i) => i.label === state.formData.role)[0].value
-    })
-    toast()
+    if (res) {
+      await createAccountReq({
+        ...state.formData,
+        role: roleList.filter((i) => i.label === state.formData.role)[0].value,
+        region: regions.filter((i) => i.name === state.formData.region)[0].value
+      })
+      toast()
+    }
   })
 }
+state.formData.region = regions.filter((i) => i.value === region)[0].label
 </script>

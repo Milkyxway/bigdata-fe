@@ -126,7 +126,7 @@ export const routeList = [
             path: '/personal/createaccount',
             name: '创建账号',
             isSider: true,
-            auth: ['admin'],
+            auth: ['admin', 'developer'],
             component: () => import('../views/createaccount.vue')
           },
           {

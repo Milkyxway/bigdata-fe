@@ -30,6 +30,7 @@
         >立即执行</el-button
       >
     </div>
+    <div class="row-item font-hint">*按需选择时间范围和广电站 广电站不选择为全量</div>
     <WhiteSpace />
     <div class="row-item">
       <span class="label">匹配类型需求</span>
@@ -50,7 +51,7 @@
   </el-card>
 </template>
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive } from 'vue'
 import dayjs from 'dayjs'
 import {
   getTaskListReq,
@@ -78,6 +79,7 @@ const state = reactive({
 })
 
 const userId = getLocalStore('userInfo').userId
+const region = getLocalStore('userInfo').region
 const formatArr = (arr) => {
   return arr.map((i) => {
     return {
@@ -93,11 +95,12 @@ const getDemandList = async () => {
     pageNum: 0
   })
   state.taskList = result.data.list
+  const devIdByRegion = region === 'wx' ? [13] : region === 'yx' ? [20] : [19]
   state.needMatch = formatArr(
-    result.data.list.filter((i) => i.SourceExcelLink && [13].includes(i.custID))
+    result.data.list.filter((i) => i.SourceExcelLink && devIdByRegion.includes(i.custID))
   )
   state.noMatch = formatArr(
-    result.data.list.filter((i) => !i.SourceExcelLink && [13].includes(i.custID))
+    result.data.list.filter((i) => !i.SourceExcelLink && devIdByRegion.includes(i.custID))
   )
 }
 
@@ -139,13 +142,10 @@ const modifySql = (result) => {
     const endTime = dayjs(timeRange[1]).format('YYYYMMDD')
     sqlModify = sqlModify.replace('#startTime', startTime).replace('#endTime', endTime)
   }
-  if (state.selectStand) {
-    const condition = `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
-    sqlModify = sqlModify.replace(' #standList', condition)
-  } else {
-    const condition = `(${stands.map((i) => standMap[i]).join(',')})`
-    sqlModify = sqlModify.replace(' #standList', condition)
-  }
+  const condition = state.selectStand
+    ? `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
+    : `(${stands.map((i) => standMap[i]).join(',')})`
+  sqlModify = sqlModify.replace(' #standList', condition)
   return [{ ...result, reportSqlData: sqlModify }]
 }
 
@@ -218,5 +218,12 @@ getDemandList()
 }
 .confirm-btn {
   margin-left: 10px;
+}
+:deep(.el-date-editor) {
+  margin: 0 10px;
+}
+.font-hint {
+  color: #f56c6c;
+  font-size: 12px;
 }
 </style>
