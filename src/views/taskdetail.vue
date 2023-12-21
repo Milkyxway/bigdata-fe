@@ -17,26 +17,28 @@
     />
   </el-card>
   <WhiteSpace />
-  <el-card
+  <div
     v-showByAuth="{
       role,
       showCondition: ['developer']
     }"
   >
-    <template #header>
-      <div class="card-header">
-        <span class="bold">分步填写sql</span>
-      </div>
-    </template>
-    <FillSql
-      :sqlArr="sqlArr"
-      @addSqlInput="addSqlStrs"
-      @deleteSqlInput="deleteSqlInput"
-      :taskId="taskId"
-      :excelLink="getExcelLink"
-      @refreshPage="refreshPage"
-    />
-  </el-card>
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span class="bold">分步填写sql</span>
+        </div>
+      </template>
+      <FillSql
+        :sqlArr="sqlArr"
+        @addSqlInput="addSqlStrs"
+        @deleteSqlInput="deleteSqlInput"
+        :taskId="taskId"
+        :excelLink="getExcelLink"
+        @refreshPage="refreshPage"
+      />
+    </el-card>
+  </div>
 </template>
 <script setup>
 import { watch, ref, reactive, computed } from 'vue'
