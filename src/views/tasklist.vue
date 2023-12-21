@@ -19,6 +19,9 @@
         <span :class="getColorByState(row.reportState)" v-if="item.prop === 'reportState'">{{
           row.reportState
         }}</span>
+        <span class="task-content" v-if="['reportName'].includes(item.prop)">{{
+          row[item.prop]
+        }}</span>
         <span
           v-for="(i, index) in row.reportLink"
           :v-bind:key="index"
@@ -296,5 +299,14 @@ getTaskList()
 
 .font-green {
   color: #67c23a;
+}
+.task-content {
+  /* width: 100px; */
+  word-break: break-all;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4; /* 这里是超出几行省略 */
 }
 </style>

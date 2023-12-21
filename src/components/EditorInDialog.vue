@@ -15,17 +15,18 @@
     <MdEditor v-model="sqlContent" />
     <WhiteSpace />
     <el-button type="primary" @click="closeModal">取消</el-button>
-    <el-button @click="uploadSqls" type="danger">确认</el-button>
+    <el-button @click="uploadSqls" type="danger" v-if="showConfirmBtn">确认</el-button>
   </el-dialog>
 </template>
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { MdEditor } from 'md-editor-v3'
 import WhiteSpace from './WhiteSpace.vue'
 import 'md-editor-v3/lib/style.css'
 import { addCommonUseSqlAddReq, updateCommonSqlReq } from '../api/report'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
+import { regions } from '../constant/index'
 const props = defineProps({
   content: {},
   showUploadDialog: {
@@ -39,6 +40,9 @@ const props = defineProps({
   },
   sqlId: {
     type: Number
+  },
+  region: {
+    type: String
   }
 })
 const emits = defineEmits(['updateContent', 'refreshList'])
@@ -56,6 +60,9 @@ watch(
   (val) => {
     sqlName.value = val
   }
+)
+const showConfirmBtn = computed(
+  () => region === regions.filter((i) => i.name === props.region)[0].value
 )
 const closeModal = () => {
   emits('closeModal')

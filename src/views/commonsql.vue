@@ -28,7 +28,12 @@
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
         <!-- <el-button link type="primary" size="small" @click="download(row.sqlLink)">下载</el-button> -->
-        <el-button link type="danger" size="small" @click="deleteSQL(row.sqlId, row.sqlName)"
+        <el-button
+          link
+          type="danger"
+          size="small"
+          @click="deleteSQL(row.sqlId, row.sqlName)"
+          v-if="region === regions.filter((i) => i.name === row.region)[0].value"
           >删除</el-button
         >
         <el-button
@@ -41,6 +46,7 @@
               state.editContent = row.sqlContent
               state.sqlName = row.sqlName
               state.selectSqlId = row.sqlId
+              state.selectSqlRegion = row.region
             }
           "
           >查看</el-button
@@ -52,6 +58,7 @@
     v-model:content="state.editContent"
     v-model:sqlName="state.sqlName"
     v-model:sqlId="state.selectSqlId"
+    v-model:region="state.selectSqlRegion"
     v-model:showUploadDialog="state.showEdit"
     @updateContent="(val, type) => (state[type] = val)"
     @closeModal="state.showEdit = false"
@@ -66,7 +73,7 @@
 </template>
 
 <script setup>
-import { reactive, watch, ref } from 'vue'
+import { reactive, watch, ref, computed } from 'vue'
 import EditorInDialog from '../components/EditorInDialog.vue'
 import QuerySql from '../components/QuerySql.vue'
 import { getSQLListReq, deleteSqlReq } from '../api/report'
@@ -101,7 +108,8 @@ const state = reactive({
   total: 0,
   editContent: '',
   sqlName: '',
-  selectSqlId: ''
+  selectSqlId: '',
+  selectSqlRegion: ''
 })
 watch(
   () => state.chooseTab,
