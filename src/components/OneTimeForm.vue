@@ -131,7 +131,7 @@ const submit = () => {
         LargeCategory: '一次性',
         reportName,
         reportPriority,
-        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${hour === '上午' ? '09:00:00' : '12:00:00'}`,
+        OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${hour == 9 ? '09:00:00' : '12:00:00'}`,
         taskAssignOrg
       }
       const result = props.detail?.reportId

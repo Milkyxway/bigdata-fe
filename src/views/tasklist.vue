@@ -7,7 +7,7 @@
     :table-columns="state.tableColumns"
     :table-operations="state.tableOperations"
   /> -->
-  <el-table :data="state.tableData">
+  <el-table :data="state.tableData" row-key="id" :default-expand-all="false">
     <el-table-column
       v-for="item in state.tableColumns"
       :label="item.label"
@@ -22,14 +22,20 @@
         <span class="task-content" v-if="['reportName'].includes(item.prop)">{{
           row[item.prop]
         }}</span>
-        <span
+        <!-- <span
           v-for="(i, index) in row.reportLink"
           :v-bind:key="index"
           v-if="item.prop === 'reportLink'"
           class="font-ble"
         >
           <span @click="downloadUrl(i)">结果excel</span>
-        </span>
+        </span> -->
+        <span
+          @click="downloadUrl(row.reportLink)"
+          v-if="item.prop === 'reportLink'"
+          class="font-ble"
+          >{{ getResultTxt(row) }}</span
+        >
         <span @click="downloadUrl(row.logLink)" class="font-ble" v-if="item.prop === 'logLink'">{{
           row.logLink ? '执行日志' : ''
         }}</span>
@@ -77,7 +83,7 @@
   />
 </template>
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch, computed } from 'vue'
 import dayjs from 'dayjs'
 import { ElMessageBox } from 'element-plus'
 import QueryTask from '../components/QueryTask.vue'
@@ -93,7 +99,7 @@ import router from '../router/index'
 import { priorityMap, taskStatusMap, orgMap } from '../constant/index'
 import { toast } from '../util/toast'
 import { getColorByState } from '../util/statefont'
-import { formatLink, downloadUrl } from '../util/formatLink'
+import { formatLink, downloadUrl, getResultTxt, insertIdIntoArr } from '../util/formatLink'
 import { getLocalStore } from '../util/localStorage'
 const state = reactive({
   page: {
@@ -257,6 +263,7 @@ const getTaskList = async () => {
       taskAssignOrg: orgMap[i.taskAssignOrg]
     }
   })
+  state.tableData = insertIdIntoArr(state.tableData)
   state.tableTotal = result.data.total
 }
 

@@ -34,7 +34,7 @@
           @click="downloadUrl(row.reportLink)"
           v-if="item.prop === 'reportLink'"
           class="font-ble"
-          >{{ getReportLinkTxt(row) }}</span
+          >{{ getResultTxt(row) }}</span
         >
       </template>
     </el-table-column>
@@ -71,7 +71,7 @@ import QueryReport from '../components/QueryReport.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import { getTaskListReq } from '../api/report'
 import { getLocalStore } from '../util/localStorage'
-import { formatLink, downloadUrl } from '../util/formatLink'
+import { formatLink, downloadUrl, getResultTxt, insertIdIntoArr } from '../util/formatLink'
 import { orgMap, periodType, periodTypeMap, taskStatusMap } from '../constant/index'
 import { getColorByState } from '../util/statefont'
 import router from '../router/index'
@@ -162,43 +162,13 @@ watch(
   }
 )
 
-const getReportLinkTxt = computed(() => {
-  return function (row) {
-    if (row.isChild && row.LargeCategory === '周期性' && row.reportLink) {
-      return `结果excel(生成日期${row.reportLink.substr(36, 8)})`
-    }
-    if (row.LargeCategory === '一次性' && row.reportLink) {
-      return '结果excel'
-    }
-  }
-})
 const handleQuery = (form) => {
   state.querys = {
     reportName: form.keyword
   }
   getReportList()
 }
-const insertIdIntoArr = (data) => {
-  const result = data.map((i) => {
-    if (i.LargeCategory === '周期性') {
-      return {
-        ...i,
-        id: i.reportId,
-        children: i.reportLink.length
-          ? i.reportLink.map((m) => {
-              return {
-                ...i,
-                reportLink: m,
-                isChild: true
-              }
-            })
-          : []
-      }
-    }
-    return i
-  })
-  return result
-}
+
 const formatDate = (date, format) => dayjs(date).format(format || 'YYYY-MM-DD')
 const getReportList = async () => {
   state.tableData = []

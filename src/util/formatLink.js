@@ -57,3 +57,40 @@ export const formatLink = (fileName, path) =>
 export const downloadUrl = (url) => {
   window.location.href = url
 }
+
+export const getResultTxt = (row) => {
+  if (row.isChild && row.LargeCategory === '周期性' && row.reportLink) {
+    return `结果excel(生成日期${row.reportLink.substr(36, 8)})`
+  }
+  if (row.LargeCategory === '一次性' && row.reportLink) {
+    return '结果excel'
+  }
+}
+
+/**
+ * format成table组件的树形结构
+ * @param {*} data
+ * @returns
+ */
+export const insertIdIntoArr = (data) => {
+  const result = data.map((i) => {
+    if (i.LargeCategory === '周期性') {
+      return {
+        ...i,
+        id: i.reportId,
+        children: i.reportLink?.length
+          ? i.reportLink.map((m) => {
+              return {
+                ...i,
+                reportLink: m,
+                isChild: true
+              }
+            })
+          : []
+      }
+    }
+    return i
+  })
+  console.log(result)
+  return result
+}
