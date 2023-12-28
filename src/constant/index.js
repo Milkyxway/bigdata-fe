@@ -115,7 +115,7 @@ const stands = [
   },
   {
     value: 24,
-    label: '钱桥阳山广电站'
+    label: '钱桥广电站'
   },
   {
     value: 25,
@@ -123,83 +123,111 @@ const stands = [
   },
   {
     value: 26,
-    label: '堰桥长安广电站'
+    label: '堰桥广电站'
   },
   {
     value: 27,
-    label: '前洲玉祁长安广电站'
+    label: '前洲广电站'
   },
   {
     value: 28,
-    label: '山北黄巷广电站'
+    label: '玉祁广电站'
   },
   {
     value: 29,
-    label: '太湖滨湖黄巷广电站'
+    label: '长安广电站'
   },
   {
     value: 30,
-    label: '华庄广电站'
+    label: '山北广电站'
   },
   {
     value: 31,
-    label: '马山广电站'
+    label: '太湖广电站'
   },
   {
     value: 32,
-    label: '胡埭广电站'
+    label: '滨湖广电站'
   },
   {
     value: 33,
-    label: '河埒广电站'
+    label: '黄巷广电站'
   },
   {
     value: 34,
-    label: '蠡园广电站'
+    label: '华庄广电站'
   },
   {
     value: 35,
-    label: '鸿山梅村广电站'
+    label: '马山广电站'
   },
   {
     value: 36,
-    label: '硕放西南广电站'
+    label: '胡埭广电站'
   },
   {
     value: 37,
-    label: '鹅湖广电站'
+    label: '河埒广电站'
   },
   {
     value: 38,
-    label: '旺庄广电站'
+    label: '蠡园广电站'
   },
   {
     value: 39,
-    label: '江溪广益扬名广电站'
+    label: '鸿山广电站'
   },
   {
     value: 40,
-    label: '湖滨广电站'
+    label: '梅村广电站'
   },
   {
     value: 41,
-    label: '崇安广电站'
+    label: '硕放广电站'
   },
   {
     value: 42,
-    label: '盛岸广电站'
+    label: '鹅湖广电站'
   },
   {
     value: 43,
-    label: '长江路广电站'
+    label: '旺庄广电站'
   },
   {
     value: 44,
-    label: '中桥广电站'
+    label: '广益广电站'
   },
   {
     value: 45,
+    label: '扬名广电站'
+  },
+  {
+    value: 46,
+    label: '湖滨广电站'
+  },
+  {
+    value: 47,
+    label: '崇安广电站'
+  },
+  {
+    value: 48,
+    label: '盛岸广电站'
+  },
+  {
+    value: 49,
+    label: '长江路广电站'
+  },
+  {
+    value: 50,
+    label: '中桥广电站'
+  },
+  {
+    value: 51,
     label: '北塘广电站'
+  },
+  {
+    value: 52,
+    label: '阳山广电站'
   }
 ]
 const standMap = {
@@ -209,13 +237,13 @@ const standMap = {
   21: '羊尖广电站',
   22: '锡北广电站',
   23: '东港广电站',
-  24: '钱桥阳山广电站',
+  24: '钱桥广电站',
   25: '洛社广电站',
-  26: '堰桥长安广电站',
-  27: '前洲玉祁长安广电站',
+  26: '堰桥广电站',
+  27: '前洲广电站',
   28: '玉祁广电站',
   29: '长安广电站',
-  30: '山北黄巷广电站',
+  30: '山北广电站',
   31: '太湖广电站',
   32: '滨湖广电站',
   33: '黄巷广电站',
@@ -236,7 +264,8 @@ const standMap = {
   48: '盛岸广电站',
   49: '长江路广电站',
   50: '中桥广电站',
-  51: '北塘广电站'
+  51: '北塘广电站',
+  52: '阳山广电站'
 }
 
 const orgnizationTree_jy = [
