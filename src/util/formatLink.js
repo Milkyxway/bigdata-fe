@@ -2,6 +2,9 @@ export const formatLink = (fileName, path) =>
   fileName ? `http://172.16.179.2:7002/public/${path}/${fileName}` : null
 
 export const downloadUrl = (url, filename) => {
+  if (filename.indexOf('执行日志') > -1) {
+    return (window.location.href = url)
+  }
   let fileNameCopy = filename
   const urlSplitArr = typeof url === 'string' ? url.split('/') : url[0].split('/')
   let timeStampInUrl = urlSplitArr[urlSplitArr.length - 1]
