@@ -25,13 +25,15 @@
         }}</span>
         <span
           v-if="item.prop === 'SourceExcelLink'"
-          @click="row.SourceExcelLink && downloadUrl(row.SourceExcelLink)"
+          @click="
+            row.SourceExcelLink && downloadUrl(row.SourceExcelLink, `${row.reportName}上传文件`)
+          "
           class="font-ble"
           >{{ row.SourceExcelLink ? '上传文件' : '' }}</span
         >
 
         <span
-          @click="downloadUrl(row.reportLink)"
+          @click="downloadUrl(row.reportLink, `${row.reportName}结果文件`)"
           v-if="item.prop === 'reportLink'"
           class="font-ble"
           >{{ getResultTxt(row) }}</span

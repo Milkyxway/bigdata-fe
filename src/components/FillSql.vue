@@ -73,7 +73,11 @@
         <el-input placeholder="请输入匹配列名" v-model="item.ExcelTable"></el-input>
       </div>
       <WhiteSpace />
-      <div v-if="props.excelLink" class="input-row" @click="downloadUrl(props.excelLink)">
+      <div
+        v-if="props.excelLink"
+        class="input-row"
+        @click="downloadUrl(props.excelLink, `${props.reportName}上传文件`)"
+      >
         <span>上传文件：</span><span class="font-ble">{{ props.excelLink }}</span>
       </div>
       <Upload
@@ -118,8 +122,7 @@ import {
   getParamsListReq,
   uploadReq,
   updateSqlReq,
-  deleteTaskSqlReq,
-  deleteFileReq
+  deleteTaskSqlReq
 } from '../api/report'
 import { toast } from '../util/toast'
 import { downloadUrl } from '../util/formatLink'
@@ -143,6 +146,9 @@ const props = defineProps({
     type: Array
   },
   excelLink: {
+    type: String
+  },
+  reportName: {
     type: String
   }
 })

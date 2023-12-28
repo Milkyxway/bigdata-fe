@@ -35,6 +35,7 @@
         @deleteSqlInput="deleteSqlInput"
         :taskId="taskId"
         :excelLink="getExcelLink"
+        :reportName="state.detail.reportName"
         @refreshPage="refreshPage"
       />
     </el-card>

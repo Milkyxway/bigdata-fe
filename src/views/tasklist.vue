@@ -31,14 +31,17 @@
           <span @click="downloadUrl(i)">结果excel</span>
         </span> -->
         <span
-          @click="downloadUrl(row.reportLink)"
+          @click="downloadUrl(row.reportLink, `${row.reportName}结果文件`)"
           v-if="item.prop === 'reportLink'"
           class="font-ble"
           >{{ getResultTxt(row) }}</span
         >
-        <span @click="downloadUrl(row.logLink)" class="font-ble" v-if="item.prop === 'logLink'">{{
-          row.logLink ? '执行日志' : ''
-        }}</span>
+        <span
+          @click="downloadUrl(row.logLink, `${row.reportName}执行日志`)"
+          class="font-ble"
+          v-if="item.prop === 'logLink'"
+          >{{ row.logLink ? '执行日志' : '' }}</span
+        >
       </template>
     </el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
