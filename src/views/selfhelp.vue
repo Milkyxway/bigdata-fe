@@ -80,6 +80,7 @@ const state = reactive({
 
 const userId = getLocalStore('userInfo').userId
 const region = getLocalStore('userInfo').region
+const orgnization = getLocalStore('userInfo').orgnization
 const formatArr = (arr) => {
   return arr.map((i) => {
     return {
@@ -97,10 +98,16 @@ const getDemandList = async () => {
   state.taskList = result.data.list
   const devIdByRegion = region === 'wx' ? [13] : region === 'yx' ? [20] : [19]
   state.needMatch = formatArr(
-    result.data.list.filter((i) => i.SourceExcelLink && devIdByRegion.includes(i.custID))
+    result.data.list.filter(
+      (i) =>
+        i.SourceExcelLink && devIdByRegion.includes(i.custID) && orgnization === i.taskAssignOrg
+    )
   )
   state.noMatch = formatArr(
-    result.data.list.filter((i) => !i.SourceExcelLink && devIdByRegion.includes(i.custID))
+    result.data.list.filter(
+      (i) =>
+        !i.SourceExcelLink && devIdByRegion.includes(i.custID) && orgnization === i.taskAssignOrg
+    )
   )
 }
 
