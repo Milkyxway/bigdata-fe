@@ -93,7 +93,8 @@ const getDemandList = async () => {
   const result = await getTaskListReq({
     LargeCategory: '一次性',
     pageSize: 100,
-    pageNum: 0
+    pageNum: 0,
+    region
   })
   state.taskList = result.data.list
   const devIdByRegion = region === 'wx' ? [13] : region === 'yx' ? [20] : [19]

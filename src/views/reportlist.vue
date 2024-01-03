@@ -80,6 +80,7 @@ import router from '../router/index'
 
 const userId = getLocalStore('userInfo').userId
 const orgId = getLocalStore('userInfo').orgnization
+const region = getLocalStore('userInfo').region
 const tabs = ref([{ label: '一次性任务', value: 0 }, ...periodType])
 const state = reactive({
   chooseTab: 0,
@@ -178,13 +179,15 @@ const getReportList = async () => {
     ...state.querys,
     ...state.page,
     custID: userId,
-    LargeCategory: '一次性'
+    LargeCategory: '一次性',
+    region
   }
   if (state.chooseTab !== 0) {
     params = {
       ...state.querys,
       ...state.page,
-      orgId
+      orgId,
+      region
     }
   }
   const result = await getTaskListReq(params)
