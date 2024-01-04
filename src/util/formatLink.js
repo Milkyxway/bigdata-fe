@@ -15,6 +15,12 @@ export const downloadUrl = (url, filename) => {
     saveAs(blob, fileNameCopy)
   })
 }
+const getLink = (fileName, path) => {
+  if (fileName) {
+    if (path === 'log') return formatLink(fileName, path)
+    return fileName.split(',').map((i) => formatLink(i, path))
+  }
+}
 
 const getBlob = (url, cb) => {
   var xhr = new XMLHttpRequest()
@@ -52,10 +58,10 @@ const saveAs = (blob, filename) => {
 // }
 
 export const getResultTxt = (row) => {
-  if (row.isChild && row.LargeCategory === '周期性' && row.reportLink) {
-    return `结果excel(生成日期${row.reportLink.substr(36, 8)})`
+  if (row.isChild && row.LargeCategory === '周期性' && row.excelData) {
+    return `结果excel(生成日期${row.excelData[0].substr(36, 8)})`
   }
-  if (row.LargeCategory === '一次性' && row.reportLink) {
+  if (row.LargeCategory === '一次性' && row.excelData) {
     return '结果excel'
   }
 }
@@ -68,21 +74,27 @@ export const getResultTxt = (row) => {
 export const insertIdIntoArr = (data) => {
   const result = data.map((i) => {
     if (i.LargeCategory === '周期性') {
+      const { excelData, ...rest } = i
       return {
-        ...i,
+        ...rest,
         id: i.reportId,
-        children: i.reportLink?.length
-          ? i.reportLink.map((m) => {
+        children: i.excelData?.length
+          ? i.excelData.map((m) => {
               return {
-                ...i,
-                reportLink: m,
-                isChild: true
+                ...rest,
+                // reportLink: m.reportLink,
+                isChild: true,
+                excelData: getLink(m.excelData, 'out')
               }
             })
           : []
       }
+    } else {
+      return {
+        ...i,
+        excelData: i.excelData.length === 1 ? getLink(i.excelData[0].excelData, 'out') : null
+      }
     }
-    return i
   })
   return result
 }

@@ -31,8 +31,8 @@
           <span @click="downloadUrl(i)">结果excel</span>
         </span> -->
         <span
-          @click="downloadUrl(row.reportLink, `${row.reportName}结果文件`)"
-          v-if="item.prop === 'reportLink'"
+          @click="downloadUrl(row.excelData, `${row.reportName}结果文件`)"
+          v-if="item.prop === 'excelData'"
           class="font-ble"
           >{{ getResultTxt(row) }}</span
         >
@@ -149,7 +149,7 @@ const state = reactive({
     },
     {
       label: '结果excel',
-      prop: 'reportLink'
+      prop: 'excelData'
     },
     {
       label: 'log日志',

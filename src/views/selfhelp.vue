@@ -182,7 +182,7 @@ const createTask = async (type) => {
   }
   const selectTask = state.taskList.filter((i) => i.reportId === state.selectTask)[0]
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
-  const { reportId, username, reportTypeName, ...rest } = selectTask
+  const { reportId, username, reportTypeName, excelData, ...rest } = selectTask
   const res = await createTaskReq({
     ...rest,
     reportLink: '',
