@@ -108,13 +108,14 @@ const props = defineProps({
 
 const initVal = () => {
   if (props.detail?.reportId) {
+    const { reportName, reportPriority, OneTime, reportState, taskAssignOrg } = props.detail
     state.formData = {
-      reportName: props.detail.reportName,
-      reportPriority: props.detail.reportPriority,
-      date: dayjs(props.detail.OneTime).format('YYYY-MM-DD'),
-      hour: dayjs(props.detail.OneTime).format('HH') == 12 ? '下午' : ' 上午',
-      reportState: props.detail.reportState,
-      taskAssignOrg: props.detail.taskAssignOrg
+      reportName,
+      reportPriority,
+      date: dayjs(OneTime).format('YYYY-MM-DD'),
+      hour: dayjs(OneTime).format('HH') == 12 ? '下午' : ' 上午',
+      reportState,
+      taskAssignOrg
     }
   }
 }

@@ -183,39 +183,39 @@ const deleteTask = (taskId, reportTypeId, reportName, sourceLink, logLink, repor
     callback: async (action) => {
       if (action === 'confirm') {
         try {
-          if (reportTypeId) {
-            // 周期性任务先删除reportTypeId
-            await deleteTaskTypeReq({
-              reportTypeId
-            })
-          }
-          if (sourceLink) {
-            await deleteFileReq({
-              fileName: sourceLink,
-              path: 'upload'
-            })
-          }
-          if (logLink) {
-            await deleteFileReq({
-              fileName: logLink,
-              path: 'log'
-            })
-          }
-          if (reportLink) {
-            await deleteFileReq({
-              fileName: reportLink,
-              path: 'out'
-            })
-          }
-          await deleteTaskReq({
-            reportId: taskId
-          })
-          toast('任务已删除')
-          getTaskList()
+          // if (reportTypeId) {
+          //   // 周期性任务先删除reportTypeId
+          //   await deleteTaskTypeReq({
+          //     reportTypeId
+          //   })
+          // }
+          // if (sourceLink) {
+          //   await deleteFileReq({
+          //     fileName: sourceLink,
+          //     path: 'upload'
+          //   })
+          // }
+          // if (logLink) {
+          //   await deleteFileReq({
+          //     fileName: logLink,
+          //     path: 'log'
+          //   })
+          // }
+          // if (reportLink) {
+          //   await deleteFileReq({
+          //     fileName: reportLink,
+          //     path: 'out'
+          //   })
+          // }
+          // await deleteTaskReq({
+          //   reportId: taskId
+          // })
+          // toast('任务已删除')
+          // getTaskList()
         } catch (e) {
-          await deleteTaskReq({
-            reportId: taskId
-          })
+          // await deleteTaskReq({
+          //   reportId: taskId
+          // })
         }
       }
     }

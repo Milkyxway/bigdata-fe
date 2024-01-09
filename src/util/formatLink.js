@@ -92,7 +92,10 @@ export const insertIdIntoArr = (data) => {
     } else {
       return {
         ...i,
-        excelData: i.excelData.length === 1 ? getLink(i.excelData[0].excelData, 'out') : null
+        excelData:
+          i.excelData.length > 0
+            ? getLink(i.excelData[i.excelData.length - 1].excelData, 'out')
+            : null
       }
     }
   })

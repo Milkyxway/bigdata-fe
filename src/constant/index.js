@@ -489,6 +489,25 @@ const regions = [
     name: '宜兴分公司'
   }
 ]
+const accounts = [
+  {
+    label: 'zg',
+    value: 'zg'
+  },
+  {
+    label: 'pboss',
+    value: 'pboss'
+  },
+  {
+    label: 'sec',
+    value: 'sec'
+  },
+  {
+    label: 'so1',
+    value: 'so1'
+  }
+]
+
 const weekMap = {
   Monday: '周一',
   Tuesday: '周二',
@@ -517,5 +536,6 @@ export {
   standMap,
   regions,
   orgnizationTree_jy,
-  orgnizationTree_yx
+  orgnizationTree_yx,
+  accounts
 }

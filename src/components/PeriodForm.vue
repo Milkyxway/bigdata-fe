@@ -62,7 +62,29 @@
       </div>
       <div v-if="state.formData.periodType == 3" class="time-row">
         <SelectCommon
-          :selections="month"
+          :selections="dates"
+          v-model:select="state.date"
+          @updateSelect="(val) => updateSelect(val, 'date')"
+          :disabled="disableCondition"
+        />
+        <span>日</span>
+        <SelectCommon
+          :selections="noon"
+          v-model:select="state.noon"
+          @updateSelect="(val) => updateSelect(val, 'noon')"
+          :disabled="disableCondition"
+        />
+      </div>
+      <div v-if="state.formData.periodType == 4" class="time-row">
+        <SelectCommon
+          :selections="months"
+          v-model:select="state.month"
+          @updateSelect="(val) => updateSelect(val, 'month')"
+          :disabled="disableCondition"
+        />
+        <span>月</span>
+        <SelectCommon
+          :selections="dates"
           v-model:select="state.date"
           @updateSelect="(val) => updateSelect(val, 'date')"
           :disabled="disableCondition"
@@ -118,6 +140,20 @@
       >
       </SelectCommon>
     </el-form-item>
+    <el-form-item
+      :label-width="formLabelWidth"
+      label="数据库账号"
+      prop="dataBase"
+      :rules="[{ required: true, message: '请选择任务所用数据库账号', trigger: 'blur' }]"
+    >
+      <SelectCommon
+        :selections="accounts"
+        v-model:select="state.formData.dataBase"
+        @updateSelect="(val) => (state.formData.dataBase = val)"
+        :disabled="disableCondition"
+      >
+      </SelectCommon>
+    </el-form-item>
     <UploadBtn
       v-showByAuth="{ role: userInfo.role, showCondition: ['section'] }"
       @update-file="modifyTaskFile"
@@ -134,7 +170,14 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue'
 import dayjs from 'dayjs'
-import { periodType, priority, periodTypeMap, week, taskStatusList } from '../constant/index'
+import {
+  periodType,
+  priority,
+  periodTypeMap,
+  week,
+  taskStatusList,
+  accounts
+} from '../constant/index'
 import { getOrgTreeByRegion } from '../util/orgnization'
 import { createTaskReq, createTaskTypeReq, updateTaskReq, updateTaskTypeReq } from '../api/report'
 import SelectCommon from './SelectCommon.vue'
@@ -146,7 +189,8 @@ import { getLocalStore } from '../util/localStorage'
 const formRef = ref()
 
 const userInfo = getLocalStore('userInfo')
-const month = ref(new Array(31).fill(0))
+const dates = ref(new Array(31).fill(0))
+const months = ref(new Array(12).fill(0))
 const periodTypes = ref(periodType)
 const props = defineProps({
   detail: {
@@ -162,8 +206,10 @@ const state = reactive({
   day: '',
   date: '',
   noon: '',
+  month: '',
   periodType: 1,
   priority: 99,
+  dataBase: '',
   formData: {
     reportName: '',
     timeRange: [],
@@ -199,17 +245,23 @@ const modifyTaskFile = async (SourceExcelLink) => {
 }
 const initVal = () => {
   if (props.detail?.reportId) {
+    const { reportName, reportPriority, TimeOn, endTime, reportState, taskAssignOrg } = props.detail
+    const { reportTypeName, modeName } = props.typeDetail
     state.formData = {
-      reportName: props.detail.reportName,
-      priority: props.detail.reportPriority,
-      timeRange: [props.detail.TimeOn, props.detail.endTime],
-      periodType: periodType.filter((i) => i.label === props.typeDetail.reportTypeName)[0].value,
-      reportState: props.detail.reportState,
-      taskAssignOrg: props.detail.taskAssignOrg
+      reportName,
+      priority: reportPriority,
+      timeRange: [TimeOn, endTime],
+      periodType: periodType.filter((i) => i.label === reportTypeName)[0].value,
+      reportState,
+      taskAssignOrg
     }
-    state.day = props.typeDetail.modeName.split(',')[0]
-    state.noon = getNoon(props.typeDetail.modeName)
-    state.date = props.typeDetail.modeName.split(',')[0]
+    state.day = modeName.split(',')[0]
+    state.noon = getNoon(modeName)
+    state.date =
+      reportTypeName === '年报' // 年报是mmdd格式
+        ? modeName.split(',')[0].substr(2, 4)
+        : modeName.split(',')[0]
+    state.month = reportTypeName === '年报' && modeName.split(',')[0].substr(0, 2)
   }
 }
 
@@ -219,7 +271,7 @@ const updateSelect = (data, type) => {
   state[type] = data
 }
 const getNoon = (modeName) => {
-  const formatModeName = (val) => (val <= '0900' ? '0900' : '1200')
+  const formatModeName = (val) => (val === '0900' ? '0900' : '1200')
   return modeName.indexOf(',') > -1 ? formatModeName(modeName.split(',')[1]) : modeName
 }
 
@@ -239,8 +291,9 @@ const formatArr = (arr, addOne = true) => {
 }
 
 const initArrs = () => {
-  month.value = formatArr(month)
-  periodTypes.value = periodTypes.value.filter((i) => i.label !== '年报')
+  dates.value = formatArr(dates)
+  months.value = formatArr(months)
+  // periodTypes.value = periodTypes.value.filter((i) => i.label !== '年报')
 }
 
 const formatDate = (date) => dayjs(date).format()
@@ -250,7 +303,8 @@ const getModeName = () => {
     formData: { periodType },
     day,
     date,
-    noon
+    noon,
+    month
   } = state
   let modeName = ''
   switch (periodType) {
@@ -267,6 +321,9 @@ const getModeName = () => {
     case 3:
       modeName = `${date},${noon}`
       break
+    case 4:
+      modeName = `${month}${date}, ${noon}`
+      break
   }
   return modeName
 }
@@ -276,7 +333,8 @@ const validateData = () => {
     formData: { periodType },
     date,
     day,
-    noon
+    noon,
+    month
   } = state
   let hasEmpty = false
   if (periodType === 1) {
@@ -294,6 +352,11 @@ const validateData = () => {
       hasEmpty = true
     }
   }
+  if (periodType === 4) {
+    if (!month || !date || !noon) {
+      hasEmpty = true
+    }
+  }
   if (hasEmpty) {
     toast('请完整填写周期执行时间', 'error')
     return false
@@ -307,7 +370,15 @@ const commit = () => {
     if (res) {
       if (validateData()) {
         const {
-          formData: { timeRange, reportName, periodType, priority, reportState, taskAssignOrg }
+          formData: {
+            timeRange,
+            reportName,
+            periodType,
+            priority,
+            reportState,
+            taskAssignOrg,
+            dataBase
+          }
         } = state
         try {
           const params = {
@@ -328,7 +399,8 @@ const commit = () => {
               endTime: formatDate(timeRange[1]),
               reportTypeId: isUpdate ? props.typeDetail.reportTypeId : typeRes.data.reportTypeId,
               reportPriority: priority,
-              taskAssignOrg
+              taskAssignOrg,
+              dataBase
             }
             const result = !isUpdate
               ? await createTaskReq({ ...params, custID: userInfo.userId, region: userInfo.region })

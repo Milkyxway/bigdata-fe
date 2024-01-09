@@ -33,7 +33,7 @@
         >
 
         <span
-          @click="downloadUrl(row.reportLink, `${row.reportName}结果文件`)"
+          @click="downloadUrl(row.excelData, `${row.reportName}结果文件`)"
           v-if="item.prop === 'excelData'"
           class="font-ble"
           >{{ getResultTxt(row) }}</span
