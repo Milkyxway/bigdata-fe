@@ -46,22 +46,7 @@
     </el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
       <template #default="{ row }">
-        <el-button
-          link
-          type="danger"
-          size="small"
-          @click="
-            deleteTask(
-              row.reportId,
-              row.reportTypeId,
-              row.reportName,
-              row.SourceExcelLink,
-              row.logLinkCopy,
-              row.reportLinkCopy
-            )
-          "
-          >删除</el-button
-        >
+        <el-button link type="danger" size="small" @click="deleteTask(row)">删除</el-button>
         <el-button
           link
           type="primary"
@@ -175,7 +160,8 @@ watch(
   }
 )
 
-const deleteTask = (taskId, reportTypeId, reportName, sourceLink, logLink, reportLink) => {
+const deleteTask = (row) => {
+  const { reportId, reportTypeId, reportName, sourceLink, logLinkCopy } = row
   ElMessageBox.confirm(`确定要删除${reportName}吗?`, '警告', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -183,41 +169,68 @@ const deleteTask = (taskId, reportTypeId, reportName, sourceLink, logLink, repor
     callback: async (action) => {
       if (action === 'confirm') {
         try {
-          // if (reportTypeId) {
-          //   // 周期性任务先删除reportTypeId
-          //   await deleteTaskTypeReq({
-          //     reportTypeId
-          //   })
-          // }
-          // if (sourceLink) {
-          //   await deleteFileReq({
-          //     fileName: sourceLink,
-          //     path: 'upload'
-          //   })
-          // }
-          // if (logLink) {
-          //   await deleteFileReq({
-          //     fileName: logLink,
-          //     path: 'log'
-          //   })
-          // }
-          // if (reportLink) {
-          //   await deleteFileReq({
-          //     fileName: reportLink,
-          //     path: 'out'
-          //   })
-          // }
-          // await deleteTaskReq({
-          //   reportId: taskId
-          // })
-          // toast('任务已删除')
-          // getTaskList()
+          if (reportTypeId) {
+            // 周期性任务先删除reportTypeId
+            await deleteTaskTypeReq({
+              reportTypeId
+            })
+          }
+          if (sourceLink) {
+            await deleteFileReq({
+              fileName: sourceLink,
+              path: 'upload'
+            })
+          }
+          if (logLinkCopy) {
+            await deleteFileReq({
+              fileName: logLinkCopy,
+              path: 'log'
+            })
+          }
+          await deleteRelatedFiles(row)
+
+          await deleteTaskReq({
+            reportId
+          })
+          toast('任务已删除')
+          getTaskList()
         } catch (e) {
           // await deleteTaskReq({
           //   reportId: taskId
           // })
         }
       }
+    }
+  })
+}
+
+const deleteRelatedFiles = (row) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (row.LargeCategory === '一次性') {
+        row.excelDataCp &&
+          (await deleteFileReq({
+            fileName: row.excelDataCp,
+            path: 'out'
+          }))
+        resolve()
+      } else {
+        let count = 0
+        if (row.children.length) {
+          row.children.map(async (i) => {
+            await deleteFileReq({
+              fileName: i.excelDataCp,
+              path: 'out'
+            })
+            count === row.children.length - 1 && resolve()
+            count++
+          })
+        } else {
+          resolve()
+        }
+      }
+    } catch (e) {
+      reject(e)
     }
   })
 }

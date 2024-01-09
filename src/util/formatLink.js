@@ -84,7 +84,8 @@ export const insertIdIntoArr = (data) => {
                 ...rest,
                 // reportLink: m.reportLink,
                 isChild: true,
-                excelData: getLink(m.excelData, 'out')
+                excelData: getLink(m.excelData, 'out'),
+                excelDataCp: m.excelData
               }
             })
           : []
@@ -92,6 +93,7 @@ export const insertIdIntoArr = (data) => {
     } else {
       return {
         ...i,
+        excelDataCp: i.excelData.length > 0 ? i.excelData[i.excelData.length - 1].excelData : null,
         excelData:
           i.excelData.length > 0
             ? getLink(i.excelData[i.excelData.length - 1].excelData, 'out')

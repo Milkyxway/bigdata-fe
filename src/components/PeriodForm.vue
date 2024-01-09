@@ -140,12 +140,7 @@
       >
       </SelectCommon>
     </el-form-item>
-    <el-form-item
-      :label-width="formLabelWidth"
-      label="数据库账号"
-      prop="dataBase"
-      :rules="[{ required: true, message: '请选择任务所用数据库账号', trigger: 'blur' }]"
-    >
+    <el-form-item :label-width="formLabelWidth" label="数据库账号" prop="dataBase">
       <SelectCommon
         :selections="accounts"
         v-model:select="state.formData.dataBase"
