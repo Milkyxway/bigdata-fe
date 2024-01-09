@@ -245,7 +245,8 @@ const modifyTaskFile = async (SourceExcelLink) => {
 }
 const initVal = () => {
   if (props.detail?.reportId) {
-    const { reportName, reportPriority, TimeOn, endTime, reportState, taskAssignOrg } = props.detail
+    const { reportName, reportPriority, TimeOn, endTime, reportState, taskAssignOrg, dataBase } =
+      props.detail
     const { reportTypeName, modeName } = props.typeDetail
     state.formData = {
       reportName,
@@ -253,7 +254,8 @@ const initVal = () => {
       timeRange: [TimeOn, endTime],
       periodType: periodType.filter((i) => i.label === reportTypeName)[0].value,
       reportState,
-      taskAssignOrg
+      taskAssignOrg,
+      dataBase
     }
     state.day = modeName.split(',')[0]
     state.noon = getNoon(modeName)
