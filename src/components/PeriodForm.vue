@@ -180,6 +180,7 @@ import WhiteSpace from './WhiteSpace.vue'
 import UploadBtn from './UploadBtn.vue'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
+import emitter from '../util/eventbus'
 
 const formRef = ref()
 
@@ -401,7 +402,12 @@ const commit = () => {
             }
             const result = !isUpdate
               ? await createTaskReq({ ...params, custID: userInfo.userId, region: userInfo.region })
-              : await updateTaskReq({ ...params, reportId: isUpdate, reportState })
+              : await updateTaskReq({
+                  ...params,
+                  reportId: isUpdate,
+                  reportState,
+                  lastTime: reportState === 1 && '2020-01-01 00:00:00'
+                })
             if (!isUpdate) {
               state.taskId = result.data.reportId
               toast('创建任务成功！')
@@ -410,6 +416,7 @@ const commit = () => {
             if (isUpdate) {
               toast('修改任务成功！')
             }
+            emitter.emit('refreshList')
           }
         } catch (e) {}
       }

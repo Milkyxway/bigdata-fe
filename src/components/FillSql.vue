@@ -126,6 +126,7 @@ import {
 } from '../api/report'
 import { toast } from '../util/toast'
 import { downloadUrl } from '../util/formatLink'
+import emitter from '../util/eventbus'
 
 const state = reactive({
   chooseSqlType: '执行类无输出',
@@ -301,6 +302,7 @@ const startExe = async () => {
     })
     state.loading = false
     toast('提交成功！')
+    emitter.emit('refreshList')
     router.back()
   } else {
     toast('该任务没有填写sql脚本无法执行', 'warning')

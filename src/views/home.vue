@@ -41,7 +41,11 @@ const logOutFn = () => {
           <SideBar></SideBar>
         </el-aside>
         <el-container>
-          <el-main><RouterView></RouterView></el-main>
+          <el-main
+            ><router-view v-slot="{ Component }"
+              ><keep-alive include="报表列表"
+                ><component :is="Component" /></keep-alive></router-view
+          ></el-main>
           <!-- <el-footer>江苏有线无锡分公司版权所有Copyright © 2023 </el-footer> -->
         </el-container>
       </el-container>

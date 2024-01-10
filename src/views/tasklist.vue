@@ -89,6 +89,7 @@ import { toast } from '../util/toast'
 import { getColorByState } from '../util/statefont'
 import { formatLink, downloadUrl, getResultTxt, insertIdIntoArr } from '../util/formatLink'
 import { getLocalStore } from '../util/localStorage'
+import emitter from '../util/eventbus'
 const state = reactive({
   page: {
     pageNum: 0,
@@ -159,6 +160,10 @@ watch(
     getTaskList()
   }
 )
+
+emitter.on('refreshList', (e) => {
+  getTaskList()
+})
 
 const deleteTask = (row) => {
   const { reportId, reportTypeId, reportName, sourceLink, logLinkCopy } = row

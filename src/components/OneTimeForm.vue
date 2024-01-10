@@ -64,13 +64,15 @@
 </template>
 <script setup>
 import { ref, reactive, watch, computed } from 'vue'
+import dayjs from 'dayjs'
 import { createTaskReq, updateTaskReq } from '../api/report'
 import { priority, taskStatusList } from '../constant/index'
 import SelectCommon from './SelectCommon.vue'
 import { toast } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
 import { getOrgTreeByRegion } from '../util/orgnization'
-import dayjs from 'dayjs'
+
+import emitter from '../util/eventbus'
 
 const formRef = ref()
 
@@ -136,13 +138,19 @@ const submit = () => {
         taskAssignOrg
       }
       const result = props.detail?.reportId
-        ? await updateTaskReq({ ...params, reportId: props.detail.reportId, reportState })
+        ? await updateTaskReq({
+            ...params,
+            reportId: props.detail.reportId,
+            reportState,
+            lastTime: reportState === 1 && '2020-01-01 00:00:00'
+          })
         : await createTaskReq({ ...params, custID: userId, region })
       toast('操作成功！')
       if (!props.detail?.reportId) {
         state.taskId = result.data.reportId
       }
       emit('updateTaskId', props.detail?.reportId || result.data.reportId)
+      emitter.emit('refreshList')
     }
   })
 }

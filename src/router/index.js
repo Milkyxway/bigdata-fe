@@ -58,7 +58,7 @@ export const routeList = [
           },
           {
             path: '/develop/tasklist',
-            name: '任务列表',
+            name: 'tasklist',
             auth: ['developer', 'section'],
             isSider: true,
             component: () => import('../views/tasklist.vue')
