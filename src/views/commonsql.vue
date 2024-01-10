@@ -77,9 +77,8 @@ import { reactive, watch, ref, computed } from 'vue'
 import EditorInDialog from '../components/EditorInDialog.vue'
 import QuerySql from '../components/QuerySql.vue'
 import { getSQLListReq, deleteSqlReq } from '../api/report'
-import { toast } from '../util/toast'
+import { toast, ElMessageBoxFn } from '../util/toast'
 import { getLocalStore } from '../util/localStorage'
-import { ElMessageBox } from 'element-plus'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import { regions } from '../constant/index'
 const region = getLocalStore('userInfo').region
@@ -145,19 +144,12 @@ const handleQuery = (query) => {
 }
 
 const deleteSQL = async (sqlId, sqlName) => {
-  ElMessageBox.confirm(`确定要删除${sqlName}?`, '警告', {
-    type: 'warning',
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    callback: async (action) => {
-      if (action === 'confirm') {
-        try {
-          await deleteSqlReq({ sqlId })
-          toast()
-          getSqlList()
-        } catch (e) {}
-      }
-    }
+  ElMessageBoxFn(`确定要删除${sqlName}?`, async () => {
+    try {
+      await deleteSqlReq({ sqlId })
+      toast()
+      getSqlList()
+    } catch (e) {}
   })
 }
 const selectTabByRegion = () => {

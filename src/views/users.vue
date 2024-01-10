@@ -44,12 +44,12 @@
 </template>
 <script setup>
 import { ref, reactive } from 'vue'
-import { ElMessageBox } from 'element-plus'
 import Table from '../components/Table.vue'
 import SelectCommon from '../components/SelectCommon.vue'
 import { toast } from '../util/toast'
 import { roleList } from '../constant/index'
 import { getUsersReq, deleteUserReq, updateUserReq } from '../api/login'
+import { ElMessageBoxFn } from '../util/toast'
 const state = reactive({
   userList: [],
   showdialog: false,
@@ -77,19 +77,12 @@ const tableOperations = ref([
   {
     label: '删除',
     fn: (row) => {
-      ElMessageBox.confirm(`确定要删除${row.username}?`, '警告', {
-        type: 'warning',
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        callback: async (action) => {
-          if (action === 'confirm') {
-            try {
-              await deleteUserReq({ userId: row.userId })
-              toast('删除成功！')
-              getUsers()
-            } catch (e) {}
-          }
-        }
+      ElMessageBoxFn(`确定要删除${row.username}?`, '警告', async () => {
+        try {
+          await deleteUserReq({ userId: row.userId })
+          toast('删除成功！')
+          getUsers()
+        } catch (e) {}
       })
     }
   },

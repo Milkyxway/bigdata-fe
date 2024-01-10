@@ -269,7 +269,11 @@ const updateSelect = (data, type) => {
   state[type] = data
 }
 const getNoon = (modeName) => {
-  const formatModeName = (val) => (val === '0900' ? '0900' : '1200')
+  const formatModeName = (val) => {
+    console.log(typeof val, val, val.toString())
+    // return val === '0900' ? '0900' : '1200'
+    return val
+  }
   return modeName.indexOf(',') > -1 ? formatModeName(modeName.split(',')[1]) : modeName
 }
 

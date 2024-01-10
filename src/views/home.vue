@@ -1,25 +1,18 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ElMessageBox } from 'element-plus'
 import SideBar from '../components/SideBar.vue'
 import router from '../router'
 import { rmLocalStore, getLocalStore } from '../util/localStorage'
 import { userLoginStore } from '../stores/login'
+import { ElMessageBoxFn } from '../util/toast'
 const authStore = userLoginStore()
 const { userInfo } = storeToRefs(authStore)
 
 const userInfoLocal = getLocalStore('userInfo')
 const logOutFn = () => {
-  ElMessageBox.confirm('确定要登出吗?', '警告', {
-    type: 'warning',
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    callback: async (action) => {
-      if (action === 'confirm') {
-        rmLocalStore('userInfo')
-        router.replace('/login')
-      }
-    }
+  ElMessageBoxFn('确定要登出吗?', () => {
+    rmLocalStore('userInfo')
+    router.replace('/login')
   })
 }
 </script>

@@ -13,7 +13,7 @@
       :label="item.label"
       :prop="item.prop"
       :key="item.key"
-      :width="['reportLink', 'logLink', 'reportName'].includes(item.prop) && 200"
+      :width="['excelData', 'logLink', 'reportName'].includes(item.prop) && 200"
     >
       <template #default="{ row }">
         <span :class="getColorByState(row.reportState)" v-if="item.prop === 'reportState'">{{
@@ -22,14 +22,6 @@
         <span class="task-content" v-if="['reportName'].includes(item.prop)">{{
           row[item.prop]
         }}</span>
-        <!-- <span
-          v-for="(i, index) in row.reportLink"
-          :v-bind:key="index"
-          v-if="item.prop === 'reportLink'"
-          class="font-ble"
-        >
-          <span @click="downloadUrl(i)">结果excel</span>
-        </span> -->
         <span
           @click="downloadUrl(row.excelData, `${row.reportName}结果文件`)"
           v-if="item.prop === 'excelData'"
@@ -73,7 +65,6 @@
 <script setup>
 import { reactive, watch, computed } from 'vue'
 import dayjs from 'dayjs'
-import { ElMessageBox } from 'element-plus'
 import QueryTask from '../components/QueryTask.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import {
@@ -84,12 +75,14 @@ import {
   deleteFileReq
 } from '../api/report'
 import router from '../router/index'
+import { ElMessageBoxFn } from '../util/toast'
 import { priorityMap, taskStatusMap, orgMap } from '../constant/index'
 import { toast } from '../util/toast'
 import { getColorByState } from '../util/statefont'
 import { formatLink, downloadUrl, getResultTxt, insertIdIntoArr } from '../util/formatLink'
 import { getLocalStore } from '../util/localStorage'
 import emitter from '../util/eventbus'
+
 const state = reactive({
   page: {
     pageNum: 0,
@@ -167,44 +160,37 @@ emitter.on('refreshList', (e) => {
 
 const deleteTask = (row) => {
   const { reportId, reportTypeId, reportName, sourceLink, logLinkCopy } = row
-  ElMessageBox.confirm(`确定要删除${reportName}吗?`, '警告', {
-    type: 'warning',
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    callback: async (action) => {
-      if (action === 'confirm') {
-        try {
-          if (reportTypeId) {
-            // 周期性任务先删除reportTypeId
-            await deleteTaskTypeReq({
-              reportTypeId
-            })
-          }
-          if (sourceLink) {
-            await deleteFileReq({
-              fileName: sourceLink,
-              path: 'upload'
-            })
-          }
-          if (logLinkCopy) {
-            await deleteFileReq({
-              fileName: logLinkCopy,
-              path: 'log'
-            })
-          }
-          await deleteRelatedFiles(row)
-
-          await deleteTaskReq({
-            reportId
-          })
-          toast('任务已删除')
-          getTaskList()
-        } catch (e) {
-          // await deleteTaskReq({
-          //   reportId: taskId
-          // })
-        }
+  ElMessageBoxFn(`确定要删除${reportName}吗?`, async () => {
+    try {
+      if (reportTypeId) {
+        // 周期性任务先删除reportTypeId
+        await deleteTaskTypeReq({
+          reportTypeId
+        })
       }
+      if (sourceLink) {
+        await deleteFileReq({
+          fileName: sourceLink,
+          path: 'upload'
+        })
+      }
+      if (logLinkCopy) {
+        await deleteFileReq({
+          fileName: logLinkCopy,
+          path: 'log'
+        })
+      }
+      await deleteRelatedFiles(row)
+
+      await deleteTaskReq({
+        reportId
+      })
+      toast('任务已删除')
+      getTaskList()
+    } catch (e) {
+      // await deleteTaskReq({
+      //   reportId: taskId
+      // })
     }
   })
 }
@@ -241,22 +227,15 @@ const deleteRelatedFiles = (row) => {
 }
 
 const pauseTask = (taskId) => {
-  ElMessageBox.confirm('确定要中止这条任务吗?', '警告', {
-    type: 'warning',
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-    callback: async (action) => {
-      if (action === 'confirm') {
-        try {
-          await updateTaskReq({
-            reportId: taskId,
-            reportState: 3
-          })
-          toast('任务已中止')
-          getTaskList()
-        } catch (e) {}
-      }
-    }
+  ElMessageBoxFn('确定要中止这条任务吗?', async () => {
+    try {
+      await updateTaskReq({
+        reportId: taskId,
+        reportState: 3
+      })
+      toast('任务已中止')
+      getTaskList()
+    } catch (e) {}
   })
 }
 const formatDate = (date, format) => dayjs(date).format(format || 'YYYY-MM-DD')
@@ -279,7 +258,6 @@ const getTaskList = async () => {
       lastTime: i.lastTime ? formatDate(i.lastTime, 'YYYY-MM-DD HH:mm:ss') : '',
       reportLink: getLink(i.reportLink, 'out'),
       logLink: getLink(i.logLink, 'log'),
-      reportLinkCopy: i.reportLink,
       logLinkCopy: i.logLink,
       taskAssignOrg: orgMap[i.taskAssignOrg]
     }
