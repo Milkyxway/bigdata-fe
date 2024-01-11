@@ -66,8 +66,8 @@ watch(
   () => props.region,
   (val) => console.log(val)
 )
-const showConfirmBtn = computed(
-  () => region === regions.filter((i) => i.name === props.region)[0].value
+const showConfirmBtn = computed(() =>
+  props.type === 'add' ? true : region === regions.filter((i) => i.name === props.region)[0].value
 )
 const closeModal = () => {
   emits('closeModal')
