@@ -1,11 +1,5 @@
 <template>
-  <Table
-    :tableData="state.paramsList"
-    :tableColumns="tableColumns"
-    :tableTotal="state.tableTotal"
-    :tableOperations="tableOperations"
-    noPagination
-  />
+  <ParamsList />
   <div v-for="(item, index) in props.sqlArr" v-bind:key="index" class="sql-box">
     <WhiteSpace />
     <div class="input-row">
@@ -119,7 +113,6 @@ import {
   updateTaskReq,
   getTaskSqlsReq,
   getSQLListReq,
-  getParamsListReq,
   uploadReq,
   updateSqlReq,
   deleteTaskSqlReq
@@ -127,6 +120,8 @@ import {
 import { toast } from '../util/toast'
 import { downloadUrl } from '../util/formatLink'
 import emitter from '../util/eventbus'
+import { copyContent } from '../util/common'
+import ParamsList from '../components/ParamsList.vue'
 
 const state = reactive({
   chooseSqlType: '执行类无输出',
@@ -168,24 +163,7 @@ const sqlTypes = ref([
     value: '查询类有输出'
   }
 ])
-const tableColumns = ref([
-  {
-    label: '参数名称',
-    prop: 'parameterName'
-  },
-  {
-    label: '参数通配符',
-    prop: 'parameterKey'
-  }
-])
-const tableOperations = ref([
-  {
-    label: '复制',
-    fn: (row) => {
-      copyContent(row.parameterKey)
-    }
-  }
-])
+
 watch(
   () => state.chooseSqlType,
   (val) => {
@@ -202,17 +180,7 @@ const getExample = computed(
 const getExample2 = computed(
   () => `insert into tmp_${dayjs().format('MMDD')} (rownumb, cust_code) values (:val1,:val2)`
 )
-const copyContent = (content) => {
-  copyText(content, undefined, (error, event) => {
-    if (error) {
-      toast('复制失败！', 'error')
-      console.log(error)
-    } else {
-      toast('复制成功！')
-      console.log(event)
-    }
-  })
-}
+
 const addSqlStrs = () => {
   emits('addSqlInput')
 }
@@ -317,12 +285,8 @@ const getCommonSqlList = async () => {
     }
   })
 }
-const getParamsList = async () => {
-  const result = await getParamsListReq()
-  state.paramsList = result.data.list
-}
+
 getCommonSqlList()
-getParamsList()
 </script>
 <style scoped>
 .sql-box {

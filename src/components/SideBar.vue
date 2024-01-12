@@ -9,7 +9,7 @@
     <el-sub-menu v-for="item in homeMenu" :key="item.path" :index="item.path" class="sub_menu">
       <template #title>
         <el-icon><location /></el-icon>
-        <span>{{ item.name }}</span>
+        <span>{{ item.label }}</span>
       </template>
       <el-menu-item-group
         v-for="child in item.children.filter((i) => i.isSider && i.auth && i.auth.includes(role))"
@@ -20,7 +20,7 @@
           :index="child.path"
           v-if="showMenuItem(child)"
           class="menu_item"
-          >{{ child.name }}</el-menu-item
+          >{{ child.label }}</el-menu-item
         ></el-menu-item-group
       >
     </el-sub-menu>

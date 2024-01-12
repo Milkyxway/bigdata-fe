@@ -6,6 +6,7 @@
         <span>增加参数</span>
       </div>
     </template>
+    <ParamsList />
     <el-form ref="formRef" :model="state.formData">
       <el-form-item label="参数名称">
         <el-input placeholder="请输入参数名称" v-model="state.formData.parameterName"></el-input>
@@ -28,6 +29,7 @@ import { reactive, ref, watch } from 'vue'
 import { addParamsReq } from '../api/report'
 import NavBack from '../components/NavBack.vue'
 import { toast } from '../util/toast'
+import ParamsList from '../components/ParamsList.vue'
 const formRef = ref()
 const state = reactive({
   formData: {
