@@ -91,23 +91,31 @@ const formatArr = (arr) => {
 }
 const getDemandList = async () => {
   const result = await getTaskListReq({
-    LargeCategory: '一次性',
-    pageSize: 100,
+    LargeCategory: '',
+    pageSize: 200,
     pageNum: 0,
-    region
+    region,
+    reportName: '',
+    username: 'dev'
   })
   state.taskList = result.data.list
   const devIdByRegion = region === 'wx' ? [13] : region === 'yx' ? [20] : [19]
   state.needMatch = formatArr(
     result.data.list.filter(
       (i) =>
-        i.SourceExcelLink && devIdByRegion.includes(i.custID) && orgnization === i.taskAssignOrg
+        i.SourceExcelLink &&
+        devIdByRegion.includes(i.custID) &&
+        orgnization === i.taskAssignOrg &&
+        i.LargeCategory === '一次性'
     )
   )
   state.noMatch = formatArr(
     result.data.list.filter(
       (i) =>
-        !i.SourceExcelLink && devIdByRegion.includes(i.custID) && orgnization === i.taskAssignOrg
+        !i.SourceExcelLink &&
+        devIdByRegion.includes(i.custID) &&
+        orgnization === i.taskAssignOrg &&
+        i.LargeCategory === '一次性'
     )
   )
 }
@@ -182,7 +190,7 @@ const createTask = async (type) => {
   }
   const selectTask = state.taskList.filter((i) => i.reportId === state.selectTask)[0]
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
-  const { reportId, username, reportTypeName, excelData, ...rest } = selectTask
+  const { reportId, username, reportTypeName, excelData, ...rest } = selectTask // 这行没有用到的字段不能删除 为了取rest里的字段们
   const res = await createTaskReq({
     ...rest,
     reportLink: '',
