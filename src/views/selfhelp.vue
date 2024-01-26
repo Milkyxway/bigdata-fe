@@ -156,7 +156,7 @@ const modifySql = (result) => {
     const { timeRange } = state
     const startTime = dayjs(timeRange[0]).format('YYYYMMDD')
     const endTime = dayjs(timeRange[1]).format('YYYYMMDD')
-    sqlModify = sqlModify.replace('#startTime', startTime).replace('#endTime', endTime)
+    sqlModify = sqlModify.replaceAll('#startTime', startTime).replaceAll('#endTime', endTime)
   }
   const condition = state.selectStand
     ? `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
