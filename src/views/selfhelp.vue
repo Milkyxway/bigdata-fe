@@ -143,11 +143,19 @@ const getTaskRelatedSql = (type) => {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await getTaskSqlsReq({ taskId: state.selectTask })
-      resolve(type === 'needMatch' ? res.data.taskSqls : modifySql(res.data.taskSqls[0]))
+      resolve(type === 'needMatch' ? res.data.taskSqls : formatSqlArr(res.data.taskSqls))
     } catch (e) {
       reject(e)
     }
   })
+}
+
+const formatSqlArr = (arr) => {
+  if (arr.length === 1) {
+    return modifySql(arr[0])
+  }
+  const firstItem = arr[0]
+  return [modifySql(firstItem)[0], ...arr.splice(1)]
 }
 
 const modifySql = (result) => {
