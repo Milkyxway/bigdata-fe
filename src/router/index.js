@@ -151,6 +151,14 @@ export const routeList = [
             isSider: true,
             auth: ['admin'],
             component: () => import('../views/users.vue')
+          },
+          {
+            path: '/personal/fsbpwdmodify',
+            name: '修改防水坝密码',
+            label: '修改防水坝密码',
+            isSider: true,
+            auth: ['developer'],
+            component: () => import('../views/fsbpwdmodify.vue')
           }
         ]
       }

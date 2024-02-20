@@ -90,3 +90,29 @@ export const updateUserReq = (data) => {
     data
   })
 }
+
+/**
+ * 获取防水坝账号密码
+ * @param {*} data
+ * @returns
+ */
+export const getFsbAccountPwdReq = (data) => {
+  return createRequest()({
+    url: '/api/getFsbAccountPwd',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 修改防水坝密码
+ * @param {*} data
+ * @returns
+ */
+export const updateFsbPwdReq = (data) => {
+  return createRequest()({
+    url: '/api/updateFsbPwd',
+    method: 'post',
+    data
+  })
+}
