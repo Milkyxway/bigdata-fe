@@ -294,3 +294,16 @@ export const addSqlBatchReq = (data) => {
     data
   })
 }
+
+/**
+ * 获取任务执行排序情况
+ * @param {*} data
+ * @returns
+ */
+export const getTaskSortReq = (data) => {
+  return createRequest()({
+    url: '/api/report/tasksort',
+    method: 'post',
+    data
+  })
+}
