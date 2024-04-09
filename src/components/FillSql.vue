@@ -53,7 +53,7 @@
       <el-input
         type="textarea"
         placeholder="请输入sql语句，用英文;分隔"
-        :rows="item.chooseSqlType === '查询类有输出' ? 20 : 1"
+        :rows="item.chooseSqlType !== '上传' ? 20 : 1"
         v-model="item.reportSqlData"
         clearable
       />
