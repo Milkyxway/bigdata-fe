@@ -34,6 +34,12 @@
           v-if="item.prop === 'logLink'"
           >{{ row.logLink ? '执行日志' : '' }}</span
         >
+        <span
+          @click="downloadUrl(row.logLink, `${row.reportName}执行日志`)"
+          class="font-ble"
+          v-if="item.prop === 'SourceExcelLink'"
+          >{{ row.SourceExcelLink ? '上传文件' : '' }}</span
+        >
       </template>
     </el-table-column>
     <el-table-column fixed="right" label="操作" width="150">
@@ -47,9 +53,8 @@
           >查看</el-button
         >
 
-        <el-button link type="primary" size="small" @click="pauseTask(row.reportId)"
-          >中止</el-button
-        >
+        <el-button link type="info" size="small" @click="pauseTask(row.reportId)">中止</el-button>
+        <el-button link type="primary" size="small" @click="startExe(row.reportId)">执行</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -72,7 +77,8 @@ import {
   updateTaskReq,
   deleteTaskReq,
   deleteTaskTypeReq,
-  deleteFileReq
+  deleteFileReq,
+  getTaskSqlsReq
 } from '../api/report'
 import router from '../router/index'
 import { ElMessageBoxFn } from '../util/toast'
@@ -102,30 +108,30 @@ const state = reactive({
       label: '任务类别',
       prop: 'LargeCategory'
     },
-    {
-      label: '一次性任务执行时间',
-      prop: 'oneTimeExe'
-    },
-    {
-      label: '周期性任务时间范围',
-      prop: 'periodExeTime'
-    },
+    // {
+    //   label: '一次性任务执行时间',
+    //   prop: 'oneTimeExe'
+    // },
+    // {
+    //   label: '周期性任务时间范围',
+    //   prop: 'periodExeTime'
+    // },
     {
       label: '任务状态',
       prop: 'reportState'
     },
-    {
-      label: '任务优先级',
-      prop: 'reportPriority'
-    },
+    // {
+    //   label: '任务优先级',
+    //   prop: 'reportPriority'
+    // },
     {
       label: '任务所属部门',
       prop: 'taskAssignOrg'
     },
-    {
-      label: '最后执行时间',
-      prop: 'lastTime'
-    },
+    // {
+    //   label: '最后执行时间',
+    //   prop: 'lastTime'
+    // },
     {
       label: '结果excel',
       prop: 'excelData'
@@ -133,6 +139,10 @@ const state = reactive({
     {
       label: 'log日志',
       prop: 'logLink'
+    },
+    {
+      label: '上传文件',
+      prop: 'SourceExcelLink'
     },
     {
       label: '创建时间',
@@ -157,6 +167,21 @@ watch(
 emitter.on('refreshList', (e) => {
   getTaskList()
 })
+
+const startExe = async (taskId) => {
+  const result = await getTaskSqlsReq({ taskId })
+  if (result.data.taskSqls) {
+    state.loading = true
+    await updateTaskReq({
+      reportId: taskId,
+      reportState: 1,
+      lastTime: '2020-01-01 00:00:00'
+    })
+    getTaskList()
+  } else {
+    toast('该任务没有填写sql脚本无法执行', 'warning')
+  }
+}
 
 const deleteTask = (row) => {
   const { reportId, reportTypeId, reportName, sourceLink, logLinkCopy } = row
@@ -259,7 +284,8 @@ const getTaskList = async () => {
       reportLink: getLink(i.reportLink, 'out'),
       logLink: getLink(i.logLink, 'log'),
       logLinkCopy: i.logLink,
-      taskAssignOrg: orgMap[i.taskAssignOrg]
+      taskAssignOrg: orgMap[i.taskAssignOrg],
+      SourceExcelLink: getLink(i.SourceExcelLink, 'upload')
     }
   })
   state.tableData = insertIdIntoArr(state.tableData)

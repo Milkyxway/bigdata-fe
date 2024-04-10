@@ -30,6 +30,17 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="任务状态">
+            <SelectCommon
+              :selections="taskStatusList"
+              v-model:select="state.formData.reportState"
+              @updateSelect="(val) => (state.formData.reportState = val)"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
     </el-form>
     <div class="btn-wrap">
       <el-button type="plain" @click="reset">重置查询</el-button>
@@ -48,7 +59,8 @@ const state = reactive({
   formData: {
     reportName: '',
     username: '',
-    LargeCategory: ''
+    LargeCategory: '',
+    reportState: ''
   },
   taskStatusList,
   priority
