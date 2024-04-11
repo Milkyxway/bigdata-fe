@@ -35,7 +35,7 @@
           >{{ row.logLink ? '执行日志' : '' }}</span
         >
         <span
-          @click="downloadUrl(row.logLink, `${row.reportName}执行日志`)"
+          @click="downloadUrl(row.SourceExcelLink, `${row.reportName}上传文件`)"
           class="font-ble"
           v-if="item.prop === 'SourceExcelLink'"
           >{{ row.SourceExcelLink ? '上传文件' : '' }}</span
