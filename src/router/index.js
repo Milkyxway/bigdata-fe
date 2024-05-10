@@ -123,6 +123,24 @@ export const routeList = [
         ]
       },
       {
+        path: '/tools',
+        name: '工具箱',
+        label: '工具箱',
+        iconName: 'view',
+        auth: ['section'],
+        component: () => import('../views/PersonalHome.vue'),
+        children: [
+          {
+            path: '/develop/match',
+            name: '工具箱',
+            label: '工具箱',
+            auth: ['section'],
+            isSider: true,
+            component: () => import('../views/tools.vue')
+          }
+        ]
+      },
+      {
         name: '账号模块',
         label: '账号模块',
         path: '/personal',
