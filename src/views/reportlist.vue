@@ -52,6 +52,9 @@
           @click="router.push(`/develop/taskdetail/${row.reportId}`)"
           >查看</el-button
         >
+        <el-button link type="primary" size="small" @click="startExe(row.reportId)"
+          >重新执行</el-button
+        >
       </template>
     </el-table-column>
   </el-table>
@@ -71,12 +74,13 @@ import { reactive, ref, watch, computed } from 'vue'
 import dayjs from 'dayjs'
 import QueryReport from '../components/QueryReport.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
-import { getTaskListReq } from '../api/report'
+import { getTaskListReq, updateTaskReq, getTaskSqlsReq } from '../api/report'
 import { getLocalStore } from '../util/localStorage'
 import { formatLink, downloadUrl, getResultTxt, insertIdIntoArr } from '../util/formatLink'
 import { orgMap, periodType, periodTypeMap, taskStatusMap } from '../constant/index'
 import { getColorByState } from '../util/statefont'
 import router from '../router/index'
+import { toast } from '../util/toast'
 
 const userId = getLocalStore('userInfo').userId
 const orgId = getLocalStore('userInfo').orgnization
@@ -170,6 +174,21 @@ const handleQuery = (form) => {
     reportName: form.keyword
   }
   getReportList()
+}
+
+const startExe = async (taskId) => {
+  const result = await getTaskSqlsReq({ taskId })
+  if (result.data.taskSqls) {
+    state.loading = true
+    await updateTaskReq({
+      reportId: taskId,
+      reportState: 1,
+      lastTime: '2020-01-01 00:00:00'
+    })
+    getReportList()
+  } else {
+    toast('该任务没有填写sql脚本无法执行', 'warning')
+  }
 }
 
 const formatDate = (date, format) => dayjs(date).format(format || 'YYYY-MM-DD')

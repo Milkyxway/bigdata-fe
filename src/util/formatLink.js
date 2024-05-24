@@ -79,15 +79,17 @@ export const insertIdIntoArr = (data) => {
         ...rest,
         id: i.reportId,
         children: i.excelData?.length
-          ? i.excelData.map((m) => {
-              return {
-                ...rest,
-                // reportLink: m.reportLink,
-                isChild: true,
-                excelData: getLink(m.excelData, 'out'),
-                excelDataCp: m.excelData
-              }
-            })
+          ? i.excelData
+              .map((m) => {
+                return {
+                  ...rest,
+                  // reportLink: m.reportLink,
+                  isChild: true,
+                  excelData: getLink(m.excelData, 'out'),
+                  excelDataCp: m.excelData
+                }
+              })
+              .reverse()
           : []
       }
     } else {

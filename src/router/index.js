@@ -106,7 +106,7 @@ export const routeList = [
       },
       {
         path: '/develop',
-        name: '工具箱',
+        name: '工具箱开发',
         label: '工具箱',
         iconName: 'view',
         auth: ['developer'],
@@ -131,7 +131,7 @@ export const routeList = [
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
-            path: '/develop/match',
+            path: '/tools/section',
             name: '工具箱',
             label: '工具箱',
             auth: ['section'],
