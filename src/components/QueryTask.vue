@@ -40,6 +40,19 @@
             />
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="任务所属部门">
+            <SelectCommon
+              :selections="orgnizationTree"
+              v-model:select="state.formData.taskAssignOrg"
+              @updateSelect="
+                (val) => {
+                  state.formData.taskAssignOrg = val
+                }
+              "
+            />
+          </el-form-item>
+        </el-col>
       </el-row>
     </el-form>
     <div class="btn-wrap">
@@ -52,7 +65,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import SelectCommon from './SelectCommon.vue'
-import { taskStatusList, priority } from '../constant'
+import { taskStatusList, priority, orgnizationTree } from '../constant'
 
 import router from '../router/index'
 const state = reactive({
@@ -60,7 +73,8 @@ const state = reactive({
     reportName: '',
     username: '',
     LargeCategory: '',
-    reportState: ''
+    reportState: '',
+    taskAssignOrg: ''
   },
   taskStatusList,
   priority
