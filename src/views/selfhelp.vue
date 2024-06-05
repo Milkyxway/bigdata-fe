@@ -166,9 +166,10 @@ const modifySql = (result) => {
     const endTime = dayjs(timeRange[1]).format('YYYYMMDD')
     sqlModify = sqlModify.replaceAll('#startTime', startTime).replaceAll('#endTime', endTime)
   }
-  const condition = state.selectStand
-    ? `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
-    : `(${stands.map((i) => standMap[i]).join(',')})`
+  const condition =
+    state.selectStand.length > 0
+      ? `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
+      : `(${stands.map((i) => `'${i.label}'`).join(',')})`
   sqlModify = sqlModify.replace(' #standList', condition)
   return [{ ...result, reportSqlData: sqlModify }]
 }
