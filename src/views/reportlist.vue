@@ -46,14 +46,17 @@
 
         <el-button
           link
-          type="primary"
+          type="info"
           size="small"
           v-if="row.LargeCategory === '周期性'"
           @click="router.push(`/develop/taskdetail/${row.reportId}`)"
           >查看</el-button
         >
-        <el-button link type="primary" size="small" @click="startExe(row.reportId)"
+        <el-button link type="danger" size="small" @click="startExe(row.reportId)"
           >重新执行</el-button
+        >
+        <el-button link type="primary" size="small" @click="pauseTask(row.reportId)"
+          >中止</el-button
         >
       </template>
     </el-table-column>
@@ -81,6 +84,7 @@ import { orgMap, periodType, periodTypeMap, taskStatusMap } from '../constant/in
 import { getColorByState } from '../util/statefont'
 import router from '../router/index'
 import { toast } from '../util/toast'
+import { ElMessageBoxFn } from '../util/toast'
 
 const userId = getLocalStore('userInfo').userId
 const orgId = getLocalStore('userInfo').orgnization
@@ -174,6 +178,19 @@ const handleQuery = (form) => {
     reportName: form.keyword
   }
   getReportList()
+}
+
+const pauseTask = (taskId) => {
+  ElMessageBoxFn('确定要中止这条任务吗?', async () => {
+    try {
+      await updateTaskReq({
+        reportId: taskId,
+        reportState: 3
+      })
+      toast('任务已中止')
+      getReportList()
+    } catch (e) {}
+  })
 }
 
 const startExe = async (taskId) => {
