@@ -61,6 +61,22 @@
         <span>输入脚本提数</span>
       </div>
     </template>
+    <div class="row-item">
+      <div>脚本可选</div>
+      <SelectCommon
+        :selections="inputSqlSamples"
+        v-model:select="state.inputSql"
+        @updateSelect="
+          (val) => {
+            if (val !== '') {
+              state.inputSql = val
+            }
+          }
+        "
+      >
+      </SelectCommon>
+    </div>
+    <WhiteSpace />
     <el-input
       type="textarea"
       rows="15"
@@ -108,6 +124,24 @@ const state = reactive({
   inputSql: '',
   reportLink: ''
 })
+const inputSqlSamples = [
+  {
+    label: '5g在网明细',
+    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1;`
+  },
+  {
+    label: '5g活跃明细',
+    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1`
+  },
+  {
+    label: '5g在网数量',
+    value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1 group by department_name`
+  },
+  {
+    label: '5g活跃数量',
+    value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1 group by department_name`
+  }
+]
 
 const userId = getLocalStore('userInfo').userId
 const region = getLocalStore('userInfo').region
@@ -122,6 +156,11 @@ const formatArr = (arr) => {
 }
 
 const inputTypeExe = async () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: '加载中...',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
   const res = await getTaskSqlsReq({ taskId: 800 })
   if (res.data.taskSqls.length) {
@@ -152,8 +191,8 @@ const inputTypeExe = async () => {
       pageNum: 0,
       region
     })
-    console.log(result.data)
     if (result.data.list[0].reportState == 2) {
+      loading.close()
       state.reportLink = result.data.list[0].excelData.reverse()[0].excelData
       clearInterval(timer)
       timer = null
