@@ -1,5 +1,10 @@
 <template>
   <el-card>
+    <template #header>
+      <div class="card-header">
+        <span>按模板提数</span>
+      </div>
+    </template>
     <div class="row-item">
       <span class="label">无需匹配类型需求</span>
       <SelectCommon
@@ -49,6 +54,26 @@
     </div>
     <WhiteSpace />
   </el-card>
+  <WhiteSpace />
+  <el-card>
+    <template #header>
+      <div class="card-header">
+        <span>输入脚本提数</span>
+      </div>
+    </template>
+    <el-input
+      type="textarea"
+      rows="15"
+      class="text-area"
+      v-model="state.inputSql"
+      placeholder="请输入sql脚本"
+    ></el-input>
+    <WhiteSpace />
+    <el-button type="primary" @click="inputTypeExe">立即执行</el-button>
+    <div v-if="state.reportLink" @click="downloadFn()" class="font-ble">
+      {{ `http://172.16.179.2:7002/public/out/${state.reportLink}` }}
+    </div>
+  </el-card>
 </template>
 <script setup>
 import { reactive } from 'vue'
@@ -59,8 +84,12 @@ import {
   uploadReq,
   createTaskReq,
   getTaskSqlsReq,
-  addSqlBatchReq
+  addSqlBatchReq,
+  addSqlReq,
+  deleteTaskSqlReq,
+  getTaskDetailReq
 } from '../api/report'
+import { ElLoading } from 'element-plus'
 import SelectCommon from '../components/SelectCommon.vue'
 import WhiteSpace from '../components/WhiteSpace.vue'
 import Upload from '../components/Upload.vue'
@@ -75,7 +104,9 @@ const state = reactive({
   needMatch: [],
   newReportId: '',
   timeRange: null,
-  selectStand: null
+  selectStand: null,
+  inputSql: '',
+  reportLink: ''
 })
 
 const userId = getLocalStore('userInfo').userId
@@ -88,6 +119,50 @@ const formatArr = (arr) => {
       value: i.reportId
     }
   })
+}
+
+const inputTypeExe = async () => {
+  const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
+  const res = await getTaskSqlsReq({ taskId: 800 })
+  if (res.data.taskSqls.length) {
+    const reportSqlId = res.data.taskSqls[0].reportSqlId
+    await deleteTaskSqlReq({ reportSqlId })
+  }
+  await addSqlReq({ sqlType: 3, reportSqlData: state.inputSql, reportId: 800 })
+  await updateTaskReq({
+    reportId: 800,
+    reportState: 1,
+    OneTime: `${dayjs().format('YYYY-MM-DD')} ${noon}`,
+    lastTime: dayjs().subtract(1, 'day').format('YYYY-MM-DD 00:00:00')
+  })
+  toast('收到该需求了，正在努力执行～')
+  const result = await getTaskListReq({
+    reportId: 800,
+    LargeCategory: '',
+    pageSize: 200,
+    pageNum: 0,
+    region
+  })
+  let timer
+  timer = setInterval(async () => {
+    const result = await getTaskListReq({
+      reportId: 800,
+      LargeCategory: '',
+      pageSize: 200,
+      pageNum: 0,
+      region
+    })
+    console.log(result.data)
+    if (result.data.list[0].reportState == 2) {
+      state.reportLink = result.data.list[0].excelData.reverse()[0].excelData
+      clearInterval(timer)
+      timer = null
+    }
+  }, 10000)
+}
+
+const downloadFn = () => {
+  window.location.href = `http://172.16.179.2:7002/public/out/${state.reportLink}`
 }
 const getDemandList = async () => {
   const result = await getTaskListReq({
@@ -250,5 +325,9 @@ getDemandList()
 .font-hint {
   color: #f56c6c;
   font-size: 12px;
+}
+.font-ble {
+  color: #0076fe;
+  cursor: pointer;
 }
 </style>
