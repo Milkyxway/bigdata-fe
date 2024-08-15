@@ -76,13 +76,18 @@
       >
       </SelectCommon>
     </div>
+
+    <div class="row-item font-hint">
+      *点击执行后每10s轮询任务执行状态。当轮询到提数结果时、页面上展示结果的下载地址，因此点击执行后切勿关闭页面、切换页面等动作。
+    </div>
+
     <WhiteSpace />
     <el-input
       type="textarea"
       rows="15"
       class="text-area"
       v-model="state.inputSql"
-      placeholder="请输入sql脚本"
+      placeholder="该输入框可以选择下拉框中的脚本，也可以自主输入脚本；"
     ></el-input>
     <WhiteSpace />
     <el-button type="primary" @click="inputTypeExe">立即执行</el-button>
@@ -102,8 +107,7 @@ import {
   getTaskSqlsReq,
   addSqlBatchReq,
   addSqlReq,
-  deleteTaskSqlReq,
-  getTaskDetailReq
+  deleteTaskSqlReq
 } from '../api/report'
 import { ElLoading } from 'element-plus'
 import SelectCommon from '../components/SelectCommon.vue'
@@ -156,6 +160,9 @@ const formatArr = (arr) => {
 }
 
 const inputTypeExe = async () => {
+  if (!state.inputSql) {
+    return toast('请输入sql脚本后再执行', 'warning')
+  }
   const loading = ElLoading.service({
     lock: true,
     text: '加载中...',
@@ -175,13 +182,6 @@ const inputTypeExe = async () => {
     lastTime: dayjs().subtract(1, 'day').format('YYYY-MM-DD 00:00:00')
   })
   toast('收到该需求了，正在努力执行～')
-  const result = await getTaskListReq({
-    reportId: 800,
-    LargeCategory: '',
-    pageSize: 200,
-    pageNum: 0,
-    region
-  })
   let timer
   timer = setInterval(async () => {
     const result = await getTaskListReq({
@@ -345,6 +345,12 @@ getDemandList()
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+}
+.column-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 .label {
   display: inline-block;
