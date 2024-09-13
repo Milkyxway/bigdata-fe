@@ -14,7 +14,8 @@ export function createRequest() {
     // baseURL: `http://127.0.0.1:7002`,
     headers: {
       common: {
-        ['Cache-Control']: 'no-cache'
+        ['Cache-Control']: 'no-cache',
+        ['Access-Control-Allow-Origin']: '*'
         // ["Authorization"]: defaultEmptyParam([authorization.value]),
       },
       post: {
