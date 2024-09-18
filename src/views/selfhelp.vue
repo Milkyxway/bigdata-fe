@@ -131,7 +131,7 @@ const state = reactive({
 const inputSqlSamples = [
   {
     label: '5g在网明细',
-    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1;`
+    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1`
   },
   {
     label: '5g活跃明细',
@@ -144,6 +144,10 @@ const inputSqlSamples = [
   {
     label: '5g活跃数量',
     value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1 group by department_name`
+  },
+  {
+    label: '账单缴费明细',
+    value: `select * from rep.fin2_pay_detail_202409\nwhere to_char(create_date, 'yyyymmdd') between '20240901' and '20240907'\nand corp_org_name in ('无锡分公司','无锡江阴广电','无锡宜兴广电')\nand 入账类型 in ('营业厅', '批量预存', 'UPG', '充值卡', '退-赔', '转账')`
   }
 ]
 
