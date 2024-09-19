@@ -78,7 +78,7 @@
     </div>
 
     <div class="row-item font-hint">
-      *点击执行后每10s轮询任务执行状态。当轮询到提数结果时、页面上展示结果的下载地址，因此点击执行后切勿关闭页面、切换页面等动作。
+      *点击执行后每10s轮询任务执行状态。当轮询到提数结果时,页面上将展示结果的下载地址，因此点击执行后切勿关闭页面、切换页面等动作。
     </div>
 
     <WhiteSpace />
@@ -147,7 +147,7 @@ const inputSqlSamples = [
   },
   {
     label: '账单缴费明细',
-    value: `select * from rep.fin2_pay_detail_202409\nwhere to_char(create_date, 'yyyymmdd') between '20240901' and '20240907'\nand corp_org_name in ('无锡分公司','无锡江阴广电','无锡宜兴广电')\nand 入账类型 in ('营业厅', '批量预存', 'UPG', '充值卡', '退-赔', '转账')`
+    value: `select * from rep.fin2_pay_detail_202409 where to_char(create_date, 'yyyymmdd') between '20240901' and '20240907'\nand corp_org_name in ('无锡分公司','无锡江阴广电','无锡宜兴广电')\nand 入账类型 in ('营业厅', '批量预存', 'UPG', '充值卡', '退-赔', '转账')`
   }
 ]
 
