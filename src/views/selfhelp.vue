@@ -64,6 +64,17 @@
     <div class="row-item">
       <div>脚本可选</div>
       <SelectCommon
+        :selections="state.commonSqls"
+        v-model:select="state.inputSql"
+        @updateSelect="
+          (val) => {
+            if (val !== '') {
+              state.inputSql = val
+            }
+          }
+        "
+      />
+      <!-- <SelectCommon
         :selections="inputSqlSamples"
         v-model:select="state.inputSql"
         @updateSelect="
@@ -74,7 +85,7 @@
           }
         "
       >
-      </SelectCommon>
+      </SelectCommon> -->
     </div>
 
     <div class="row-item font-hint">
@@ -107,7 +118,8 @@ import {
   getTaskSqlsReq,
   addSqlBatchReq,
   addSqlReq,
-  deleteTaskSqlReq
+  deleteTaskSqlReq,
+  getSQLListReq
 } from '../api/report'
 import { ElLoading } from 'element-plus'
 import SelectCommon from '../components/SelectCommon.vue'
@@ -126,7 +138,9 @@ const state = reactive({
   timeRange: null,
   selectStand: null,
   inputSql: '',
-  reportLink: ''
+  reportLink: '',
+  commonSqls: [],
+  selectSql: ''
 })
 const inputSqlSamples = [
   {
@@ -341,6 +355,18 @@ const createTask = async (type) => {
     toast('创建任务成功！')
   }
 }
+const getCommonSqlList = async () => {
+  const result = await getSQLListReq()
+  state.commonSqls = result.data.list.map((i) => {
+    return {
+      label: i.sqlName,
+      value: i.sqlContent
+    }
+  })
+  state.commonSqls = [...inputSqlSamples, ...state.commonSqls]
+}
+
+getCommonSqlList()
 getDemandList()
 </script>
 <style scoped>
