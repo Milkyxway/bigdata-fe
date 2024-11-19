@@ -6,7 +6,7 @@
       </div>
     </template>
     <div class="row-item">
-      <span class="label">无需匹配类型需求</span>
+      <span class="label">无需匹配需求</span>
       <SelectCommon
         :selections="state.noMatch"
         v-model:select="state.selectTask"
@@ -31,6 +31,17 @@
           :value="item.value"
         />
       </el-select>
+      <el-input
+        v-model="state.pickMonth"
+        placeholder="可输入月份yyyymm"
+        class="pick-month confirm-btn"
+      ></el-input>
+      <Upload
+        btn-txt="选择文件"
+        @handleFileChange="turnExcel2params"
+        class="confirm-btn"
+        btnType="plain"
+      />
       <el-button type="primary" plain @click="createTask('noMatch')" class="confirm-btn"
         >立即执行</el-button
       >
@@ -74,18 +85,6 @@
           }
         "
       />
-      <!-- <SelectCommon
-        :selections="inputSqlSamples"
-        v-model:select="state.inputSql"
-        @updateSelect="
-          (val) => {
-            if (val !== '') {
-              state.inputSql = val
-            }
-          }
-        "
-      >
-      </SelectCommon> -->
     </div>
 
     <div class="row-item font-hint">
@@ -110,6 +109,7 @@
 <script setup>
 import { reactive } from 'vue'
 import dayjs from 'dayjs'
+import * as XLSX from 'xlsx'
 import {
   getTaskListReq,
   updateTaskReq,
@@ -140,7 +140,9 @@ const state = reactive({
   inputSql: '',
   reportLink: '',
   commonSqls: [],
-  selectSql: ''
+  selectSql: '',
+  paramsStr: '',
+  pickMonth: ''
 })
 const inputSqlSamples = [
   {
@@ -175,6 +177,26 @@ const formatArr = (arr) => {
       value: i.reportId
     }
   })
+}
+
+const turnExcel2params = (file) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const data = e.target.result
+    let datajson = XLSX.read(data, {
+      type: 'binary'
+    })
+    const sheetName = datajson.SheetNames[0]
+    const result = XLSX.utils.sheet_to_json(datajson.Sheets[sheetName])
+    let columnName
+    let str = ''
+    Object.keys(result[0]).map((i) => {
+      columnName = i
+    })
+    str = result.map((i) => i[columnName]).join(',')
+    state.paramsStr = `(${str})`
+  }
+  reader.readAsBinaryString(file)
 }
 
 const inputTypeExe = async () => {
@@ -286,6 +308,14 @@ const formatSqlArr = (arr) => {
   if (arr.length === 1) {
     return modifySql(arr[0])
   }
+  if ([1054, 1067].includes(state.selectTask)) {
+    // 2+2查询每一条sql都要替换参数
+    let data = []
+    arr.map((i) => {
+      data.push(modifySql(i)[0])
+    })
+    return data
+  }
   const firstItem = arr[0]
   return [modifySql(firstItem)[0], ...arr.splice(1)]
 }
@@ -295,14 +325,20 @@ const modifySql = (result) => {
   if (state.timeRange) {
     const { timeRange } = state
     const startTime = dayjs(timeRange[0]).format('YYYYMMDD')
+    const startTimeMinus1 = dayjs(timeRange[0]).subtract(1, 'day').format('YYYYMMDD')
     const endTime = dayjs(timeRange[1]).format('YYYYMMDD')
-    sqlModify = sqlModify.replaceAll('#startTime', startTime).replaceAll('#endTime', endTime)
+    sqlModify = sqlModify
+      .replaceAll('#startTime', startTime)
+      .replaceAll('#endTime', endTime)
+      .replaceAll('#minus1', startTimeMinus1)
+      .replaceAll('#pickMonth', state.pickMonth)
   }
   const condition =
     state.selectStand.length > 0
       ? `(${state.selectStand.map((i) => `'${standMap[i]}'`).join(',')})`
       : `(${stands.map((i) => `'${i.label}'`).join(',')})`
   sqlModify = sqlModify.replace(' #standList', condition)
+  sqlModify = sqlModify.replace('#params', state.paramsStr)
   return [{ ...result, reportSqlData: sqlModify }]
 }
 
@@ -387,6 +423,7 @@ getDemandList()
   width: max-content;
   text-align: left;
   margin-right: 10px;
+  white-space: no-wrap;
 }
 .btn-wrap {
   margin: 0 10px;
@@ -404,5 +441,8 @@ getDemandList()
 .font-ble {
   color: #0076fe;
   cursor: pointer;
+}
+.pick-month {
+  max-width: 200px;
 }
 </style>
