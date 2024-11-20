@@ -33,11 +33,11 @@
       </el-select>
       <el-input
         v-model="state.pickMonth"
-        placeholder="可输入月份yyyymm"
+        placeholder="其他灵活参数"
         class="pick-month confirm-btn"
       ></el-input>
       <Upload
-        btn-txt="选择文件"
+        btn-txt="上传一列参数"
         @handleFileChange="turnExcel2params"
         class="confirm-btn"
         btnType="plain"
@@ -308,7 +308,7 @@ const formatSqlArr = (arr) => {
   if (arr.length === 1) {
     return modifySql(arr[0])
   }
-  if ([1054, 1067].includes(state.selectTask)) {
+  if ([1054, 1067, 1070, 1073].includes(state.selectTask)) {
     // 2+2查询每一条sql都要替换参数
     let data = []
     arr.map((i) => {
