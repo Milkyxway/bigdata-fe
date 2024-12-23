@@ -108,6 +108,10 @@ const state = reactive({
       label: '任务类别',
       prop: 'LargeCategory'
     },
+    {
+      label: '日报周期',
+      prop: 'reportTypeName'
+    },
     // {
     //   label: '一次性任务执行时间',
     //   prop: 'oneTimeExe'
