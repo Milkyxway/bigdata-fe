@@ -1,12 +1,6 @@
 <template>
   <QueryTask @handleQuery="handleQuery" />
   <WhiteSpace />
-  <!-- <Table
-    :table-data="state.tableData"
-    :table-total="state.tableTotal"
-    :table-columns="state.tableColumns"
-    :table-operations="state.tableOperations"
-  /> -->
   <el-table :data="state.tableData" row-key="id" :default-expand-all="false">
     <el-table-column
       v-for="item in state.tableColumns"
@@ -112,30 +106,14 @@ const state = reactive({
       label: '日报周期',
       prop: 'reportTypeName'
     },
-    // {
-    //   label: '一次性任务执行时间',
-    //   prop: 'oneTimeExe'
-    // },
-    // {
-    //   label: '周期性任务时间范围',
-    //   prop: 'periodExeTime'
-    // },
     {
       label: '任务状态',
       prop: 'reportState'
     },
-    // {
-    //   label: '任务优先级',
-    //   prop: 'reportPriority'
-    // },
     {
       label: '任务所属部门',
       prop: 'taskAssignOrg'
     },
-    // {
-    //   label: '最后执行时间',
-    //   prop: 'lastTime'
-    // },
     {
       label: '结果excel',
       prop: 'excelData'
@@ -216,11 +194,7 @@ const deleteTask = (row) => {
       })
       toast('任务已删除')
       getTaskList()
-    } catch (e) {
-      // await deleteTaskReq({
-      //   reportId: taskId
-      // })
-    }
+    } catch (e) {}
   })
 }
 
@@ -309,6 +283,7 @@ const handleQuery = (query) => {
     pageNum: 0,
     pageSize: 10
   }
+  state.pageNum = 1
   getTaskList()
 }
 getTaskList()
