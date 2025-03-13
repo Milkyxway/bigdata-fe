@@ -53,6 +53,19 @@
             />
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="任务执行周期">
+            <SelectCommon
+              :selections="exePeriod"
+              v-model:select="state.formData.reportTypeName"
+              @updateSelect="
+                (val) => {
+                  state.formData.reportTypeName = val
+                }
+              "
+            />
+          </el-form-item>
+        </el-col>
       </el-row>
     </el-form>
     <div class="btn-wrap">
@@ -74,7 +87,8 @@ const state = reactive({
     username: '',
     LargeCategory: '',
     reportState: '',
-    taskAssignOrg: ''
+    taskAssignOrg: '',
+    reportTypeName: ''
   },
   taskStatusList,
   priority
@@ -88,6 +102,24 @@ const typeArr = ref([
   {
     label: '周期性',
     value: '周期性'
+  }
+])
+const exePeriod = ref([
+  {
+    label: '日报',
+    value: '日报'
+  },
+  {
+    label: '周报',
+    value: '周报'
+  },
+  {
+    label: '月报',
+    value: '月报'
+  },
+  {
+    label: '年报',
+    value: '年报'
   }
 ])
 const emits = defineEmits('handleQuery')

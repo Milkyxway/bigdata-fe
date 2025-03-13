@@ -6,7 +6,7 @@
       </div>
     </template>
     <div class="row-item">
-      <span class="label">无需匹配需求</span>
+      <span class="label">无需匹配</span>
       <SelectCommon
         :selections="state.noMatch"
         v-model:select="state.selectTask"
@@ -49,7 +49,7 @@
     <div class="row-item font-hint">*按需选择时间范围和广电站 广电站不选择为全量</div>
     <WhiteSpace />
     <div class="row-item">
-      <span class="label">匹配类型需求</span>
+      <span class="label">需要匹配</span>
       <SelectCommon
         :selections="state.needMatch"
         v-model:select="state.selectTask"
@@ -339,6 +339,7 @@ const modifySql = (result) => {
       : `(${stands.map((i) => `'${i.label}'`).join(',')})`
   sqlModify = sqlModify.replace(' #standList', condition)
   sqlModify = sqlModify.replace('#params', state.paramsStr)
+  sqlModify = sqlModify.replace('#pickMonth', state.pickMonth)
   return [{ ...result, reportSqlData: sqlModify }]
 }
 
