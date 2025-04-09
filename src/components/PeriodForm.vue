@@ -135,8 +135,13 @@
       <SelectCommon
         :selections="getOrgTreeByRegion()"
         v-model:select="state.formData.taskAssignOrg"
-        @updateSelect="(val) => (state.formData.taskAssignOrg = val)"
+        @updateSelect="
+          (val) => {
+            state.formData.taskAssignOrg = val
+          }
+        "
         :disabled="disableCondition"
+        :multiple="true"
       >
       </SelectCommon>
     </el-form-item>
@@ -171,7 +176,8 @@ import {
   periodTypeMap,
   week,
   taskStatusList,
-  accounts
+  accounts,
+  orgMap
 } from '../constant/index'
 import { getOrgTreeByRegion } from '../util/orgnization'
 import { createTaskReq, createTaskTypeReq, updateTaskReq, updateTaskTypeReq } from '../api/report'
@@ -212,7 +218,7 @@ const state = reactive({
     periodType: 1,
     priority: 99,
     reportState: '',
-    taskAssignOrg: ''
+    taskAssignOrg: []
   },
   taskId: '',
   sqlStrs: [0]
@@ -250,7 +256,7 @@ const initVal = () => {
       timeRange: [TimeOn, endTime],
       periodType: periodType.filter((i) => i.label === reportTypeName)[0].value,
       reportState,
-      taskAssignOrg,
+      taskAssignOrg: taskAssignOrg.split(',').map((i) => orgMap[i]),
       dataBase
     }
     state.day = modeName.split(',')[0]
@@ -401,7 +407,7 @@ const commit = () => {
               endTime: formatDate(timeRange[1]),
               reportTypeId: isUpdate ? props.typeDetail.reportTypeId : typeRes.data.reportTypeId,
               reportPriority: priority,
-              taskAssignOrg,
+              taskAssignOrg: taskAssignOrg.join(','), //多选后taskAssignOrg是数组
               dataBase
             }
             const result = !isUpdate

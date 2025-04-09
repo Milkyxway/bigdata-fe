@@ -55,6 +55,7 @@
       :selections="getOrgTreeByRegion()"
       v-model:select="state.formData.taskAssignOrg"
       @updateSelect="(val) => (state.formData.taskAssignOrg = val)"
+      :multiple="true"
     >
     </SelectCommon>
   </el-form-item>
@@ -135,7 +136,7 @@ const submit = () => {
         reportName,
         reportPriority,
         OneTime: `${dayjs(date).format('YYYY-MM-DD')} ${hour == 9 ? '09:00:00' : '12:00:00'}`,
-        taskAssignOrg
+        taskAssignOrg: taskAssignOrg.join(',')
       }
       const result = props.detail?.reportId
         ? await updateTaskReq({

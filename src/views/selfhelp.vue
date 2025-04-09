@@ -259,7 +259,10 @@ const getDemandList = async () => {
       (i) =>
         i.SourceExcelLink &&
         devIdByRegion.includes(i.custID) &&
-        orgnization === i.taskAssignOrg &&
+        i.taskAssignOrg
+          .split(',')
+          .map((i) => Number(i))
+          .includes(orgnization) &&
         i.LargeCategory === '一次性'
     )
   )
@@ -268,7 +271,10 @@ const getDemandList = async () => {
       (i) =>
         !i.SourceExcelLink &&
         devIdByRegion.includes(i.custID) &&
-        orgnization === i.taskAssignOrg &&
+        i.taskAssignOrg
+          .split(',')
+          .map((i) => Number(i))
+          .includes(orgnization) &&
         i.LargeCategory === '一次性'
     )
   )

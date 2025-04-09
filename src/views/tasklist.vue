@@ -262,8 +262,17 @@ const getTaskList = async () => {
       reportLink: getLink(i.reportLink, 'out'),
       logLink: getLink(i.logLink, 'log'),
       logLinkCopy: i.logLink,
-      taskAssignOrg: orgMap[i.taskAssignOrg],
-      SourceExcelLink: getLink(i.SourceExcelLink, 'upload')
+      taskAssignOrg: i.taskAssignOrg
+        .split(',')
+        .map((i) => orgMap[i])
+        .join(',')
+      // taskAssignOrg: toString(i.taskAssignOrg)
+      //   .split(',')
+      //   .map((i) => {
+      //     console.log(i)
+      //   })
+      //   .join('、'),
+      // SourceExcelLink: getLink(i.SourceExcelLink, 'upload')
     }
   })
   state.tableData = insertIdIntoArr(state.tableData)

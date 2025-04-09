@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="selectVal" clearable :disabled="props.disabled">
+  <el-select v-model="selectVal" clearable :disabled="props.disabled" :multiple="props.multiple">
     <el-option
       v-for="(item, index) in selections"
       v-bind:key="index"
@@ -20,6 +20,10 @@ const props = defineProps({
     type: String
   },
   disabled: {
+    type: Boolean,
+    default: false
+  },
+  multiple: {
     type: Boolean,
     default: false
   }
