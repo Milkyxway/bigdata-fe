@@ -42,8 +42,46 @@
     <el-button @click="removeContent('matchArrToStr')" type="plain" v-if="state.matchArrToStr"
       >清空</el-button
     >
-
-    <div class="type-name">建临时表方式</div>
+    <div class="type-name">工程部地址楼栋循环输出</div>
+    <div class="row-item">
+      <span>小区名称</span>
+      <el-input
+        placeholder="请输入小区名称"
+        v-model="state.villageName"
+        class="field-input"
+        clearable
+      ></el-input>
+    </div>
+    <div class="row-item">
+      <span>楼栋个数</span>
+      <el-input
+        placeholder="请输入楼栋个数"
+        v-model="state.buildingCnt"
+        class="field-input"
+        clearable
+      ></el-input>
+    </div>
+    <div class="row-item">
+      <span>起始楼栋</span>
+      <el-input
+        placeholder="请输入起始楼栋"
+        v-model="state.buildingStart"
+        class="field-input"
+        clearable
+      ></el-input>
+    </div>
+    <el-input
+      v-if="state.buildingSql"
+      type="textarea"
+      v-model="state.buildingSql"
+      rows="20"
+      class="text-area"
+    ></el-input>
+    <el-button @click="circleOutput">生成</el-button>
+    <el-button @click="handleCopy(state.buildingSql)" v-if="state.buildingSql" type="primary"
+      >复制</el-button
+    >
+    <!-- <div class="type-name">建临时表方式</div>
     <div class="row-item">
       <span class="item-title">临时表名称</span>
       <el-input
@@ -62,7 +100,7 @@
     >
     <el-button @click="removeContent('matchArrToSql')" type="plain" v-if="state.matchArrToSql"
       >清空</el-button
-    >
+    > -->
   </el-card>
 </template>
 
@@ -72,6 +110,7 @@ import { ref, reactive, watch } from 'vue'
 import { copyText } from 'vue3-clipboard'
 import { toast } from '../util/toast'
 import Upload from '../components/Upload.vue'
+import WhiteSpace from '../components/WhiteSpace.vue'
 
 //导入
 // const uploadRef = ref()
@@ -99,13 +138,25 @@ const state = reactive({
       value: '标准地址'
     }
   ],
-  createTableSql: 'create table'
+  createTableSql: 'create table',
+  villageName: '',
+  buildingCnt: '',
+  buildingStart: '',
+  buildingSql: ''
 })
 
-const beforeUpload = async (e) => {
-  analysisExcel(e.target.files[0])
+const circleOutput = () => {
+  const { villageName, buildingCnt, buildingStart } = state
+  const arr = new Array(Number(buildingCnt))
+  arr.fill(1)
+  console.log(arr)
+  let str = ''
+  arr.map((i, k) => {
+    str = str + `or a.stand_name like '%${villageName}%${k + Number(buildingStart)}%'\n`
+  })
+  console.log(str)
+  state.buildingSql = str
 }
-
 const handleFileChange = (file) => {
   // return new Promise((resolve, reject) => {
   const reader = new FileReader()
@@ -168,23 +219,6 @@ const validFieldName = () => {
     return false
   }
   return true
-}
-
-const createInsertStr = () => {
-  const { tmpTableName, excelData, fieldName } = state
-  if (validFieldName()) {
-    if (!tmpTableName) {
-      return toast('请填写临时表名称', 'error')
-    }
-    state.matchArrToSql = excelData
-      .map(
-        (i, k) =>
-          `insert into ${tmpTableName} values(${k + 1}, ${i[fieldName.toUpperCase()]}, ${
-            i['CUST_ID']
-          });\n`
-      )
-      .join('')
-  }
 }
 
 const handleCopy = (content) => {
