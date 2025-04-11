@@ -144,17 +144,25 @@ const state = reactive({
   buildingStart: '',
   buildingSql: ''
 })
+const formatNum = (num) => {
+  if (num <= 9) {
+    return `00${num}`
+  }
+  if (num <= 99) {
+    return `0${num}`
+  }
+  return num
+}
 
 const circleOutput = () => {
   const { villageName, buildingCnt, buildingStart } = state
   const arr = new Array(Number(buildingCnt))
   arr.fill(1)
-  console.log(arr)
   let str = ''
   arr.map((i, k) => {
-    str = str + `or a.stand_name like '%${villageName}%${k + Number(buildingStart)}%'\n`
+    str =
+      str + `or a.std_addr_name like '%${villageName} ${formatNum(k + Number(buildingStart))}%'\n`
   })
-  console.log(str)
   state.buildingSql = str
 }
 const handleFileChange = (file) => {
