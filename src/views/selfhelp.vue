@@ -246,7 +246,7 @@ const downloadFn = () => {
 const getDemandList = async () => {
   const result = await getTaskListReq({
     LargeCategory: '',
-    pageSize: 200,
+    pageSize: 500,
     pageNum: 0,
     region,
     reportName: '',
