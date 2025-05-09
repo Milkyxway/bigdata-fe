@@ -177,7 +177,8 @@ import {
   week,
   taskStatusList,
   accounts,
-  orgMap
+  orgMap,
+  orgnizationTree
 } from '../constant/index'
 import { getOrgTreeByRegion } from '../util/orgnization'
 import { createTaskReq, createTaskTypeReq, updateTaskReq, updateTaskTypeReq } from '../api/report'
@@ -256,7 +257,8 @@ const initVal = () => {
       timeRange: [TimeOn, endTime],
       periodType: periodType.filter((i) => i.label === reportTypeName)[0].value,
       reportState,
-      taskAssignOrg: taskAssignOrg.split(',').map((i) => orgMap[i]),
+      // taskAssignOrg: taskAssignOrg.split(',').map((i) => orgMap[i]),
+      taskAssignOrg: taskAssignOrg.split(','),
       dataBase
     }
     state.day = modeName.split(',')[0]
