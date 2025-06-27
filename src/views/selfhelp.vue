@@ -147,19 +147,19 @@ const state = reactive({
 const inputSqlSamples = [
   {
     label: '5g在网明细',
-    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1`
+    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere substr(open_date,1,10) >= '2024-02-01'\nand substr(open_date,1,10) <= '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1`
   },
   {
     label: '5g活跃明细',
-    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1`
+    value: `select distinct access_num, pri_package 套餐名称, status_name 用户状态, IS_30D_ACTIVE_2023 是否活跃, department_name 广电站, dev_name 发展人姓名,open_date\nfrom repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere substr(open_date,1,10) >= '2024-02-01'\nand substr(open_date,1,10) <= '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1\nand user_status in('1', 'E')`
   },
   {
     label: '5g在网数量',
-    value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1 group by department_name`
+    value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere substr(open_date,1,10) >= '2024-02-01'\nand substr(open_date,1,10) <= '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1 group by department_name`
   },
   {
     label: '5g活跃数量',
-    value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') >= date '2024-02-01'\nand to_date(open_date, 'yyyy-mm-dd hh24:mi:ss') <= date '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1 group by department_name`
+    value: `select department_name, count(*) from repcx.rep_fact_yw_um_subscriber_info_20240811\nwhere substr(open_date,1,10) >= '2024-02-01'\nand substr(open_date,1,10) <= '2024-03-31'\nand kpi_own_corp_org_id = 3303\nand onnet_status = 1\nand is_30d_active_2023 = 1 \nand user_status in('1', 'E') \ngroup by department_name`
   },
   {
     label: '账单缴费明细',
