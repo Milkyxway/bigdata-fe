@@ -6,7 +6,23 @@ export const routeList = [
     alias: '/',
     component: () => import('../views/login.vue')
   },
-
+  {
+    name: '统计模块',
+    label: '统计模块',
+    path: '/statistic',
+    component: () => import('../views/PersonalHome.vue'),
+    auth: ['developer'],
+    children: [
+      {
+        path: '/statistic',
+        name: '统计模块',
+        label: '统计模块',
+        isSider: true,
+        auth: ['developer'],
+        component: () => import('../views/smartbi.vue')
+      }
+    ]
+  },
   {
     path: '/home',
     name: 'home',
@@ -177,23 +193,6 @@ export const routeList = [
             isSider: true,
             auth: ['developer'],
             component: () => import('../views/fsbpwdmodify.vue')
-          }
-        ]
-      },
-      {
-        name: '统计模块',
-        label: '统计模块',
-        path: '/statistic',
-        component: () => import('../views/PersonalHome.vue'),
-        auth: ['developer'],
-        children: [
-          {
-            path: '/statistic',
-            name: '统计模块',
-            label: '统计模块',
-            isSider: true,
-            auth: ['developer'],
-            component: () => import('../views/statistics.vue')
           }
         ]
       }
