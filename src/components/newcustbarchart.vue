@@ -10,13 +10,22 @@ import {
   TitleComponent,
   TooltipComponent,
   LegendComponent,
-  GridComponent
+  GridComponent,
+  DataZoomComponent
 } from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
 import { ref, provide, reactive, watch } from 'vue'
 import { data } from 'autoprefixer'
 
-use([CanvasRenderer, TitleComponent, TooltipComponent, LegendComponent, GridComponent, BarChart])
+use([
+  CanvasRenderer,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  BarChart,
+  DataZoomComponent
+])
 
 // provide(THEME_KEY, 'dark')
 const props = defineProps({
@@ -60,10 +69,9 @@ const formatBardata = (data) => {
 }
 const commonChart = () => {
   const { data, name } = props
-  formatBardata(data)
 
   return (option.value = {
-    color: ['#7D4BFF', '#E23AF5', '#4164F3', '#94FFFF', '#4397FF', '#8BB6FF'],
+    color: ['#E23AF5', '#4164F3', '#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF'],
     xAxis: {
       name: '站',
       data: data.map((i) => i.districtName),
@@ -147,6 +155,6 @@ option.value = commonChart()
 <style scoped>
 .chart {
   /* height: 100vh; */
-  height: 300px;
+  height: 220px;
 }
 </style>

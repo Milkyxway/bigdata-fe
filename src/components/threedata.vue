@@ -22,7 +22,7 @@
 </template>
 <style scoped>
 .common-container {
-  padding: 20px 0;
+  /* padding: 20px 0; */
   box-sizing: border-box;
   width: 100%;
   height: auto;
@@ -49,7 +49,6 @@
   justify-content: flex-start;
   align-items: center;
   width: 50%;
-  height: 100px;
   font-size: 16px;
   /* color: #fff; */
 }

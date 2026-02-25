@@ -15,17 +15,27 @@
     <span class="rank-index">{{ item.itvNum }}</span>
     <span class="rank-index">{{ item.itvRate }}</span>
   </div>
+  <div @click="handleClick" class="expand">
+    <el-icon v-if="props.expandTxt === '展开'"><ArrowDown /></el-icon>
+    <el-icon v-if="props.expandTxt === '收起'"><ArrowUp /></el-icon>
+    {{ props.expandTxt }}
+  </div>
 </template>
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 const props = defineProps({
   sectionTask: {
     type: Array
   },
   sectionList: {
     type: Array
+  },
+  expandTxt: {
+    type: String
   }
 })
+
+const emits = defineEmits(['handleExpand'])
 const getStyleByIndex = computed(() => {
   return function (index) {
     let className = 'rank'
@@ -43,11 +53,9 @@ const getStyleByIndex = computed(() => {
   }
 })
 
-const formatRate = computed(() => {
-  return function (rate) {
-    return `${(rate * 100).toFixed(2)}%`
-  }
-})
+const handleClick = () => {
+  emits('handleExpand', props.expandTxt)
+}
 </script>
 <style scoped>
 .rank {
@@ -84,5 +92,10 @@ const formatRate = computed(() => {
 }
 .double-line {
   background-color: #11204a;
+}
+.expand {
+  font-size: 10px;
+  text-align: center;
+  width: 100%;
 }
 </style>

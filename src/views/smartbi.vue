@@ -1,7 +1,12 @@
 <template>
   <div class="chart-page">
-    <div>
+    <div class="top-content">
+      <div>
+        <div>{{ state.view }}</div>
+        <div @click="tabChange">切换</div>
+      </div>
       <div class="title">无锡分公司数据智看</div>
+      <div>数据更新时间：2026-02-25</div>
     </div>
 
     <div class="data-part" v-if="state.init">
@@ -12,17 +17,23 @@
         </div>
         <div @click="showModal('xz')" style="width: 100%">
           <div class="common-title">各站月销账金额</div>
-          <xzlinechart :data="state.xzAmt"></xzlinechart>
+          <xzlinechart :data="state.xzAmt" :data1="state.xzAmt_lastmonth"></xzlinechart>
         </div>
         <div @click="showModal('xz')" style="width: 100%">
           <div class="common-title">各站新发展客户数量</div>
           <newcustbarchart :data="state.newCust"></newcustbarchart>
         </div>
-        <demo></demo>
+        <!-- <demo></demo> -->
       </div>
-      <div class="common-container" style="width: 25%">
+      <!-- <div style="width: 1%"></div> -->
+      <div class="common-container" style="width: 30%">
         <div class="common-title">各站数字电视保有率排名</div>
-        <sectionrank :sectionTask="state.sectionTask" :sectionList="sectionList"></sectionrank>
+        <sectionrank
+          :sectionTask="state.sectionTask"
+          :sectionList="sectionList"
+          @handleExpand="handleExpand"
+          :expandTxt="state.expandTxt"
+        ></sectionrank>
       </div>
     </div>
   </div>
@@ -33,9 +44,10 @@ import sectionrank from '../components/sectionrank.vue'
 import xzlinechart from '../components/xzlinechart.vue'
 import newcustbarchart from '../components/newcustbarchart.vue'
 import threedata from '../components/threedata.vue'
-import demo from '../components/demo.vue'
 const state = reactive({
   init: true,
+  view: '广电站',
+  expandTxt: '展开',
   sectionTask: [
     {
       districtName: '安镇广电站',
@@ -231,27 +243,27 @@ const state = reactive({
   xzAmt: [
     {
       districtName: '安镇广电站',
-      amt: 19990
+      amt: 26793
     },
     {
       districtName: '北塘广电站',
-      amt: 6793
+      amt: 11545
     },
     {
       districtName: '滨湖广电站',
-      amt: 5911
+      amt: 19585
     },
     {
       districtName: '长安广电站',
-      amt: 23000
+      amt: 13604
     },
     {
       districtName: '长江路广电站',
-      amt: 12346
+      amt: 13682
     },
     {
       districtName: '城区',
-      amt: 23141
+      amt: 17304
     },
     {
       districtName: '崇安广电站',
@@ -267,119 +279,273 @@ const state = reactive({
     },
     {
       districtName: '东亭广电站',
-      amt: 4341
+      amt: 14123
     },
     {
       districtName: '鹅湖广电站',
-      amt: 3435
+      amt: 20912
     },
     {
       districtName: '坊前广电站',
-      amt: 19990
+      amt: 18620
     },
     {
       districtName: '广益广电站',
-      amt: 19990
+      amt: 27394
     },
     {
       districtName: '河埒广电站',
-      amt: 19990
+      amt: 20774
     },
     {
       districtName: '鸿山广电站',
-      amt: 19990
+      amt: 11163
     },
     {
       districtName: '胡埭广电站',
-      amt: 19990
+      amt: 19499
     },
     {
       districtName: '湖滨广电站',
-      amt: 19990
+      amt: 25871
     },
     {
       districtName: '黄巷广电站',
-      amt: 19990
+      amt: 28257
     },
     {
       districtName: '华庄广电站',
-      amt: 19990
+      amt: 16845
     },
     {
       districtName: '洛社广电站',
-      amt: 19990
+      amt: 20882
     },
     {
       districtName: '马山广电站',
-      amt: 19990
+      amt: 17085
     },
     {
       districtName: '梅村广电站',
-      amt: 19990
+      amt: 18670
     },
     {
       districtName: '南站广电站',
-      amt: 19990
+      amt: 19785
     },
     {
       districtName: '钱桥广电站',
-      amt: 19990
+      amt: 12676
     },
     {
       districtName: '前洲广电站',
-      amt: 19990
+      amt: 16411
     },
     {
       districtName: '山北广电站',
-      amt: 19990
+      amt: 22833
     },
     {
       districtName: '盛岸广电站',
-      amt: 19990
+      amt: 19500
     },
     {
       districtName: '硕放广电站',
-      amt: 19990
+      amt: 15363
     },
     {
       districtName: '太湖广电站',
-      amt: 19990
+      amt: 25039
     },
     {
       districtName: '锡北广电站',
-      amt: 19990
+      amt: 11280
     },
     {
       districtName: '新安广电站',
-      amt: 19990
+      amt: 21476
     },
     {
       districtName: '堰桥广电站',
-      amt: 19990
+      amt: 18157
     },
     {
       districtName: '扬名广电站',
-      amt: 19990
+      amt: 11433
     },
     {
       districtName: '羊尖广电站',
-      amt: 19990
+      amt: 15448
     },
     {
       districtName: '阳山广电站',
-      amt: 19990
+      amt: 12321
     },
     {
       districtName: '玉祁广电站',
-      amt: 19990
+      amt: 21603
     },
     {
       districtName: '中桥广电站',
-      amt: 19990
+      amt: 23997
     },
     {
       districtName: '蠡园广电站',
-      amt: 19990
+      amt: 21831
+    }
+  ],
+  xzAmt_lastmonth: [
+    {
+      districtName: '安镇广电站',
+      amt: 10418
+    },
+    {
+      districtName: '北塘广电站',
+      amt: 19597
+    },
+    {
+      districtName: '滨湖广电站',
+      amt: 26289
+    },
+    {
+      districtName: '长安广电站',
+      amt: 14806
+    },
+    {
+      districtName: '长江路广电站',
+      amt: 15828
+    },
+    {
+      districtName: '城区',
+      amt: 2618
+    },
+    {
+      districtName: '崇安广电站',
+      amt: 16065
+    },
+    {
+      districtName: '东北塘广电站',
+      amt: 21812
+    },
+    {
+      districtName: '东港广电站',
+      amt: 29924
+    },
+    {
+      districtName: '东亭广电站',
+      amt: 28551
+    },
+    {
+      districtName: '鹅湖广电站',
+      amt: 28725
+    },
+    {
+      districtName: '坊前广电站',
+      amt: 27630
+    },
+    {
+      districtName: '广益广电站',
+      amt: 28250
+    },
+    {
+      districtName: '河埒广电站',
+      amt: 29862
+    },
+    {
+      districtName: '鸿山广电站',
+      amt: 28280
+    },
+    {
+      districtName: '胡埭广电站',
+      amt: 23577
+    },
+    {
+      districtName: '湖滨广电站',
+      amt: 12521
+    },
+    {
+      districtName: '黄巷广电站',
+      amt: 22446
+    },
+    {
+      districtName: '华庄广电站',
+      amt: 26610
+    },
+    {
+      districtName: '洛社广电站',
+      amt: 14804
+    },
+    {
+      districtName: '马山广电站',
+      amt: 29694
+    },
+    {
+      districtName: '梅村广电站',
+      amt: 12270
+    },
+    {
+      districtName: '南站广电站',
+      amt: 19669
+    },
+    {
+      districtName: '钱桥广电站',
+      amt: 24467
+    },
+    {
+      districtName: '前洲广电站',
+      amt: 20413
+    },
+    {
+      districtName: '山北广电站',
+      amt: 29916
+    },
+    {
+      districtName: '盛岸广电站',
+      amt: 13512
+    },
+    {
+      districtName: '硕放广电站',
+      amt: 16986
+    },
+    {
+      districtName: '太湖广电站',
+      amt: 28786
+    },
+    {
+      districtName: '锡北广电站',
+      amt: 17759
+    },
+    {
+      districtName: '新安广电站',
+      amt: 26671
+    },
+    {
+      districtName: '堰桥广电站',
+      amt: 12615
+    },
+    {
+      districtName: '扬名广电站',
+      amt: 25326
+    },
+    {
+      districtName: '羊尖广电站',
+      amt: 28404
+    },
+    {
+      districtName: '阳山广电站',
+      amt: 10631
+    },
+    {
+      districtName: '玉祁广电站',
+      amt: 18843
+    },
+    {
+      districtName: '中桥广电站',
+      amt: 20419
+    },
+    {
+      districtName: '蠡园广电站',
+      amt: 24091
     }
   ],
   newCust: [
@@ -403,21 +569,21 @@ const state = reactive({
     },
     {
       districtName: '长安广电站',
-      tvCust: 121,
-      lanCust: 122,
-      mobileCust: 123
+      tvCust: 30,
+      lanCust: 54,
+      mobileCust: 3
     },
     {
       districtName: '长江路广电站',
-      tvCust: 121,
-      lanCust: 122,
-      mobileCust: 123
+      tvCust: 20,
+      lanCust: 78,
+      mobileCust: 5
     },
     {
       districtName: '城区',
-      tvCust: 121,
-      lanCust: 122,
-      mobileCust: 123
+      tvCust: 3,
+      lanCust: 89,
+      mobileCust: 11
     },
     {
       districtName: '崇安广电站',
@@ -614,21 +780,25 @@ const state = reactive({
   ]
 })
 const showModal = () => {}
+
+const handleExpand = (txt) => {
+  console.log(txt)
+  state.sectionTask = txt === '展开' ? state.sectionTaskCp : state.sectionTask.slice(0, 20)
+  state.expandTxt = txt === '展开' ? '收起' : '展开'
+}
+
+const tabChange = () => {
+  state.view === '发展人' ? (state.view = '广电站') : (state.view = '发展人')
+}
 const init = () => {
-  const newCust = state.newCust
-  newCust.map((i) => {
-    return {
-      ...i,
-      visible: true
-    }
-  })
-  state.newCust = newCust
+  state.sectionTaskCp = state.sectionTask
+  state.sectionTask = state.sectionTask.slice(0, 20)
 }
 init()
 </script>
 <style scoped>
 .chart-page {
-  width: 100%;
+  /* width: 100%; */
   min-height: 100vh;
   background: #0a1635;
 }
@@ -638,16 +808,17 @@ init()
   color: #fff;
 }
 .data-part {
-  padding: 22px;
+  padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
   flex: 1;
+  box-sizing: border-box;
 }
 .common-border {
   background: #14234b;
-  border: 2px rgba(255, 255, 255, 0.3);
+  border: 2px rgba(6, 4, 4, 0.3);
   box-shadow: 0px 0px 35px 0px rgba(0, 0, 0, 0.18), inset 0px 0px 99px 0px rgba(255, 255, 255, 0.17);
 }
 .left-content {
@@ -680,6 +851,7 @@ init()
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  box-sizing: border-box;
 }
 .common-container_1 {
   padding: 20px 0;
@@ -691,6 +863,7 @@ init()
   display: flex;
   flex-direction: row;
   align-items: space-between;
+  box-sizing: border-box;
 }
 
 .common-title {
@@ -740,12 +913,10 @@ init()
   margin: 0 0 0 30px;
 }
 
-.center-top {
+.top-content {
+  width: 100vw;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 100%;
-  margin-left: 65px;
+  flex-direction: row;
+  align-items: space-between;
 }
 </style>

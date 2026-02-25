@@ -5,60 +5,73 @@
 <script setup>
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart, LineChart } from 'echarts/charts'
+import { PieChart } from 'echarts/charts'
 import {
   TitleComponent,
   TooltipComponent,
   LegendComponent,
-  GridComponent
+  GridComponent,
+  DataZoomComponent
 } from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
 import { ref, provide, reactive, watch } from 'vue'
+import { data } from 'autoprefixer'
 
-use([CanvasRenderer, TitleComponent, TooltipComponent, LegendComponent, GridComponent, LineChart])
+use([
+  CanvasRenderer,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  PieChart,
+  DataZoomComponent
+])
 
 // provide(THEME_KEY, 'dark')
 const props = defineProps({
   data: {
-    type: Array
-  },
-  data1: {
     type: Array
   }
 })
 let option = ref()
 watch()
 
-const formatLineData = (data, data1) => {
-  const newCustArr = []
-  newCustArr.push(
-    formatItem(
-      '本月销账金额',
-      data.map((i) => i.amt)
-    )
-  )
-  newCustArr.push(
-    formatItem(
-      '上月销账金额',
-      data1.map((i) => i.amt)
-    )
-  )
-
-  return newCustArr
-}
 const formatItem = (name, data) => {
   return {
     data,
     visible: true,
     name,
-    type: 'line',
-    smooth: true
+    type: 'bar'
   }
 }
+
+const formatBardata = (data) => {
+  const newCustArr = []
+  newCustArr.push(
+    formatItem(
+      '电视',
+      data.map((i) => i.tvCust)
+    )
+  )
+  newCustArr.push(
+    formatItem(
+      '宽带',
+      data.map((i) => i.lanCust)
+    )
+  )
+  newCustArr.push(
+    formatItem(
+      '手机卡',
+      data.map((i) => i.mobileCust)
+    )
+  )
+  return newCustArr
+}
 const commonChart = () => {
-  const { data, data1 } = props
+  const { data, name } = props
+
   return (option.value = {
-    color: ['#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF', '#E23AF5', '#4164F3'],
+    color: ['#4164F3', '#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF', '#E23AF5'],
     xAxis: {
       name: '站',
       data: data.map((i) => i.districtName),
@@ -71,30 +84,11 @@ const commonChart = () => {
       z: 10
     },
     yAxis: {
-      name: '销账金额',
+      name: '新发展个数',
 
       axisLabel: {
         color: '#999'
       }
-    },
-    legend: {
-      type: 'plain', // 普通图例
-      // top: '10%',
-      left: 'right',
-      itemWidth: 20,
-      itemHeight: 12,
-      textStyle: {
-        fontSize: 14,
-        color: '#666'
-      },
-      // 图例标记样式
-      itemStyle: {
-        borderWidth: 0
-      },
-      // 图例之间的间距
-      itemGap: 20,
-      // 图例形状为矩形
-      icon: 'rect'
     },
     tooltip: {
       trigger: 'axis',
@@ -121,7 +115,7 @@ const commonChart = () => {
                 item.color
               }; margin-right: 8px;"></span>
               <span style="flex: 1;">${item.seriesName}:</span>
-              <span style="font-weight: bold; margin-left: 10px;">${item.value.toLocaleString()}元</span>
+              <span style="font-weight: bold; margin-left: 10px;">${item.value.toLocaleString()}个</span>
             </div>
           `
         })
@@ -133,7 +127,26 @@ const commonChart = () => {
         type: 'inside'
       }
     ],
-    series: formatLineData(data, data1)
+    legend: {
+      type: 'plain', // 普通图例
+      // top: '10%',
+      left: 'right',
+      itemWidth: 20,
+      itemHeight: 12,
+      textStyle: {
+        fontSize: 14,
+        color: '#666'
+      },
+      // 图例标记样式
+      itemStyle: {
+        borderWidth: 0
+      },
+      // 图例之间的间距
+      itemGap: 20,
+      // 图例形状为矩形
+      icon: 'rect'
+    },
+    series: formatBardata(data)
   })
 }
 option.value = commonChart()
@@ -142,6 +155,6 @@ option.value = commonChart()
 <style scoped>
 .chart {
   /* height: 100vh; */
-  height: 220px;
+  height: 200px;
 }
 </style>
