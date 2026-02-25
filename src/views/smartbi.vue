@@ -1,15 +1,25 @@
 <template>
   <div class="chart-page">
     <div class="top-content">
-      <div>
-        <div>{{ state.view }}</div>
-        <div @click="tabChange">切换</div>
+      <div class="left">
+        <span
+          :class="state.view === '广电站' ? 'active-font' : 'common-font'"
+          @click="() => (state.view = '广电站')"
+          >广电站</span
+        >
+        <span> | </span>
+        <span
+          :class="state.view === '发展人' ? 'active-font' : 'common-font'"
+          @click="() => (state.view = '发展人')"
+        >
+          发展人</span
+        >
       </div>
       <div class="title">无锡分公司数据智看</div>
-      <div>数据更新时间：2026-02-25</div>
+      <div class="right">数据更新时间：2026-02-25</div>
     </div>
 
-    <div class="data-part" v-if="state.init">
+    <div class="data-part">
       <div class="common-container">
         <div class="common-title">数据总览</div>
         <div class="common-container_1">
@@ -27,6 +37,8 @@
       </div>
       <!-- <div style="width: 1%"></div> -->
       <div class="common-container" style="width: 30%">
+        <div class="common-title">增值产品订购占比</div>
+        <hlwpiechart :data="state.hlwcpArr" :hlwTotal="state.hlwTotal"></hlwpiechart>
         <div class="common-title">各站数字电视保有率排名</div>
         <sectionrank
           :sectionTask="state.sectionTask"
@@ -39,15 +51,17 @@
   </div>
 </template>
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import sectionrank from '../components/sectionrank.vue'
 import xzlinechart from '../components/xzlinechart.vue'
 import newcustbarchart from '../components/newcustbarchart.vue'
 import threedata from '../components/threedata.vue'
+import hlwpiechart from '../components/hlwpiechart.vue'
 const state = reactive({
   init: true,
   view: '广电站',
   expandTxt: '展开',
+  hlwTotal: 0,
   sectionTask: [
     {
       districtName: '安镇广电站',
@@ -777,28 +791,59 @@ const state = reactive({
       lanCust: 122,
       mobileCust: 123
     }
+  ],
+  hlwcpArr: [
+    {
+      name: '爱奇艺',
+      amt: 404
+    },
+    {
+      name: '炫力少儿',
+      amt: 50
+    },
+    {
+      name: '云视听',
+      amt: 76
+    },
+    {
+      name: '酷喵',
+      amt: 240
+    }
   ]
 })
 const showModal = () => {}
 
+const getActiveStyle = computed((activeName) =>
+  activeName === state.view ? 'active-font' : 'common-font'
+)
+
 const handleExpand = (txt) => {
   console.log(txt)
-  state.sectionTask = txt === '展开' ? state.sectionTaskCp : state.sectionTask.slice(0, 20)
+  state.sectionTask = txt === '展开' ? state.sectionTaskCp : state.sectionTask.slice(0, 17)
   state.expandTxt = txt === '展开' ? '收起' : '展开'
 }
 
 const tabChange = () => {
   state.view === '发展人' ? (state.view = '广电站') : (state.view = '发展人')
 }
+
+const sumHlw = () => {
+  let sum = 0
+  state.hlwcpArr.map((i) => {
+    sum += i.amt
+  })
+  return sum
+}
 const init = () => {
   state.sectionTaskCp = state.sectionTask
-  state.sectionTask = state.sectionTask.slice(0, 20)
+  state.sectionTask = state.sectionTask.slice(0, 17)
+  state.hlwTotal = sumHlw()
 }
 init()
 </script>
 <style scoped>
 .chart-page {
-  /* width: 100%; */
+  width: 100%;
   min-height: 100vh;
   background: #0a1635;
 }
@@ -914,9 +959,33 @@ init()
 }
 
 .top-content {
-  width: 100vw;
-  display: flex;
-  flex-direction: row;
-  align-items: space-between;
+  width: 100%;
+  position: relative;
+}
+.left {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  font-size: 10px;
+}
+.right {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  font-size: 10px;
+}
+.active-font {
+  color: #6ccee6;
+  position: relative;
+  /* 设置字体透明 */
+  color: transparent;
+  /* 设置线性渐变，从红色渐变到蓝色 */
+  background-image: linear-gradient(0deg, #94ffff, #4397ff);
+  /* 使用 -webkit-background-clip 属性将背景剪裁至文本形状 */
+  -webkit-background-clip: text;
+  /* 非Webkit内核浏览器需要使用标准前缀 */
+  background-clip: text;
+  /* 把当前元素设置为行内块，以便能够应用背景 */
+  display: inline-block;
 }
 </style>

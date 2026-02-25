@@ -1,160 +1,118 @@
 <template>
-  <v-chart class="chart" :option="option" autoresize />
+  <highcharts :options="chartOptions" />
 </template>
-
 <script setup>
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { PieChart } from 'echarts/charts'
-import {
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  DataZoomComponent
-} from 'echarts/components'
-import VChart, { THEME_KEY } from 'vue-echarts'
-import { ref, provide, reactive, watch } from 'vue'
-import { data } from 'autoprefixer'
-
-use([
-  CanvasRenderer,
-  TitleComponent,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  PieChart,
-  DataZoomComponent
-])
-
-// provide(THEME_KEY, 'dark')
+import { onMounted, onBeforeUnmount, ref } from 'vue'
 const props = defineProps({
   data: {
     type: Array
+  },
+  hlwTotal: {
+    type: Number
   }
 })
-let option = ref()
-watch()
 
-const formatItem = (name, data) => {
-  return {
-    data,
-    visible: true,
-    name,
-    type: 'bar'
-  }
+const getScale = () => {
+  const viewWidth =
+    window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+  const viewHeight =
+    window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+
+  if (viewWidth / viewHeight >= 1.97) {
+    return {
+      width: 300,
+      height: 240
+    }
+  } else if (viewWidth <= 1500) {
+    return {
+      width: 300,
+      height: 280
+    }
+  } else
+    return {
+      width: 500,
+      height: 450
+    }
 }
-
-const formatBardata = (data) => {
-  const newCustArr = []
-  newCustArr.push(
-    formatItem(
-      '电视',
-      data.map((i) => i.tvCust)
-    )
-  )
-  newCustArr.push(
-    formatItem(
-      '宽带',
-      data.map((i) => i.lanCust)
-    )
-  )
-  newCustArr.push(
-    formatItem(
-      '手机卡',
-      data.map((i) => i.mobileCust)
-    )
-  )
-  return newCustArr
-}
-const commonChart = () => {
-  const { data, name } = props
-
-  return (option.value = {
-    color: ['#4164F3', '#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF', '#E23AF5'],
-    xAxis: {
-      name: '站',
-      data: data.map((i) => i.districtName),
-      axisLabel: {
-        // inside: true,
-        color: '#fff',
-        rotate: 30
-      },
-
-      z: 10
-    },
-    yAxis: {
-      name: '新发展个数',
-
-      axisLabel: {
-        color: '#999'
-      }
-    },
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderWidth: 1,
-      borderColor: '#ddd',
-      textStyle: {
-        color: '#333'
-      },
-      axisPointer: {
-        type: 'line',
-        lineStyle: {
-          color: '#999',
-          type: 'dashed'
-        }
-      },
-      formatter: function (params) {
-        let result = `<div style="font-weight: bold; margin-bottom: 5px;">${params[0].axisValue}</div>`
-        params.forEach((item) => {
-          console.log(item)
-          result += `
-            <div style="display: flex; align-items: center; margin: 3px 0;">
-              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${
-                item.color
-              }; margin-right: 8px;"></span>
-              <span style="flex: 1;">${item.seriesName}:</span>
-              <span style="font-weight: bold; margin-left: 10px;">${item.value.toLocaleString()}个</span>
-            </div>
-          `
-        })
-        return result
-      }
-    },
-    dataZoom: [
-      {
-        type: 'inside'
-      }
-    ],
-    legend: {
-      type: 'plain', // 普通图例
-      // top: '10%',
-      left: 'right',
-      itemWidth: 20,
-      itemHeight: 12,
-      textStyle: {
-        fontSize: 14,
-        color: '#666'
-      },
-      // 图例标记样式
-      itemStyle: {
-        borderWidth: 0
-      },
-      // 图例之间的间距
-      itemGap: 20,
-      // 图例形状为矩形
-      icon: 'rect'
-    },
-    series: formatBardata(data)
+const format3dData = () => {
+  const arr = []
+  props.data.map((i) => {
+    arr.push([i.name, i.amt])
   })
+  arr.sort((a, b) => b[1] - a[1])
+  return arr
 }
-option.value = commonChart()
+const chartOptions = ref({
+  chart: {
+    type: 'pie',
+    options3d: {
+      enabled: true,
+      alpha: 45
+    },
+    backgroundColor: 'transparent',
+    width: getScale().width,
+    height: getScale().height
+  },
+  title: {
+    text: '',
+    align: 'left'
+  },
+  subtitle: {
+    text: '',
+    align: 'left'
+  },
+  plotOptions: {
+    pie: {
+      innerSize: 100,
+      depth: 100,
+      dataLabels: {
+        enabled: true, //是否显示饼图的线形tip
+        distance: 10, //设置引导线的长度 饼图的大小
+        color: '#FFF', //全局设置字体颜色
+        style: {
+          textOutline: 'none', //去掉文字白边
+          fontSize: '12'
+        },
+        // format: "{point.name}"
+        formatter: function () {
+          return (
+            this.point.name +
+            this.y +
+            '个 占比' +
+            ((this.y / props.hlwTotal) * 100).toFixed(2) +
+            '%'
+          )
+        }
+      }
+    }
+  },
+  series: [
+    {
+      name: '增值业务订购个数',
+      data: format3dData()
+    }
+  ],
+  colors: ['#E23AF5', '#7D4BFF', '#4164F3', '#94FFFF', '#4397FF', '#8BB6FF']
+})
+onMounted(() => {
+  window.addEventListener('resize', (e) => {
+    var width =
+      window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+    const scale = width / 2560
+    chartOptions.value = {
+      ...chartOptions.value,
+      chart: {
+        type: 'pie',
+        options3d: {
+          enabled: true,
+          alpha: 45
+        },
+        backgroundColor: 'transparent',
+        width: 500 * scale,
+        height: 480 * scale
+      }
+    }
+  })
+})
+onBeforeUnmount(() => window.removeEventListener('resize'))
 </script>
-
-<style scoped>
-.chart {
-  /* height: 100vh; */
-  height: 200px;
-}
-</style>

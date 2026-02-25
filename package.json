@@ -27,7 +27,9 @@
     "vue-echarts": "^6.6.9",
     "vue-router": "^4.2.2",
     "vue3-clipboard": "^1.0.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "highcharts": "^11.4.8",
+    "highcharts-vue": "^2.0.1"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

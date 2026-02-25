@@ -11,11 +11,11 @@
     </div>
     <div class="grid-item">
       <div class="commob-title">有价宽带终端数</div>
-      <div class="total-amount">3690000</div>
+      <div class="total-amount">160000</div>
     </div>
     <div class="grid-item">
       <div class="commob-title">上月收现总额</div>
-      <div class="total-amount">2345566778</div>
+      <div class="total-amount">234,556,677</div>
       <!-- <processchart :data="state.statusRate.processRate" type="进行中" /> -->
     </div>
   </div>

@@ -3,6 +3,9 @@ import 'element-plus/dist/index.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import Highcharts from 'highcharts'
+import HighchartsVue from 'highcharts-vue'
+import highcharts3d from 'highcharts/highcharts-3d'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import Vue3Clipboard from 'vue3-clipboard'
 // import './util/rem'
@@ -16,6 +19,9 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 app.use(createPinia())
 app.use(router)
+app.use(Highcharts)
+app.use(HighchartsVue)
+highcharts3d(Highcharts)
 app.use(Vue3Clipboard, {
   autoSetContainer: true,
   appendToBody: true
