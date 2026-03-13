@@ -307,3 +307,16 @@ export const getTaskSortReq = (data) => {
     data
   })
 }
+
+/**
+ * 获取任务执行排序情况
+ * @param {*} data
+ * @returns
+ */
+export const getDailyReportReq = (data) => {
+  return createRequest()({
+    url: '/api/report/dailyreport',
+    method: 'post',
+    data
+  })
+}

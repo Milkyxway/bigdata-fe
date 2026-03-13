@@ -69,7 +69,6 @@ const formatBardata = (data) => {
 }
 const commonChart = () => {
   const { data, name } = props
-
   return (option.value = {
     color: ['#E23AF5', '#4164F3', '#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF'],
     xAxis: {
@@ -108,7 +107,6 @@ const commonChart = () => {
       formatter: function (params) {
         let result = `<div style="font-weight: bold; margin-bottom: 5px;">${params[0].axisValue}</div>`
         params.forEach((item) => {
-          console.log(item)
           result += `
             <div style="display: flex; align-items: center; margin: 3px 0;">
               <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${

@@ -33,13 +33,13 @@ const formatLineData = (data, data1) => {
   const newCustArr = []
   newCustArr.push(
     formatItem(
-      '本月销账金额',
+      '上月销账金额',
       data.map((i) => i.amt)
     )
   )
   newCustArr.push(
     formatItem(
-      '上月销账金额',
+      '上上月销账金额',
       data1.map((i) => i.amt)
     )
   )
@@ -114,7 +114,6 @@ const commonChart = () => {
       formatter: function (params) {
         let result = `<div style="font-weight: bold; margin-bottom: 5px;">${params[0].axisValue}</div>`
         params.forEach((item) => {
-          console.log(item)
           result += `
             <div style="display: flex; align-items: center; margin: 3px 0;">
               <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${

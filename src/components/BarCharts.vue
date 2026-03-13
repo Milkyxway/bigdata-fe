@@ -33,8 +33,7 @@ let option = ref()
 watch()
 const commonChart = () => {
   const { data, legend, name } = props
-  console.log(data, legend)
-  return (option = {
+  return (option.value = {
     title: {
       text: name
     },

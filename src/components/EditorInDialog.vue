@@ -49,7 +49,6 @@ const emits = defineEmits(['updateContent', 'refreshList'])
 const sqlContent = ref()
 const sqlName = ref()
 const region = getLocalStore('userInfo').region
-console.log(props.region)
 watch(
   () => props.content,
   (val) => {

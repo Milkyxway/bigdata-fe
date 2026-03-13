@@ -278,7 +278,6 @@ const updateSelect = (data, type) => {
 }
 const getNoon = (modeName) => {
   const formatModeName = (val) => {
-    console.log(typeof val, val, val.toString())
     // return val === '0900' ? '0900' : '1200'
     return val
   }
