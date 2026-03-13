@@ -78,7 +78,7 @@ const chartOptions = ref({
           return (
             this.point.name +
             this.y +
-            '个 占比' +
+            '元 占比' +
             ((this.y / props.hlwTotal) * 100).toFixed(2) +
             '%'
           )
@@ -88,7 +88,7 @@ const chartOptions = ref({
   },
   series: [
     {
-      name: '增值业务订购个数',
+      name: '各业务销账金额占比',
       data: format3dData()
     }
   ],

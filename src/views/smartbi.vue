@@ -37,8 +37,8 @@
       </div>
       <!-- <div style="width: 1%"></div> -->
       <div class="common-container" style="width: 30%">
-        <div class="common-title">增值产品订购占比</div>
-        <hlwpiechart :data="state.hlwcpArr" :hlwTotal="state.hlwTotal"></hlwpiechart>
+        <div class="common-title">各业务销账金额占比</div>
+        <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
         <div class="common-title">各站数字电视保有率排名</div>
         <sectionrank
           :sectionTask="state.sectionTask"
@@ -67,24 +67,7 @@ const state = reactive({
   xzAmt: [],
   xzAmt_lastmonth: [],
   newCust: [],
-  hlwcpArr: [
-    {
-      name: '爱奇艺',
-      amt: 404
-    },
-    {
-      name: '炫力少儿',
-      amt: 50
-    },
-    {
-      name: '云视听',
-      amt: 76
-    },
-    {
-      name: '酷喵',
-      amt: 240
-    }
-  ]
+  xzPropotion: []
 })
 const showModal = () => {}
 
@@ -103,7 +86,7 @@ const tabChange = () => {
 
 const sumHlw = () => {
   let sum = 0
-  state.hlwcpArr.map((i) => {
+  state.xzPropotion.map((i) => {
     sum += i.amt
   })
   return sum
@@ -139,12 +122,19 @@ const getDailyReport = async () => {
   state.xzAmt_lastmonth = jsonData['各站销账两月对比'].map((i) => {
     return { districtName: i.DISTRICT_NAME, amt: i['销账上上月'] }
   })
+  state.xzPropotion = jsonData['销账占比'].map((i) => {
+    return {
+      name: i['业务类型'],
+      amt: i['SUM(TOTAL_AMOUNT)/100']
+    }
+  })
+  state.hlwTotal = sumHlw()
   state.init = true
 }
 const init = () => {
   state.sectionTaskCp = state.sectionTask
   state.sectionTask = state.sectionTask.slice(0, 17)
-  state.hlwTotal = sumHlw()
+
   getDailyReport()
 }
 init()
