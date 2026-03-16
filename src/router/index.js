@@ -10,18 +10,9 @@ export const routeList = [
     name: '统计模块',
     label: '统计模块',
     path: '/statistic',
-    component: () => import('../views/PersonalHome.vue'),
-    auth: ['developer'],
-    children: [
-      {
-        path: '/statistic',
-        name: '统计模块',
-        label: '统计模块',
-        isSider: true,
-        auth: ['developer'],
-        component: () => import('../views/smartbi.vue')
-      }
-    ]
+    auth: ['developer', 'section'],
+    isSider: true,
+    component: () => import('../views/smartbi.vue')
   },
   {
     path: '/home',
@@ -193,6 +184,22 @@ export const routeList = [
             isSider: true,
             auth: ['developer'],
             component: () => import('../views/fsbpwdmodify.vue')
+          }
+        ]
+      },
+      {
+        name: '数据看板',
+        label: '数据看板',
+        path: '/statistic',
+        component: () => import('../views/newhome.vue'),
+        children: [
+          {
+            name: '数据看板',
+            label: '数据看板',
+            path: '/statistic',
+            auth: ['developer', 'section'],
+            isSider: true,
+            component: () => import('../views/smartbi.vue')
           }
         ]
       }
