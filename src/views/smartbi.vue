@@ -16,14 +16,14 @@
         >
       </div>
       <div class="title">无锡分公司数据智看</div>
-      <div class="right">数据更新时间：2026-02-25</div>
+      <div class="right">数据更新时间：{{ state.updateTime }}</div>
     </div>
 
     <div class="data-part" v-if="state.init">
       <div class="common-container">
         <div class="common-title">数据总览</div>
         <div class="common-container_1">
-          <threedata></threedata>
+          <threedata :data="state.previewData"></threedata>
         </div>
         <div @click="showModal('xz')" style="width: 100%">
           <div class="common-title">各站月销账金额</div>
@@ -33,9 +33,7 @@
           <div class="common-title">各站新发展客户数量</div>
           <newcustbarchart :data="state.newCust"></newcustbarchart>
         </div>
-        <!-- <demo></demo> -->
       </div>
-      <!-- <div style="width: 1%"></div> -->
       <div class="common-container" style="width: 30%">
         <div class="common-title">各业务销账金额占比</div>
         <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
@@ -52,6 +50,7 @@
 </template>
 <script setup>
 import { reactive, ref, computed } from 'vue'
+import dayjs from 'dayjs'
 import sectionrank from '../components/sectionrank.vue'
 import xzlinechart from '../components/xzlinechart.vue'
 import newcustbarchart from '../components/newcustbarchart.vue'
@@ -67,7 +66,14 @@ const state = reactive({
   xzAmt: [],
   xzAmt_lastmonth: [],
   newCust: [],
-  xzPropotion: []
+  xzPropotion: [],
+  updateTime: '',
+  previewData: {
+    jfUser: 0, //缴费客户
+    liushi: 0, // 流失
+    yjkd: 0, //有价宽带
+    shouxian: 0 //收现
+  }
 })
 const showModal = () => {}
 
@@ -99,13 +105,13 @@ const formatData = (data) => {
 const getDailyReport = async () => {
   const res = await getDailyReportReq({ taskId: 2189 })
   const {
-    data: { jsonData }
+    data: { jsonData, fileName }
   } = res
   state.sectionTask = jsonData['数字电视缴费保有率'].map((i) => {
     return {
       districtName: i.REGION_NAME2,
       itvNum: i['缴费客户数当前'],
-      itvRate: i['ROUND(缴费客户数当前/缴费客户数20251231,4)']
+      itvRate: i['保有率']
     }
   })
   state.newCust = jsonData['各业务新发展'].map((i) => {
@@ -117,10 +123,10 @@ const getDailyReport = async () => {
     }
   })
   state.xzAmt = jsonData['各站销账两月对比'].map((i) => {
-    return { districtName: i.DISTRICT_NAME, amt: i['销账上月'] }
+    return { districtName: i.REGION_NAME2, amt: i['销账上月'] }
   })
   state.xzAmt_lastmonth = jsonData['各站销账两月对比'].map((i) => {
-    return { districtName: i.DISTRICT_NAME, amt: i['销账上上月'] }
+    return { districtName: i.REGION_NAME2, amt: i['销账上上月'] }
   })
   state.xzPropotion = jsonData['销账占比'].map((i) => {
     return {
@@ -129,12 +135,18 @@ const getDailyReport = async () => {
     }
   })
   state.hlwTotal = sumHlw()
+  state.previewData = {
+    jfUser: jsonData['总数'][0]['当前缴费客户'],
+    liushi: jsonData['总数'][0]['增长率'],
+    yjkd: jsonData['总数'][0]['有价宽带终端数'],
+    shouxian: jsonData['总数'][0]['收现金额']
+  }
+  state.updateTime = dayjs(fileName.substring(0, 8)).subtract(1, 'day').format('YYYY-MM-DD')
+  state.sectionTaskCp = state.sectionTask
+  state.sectionTask = state.sectionTask.slice(0, 17)
   state.init = true
 }
 const init = () => {
-  state.sectionTaskCp = state.sectionTask
-  state.sectionTask = state.sectionTask.slice(0, 17)
-
   getDailyReport()
 }
 init()

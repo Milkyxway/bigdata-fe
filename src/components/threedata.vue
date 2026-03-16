@@ -2,24 +2,38 @@
   <div class="grid">
     <div class="grid-item">
       <div class="commob-title">缴费客户数</div>
-      <div class="total-amount">3690000</div>
+      <div class="total-amount">{{ props.data.jfUser }}</div>
     </div>
     <div class="grid-item">
-      <div class="commob-title">数字电视保有率</div>
-      <div class="total-amount">90.5%</div>
+      <div class="commob-title">
+        缴费客户增长率 <el-icon v-if="props.data.liushi > 0" color="#FF6347"><Top /></el-icon
+        ><el-icon v-if="props.data.liushi < 0" color="#90EE90"><Bottom /></el-icon>
+      </div>
+      <div class="total-amount">{{ props.data.liushi * 100 }}%</div>
       <!-- <processchart :data="state.statusRate.finishRate" type="已完成" /> -->
     </div>
     <div class="grid-item">
       <div class="commob-title">有价宽带终端数</div>
-      <div class="total-amount">160000</div>
+      <div class="total-amount">{{ props.data.yjkd }}</div>
     </div>
     <div class="grid-item">
       <div class="commob-title">上月收现总额</div>
-      <div class="total-amount">234,556,677</div>
+      <div class="total-amount">
+        {{ props.data.shouxian }}
+      </div>
       <!-- <processchart :data="state.statusRate.processRate" type="进行中" /> -->
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, provide, reactive, watch } from 'vue'
+const props = defineProps({
+  data: {
+    type: Object
+  }
+})
+</script>
 <style scoped>
 .common-container {
   /* padding: 20px 0; */
