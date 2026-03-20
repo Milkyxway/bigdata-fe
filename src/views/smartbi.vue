@@ -146,7 +146,7 @@ const getDailyReport = async (taskId, pickdate) => {
     shouxian: jsonData['总数'][0]['收现金额'],
     yjkdliushi: jsonData['总数'][0]['有价宽带增长率']
   }
-  state.updateTime = dayjs(fileName.substring(0, 8)).subtract(1, 'day').format('YYYY-MM-DD')
+  state.updateTime = dayjs(fileName.substring(0, 8)).format('YYYY-MM-DD')
   state.sectionTaskCp = state.sectionTask
   state.sectionTask = state.sectionTask.slice(0, 17)
   state.init = true

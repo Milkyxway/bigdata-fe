@@ -1,21 +1,26 @@
 <template>
   <div class="grid">
     <div class="grid-item">
-      <div class="commob-title">缴费客户数</div>
+      <div class="commob-title">
+        缴费客户数<el-icon v-if="props.data.liushi > 0" color="#FF6347"><Top /></el-icon
+        ><el-icon v-if="props.data.liushi < 0" color="#90EE90"><Bottom /></el-icon>
+        <span
+          :style="{ color: props.data.liushi > 0 ? '#FF6347' : '#90ee90' }"
+          v-if="props.data.liushi"
+          >{{ props.data.liushi * 100 }} %</span
+        >
+      </div>
       <div class="total-amount">{{ props.data.jfUser }}</div>
     </div>
-    <div class="grid-item">
-      <div class="commob-title">
-        缴费客户增长率 <el-icon v-if="props.data.liushi > 0" color="#FF6347"><Top /></el-icon
-        ><el-icon v-if="props.data.liushi < 0" color="#90EE90"><Bottom /></el-icon>
-      </div>
-      <div class="total-amount">{{ props.data.liushi * 100 }}%</div>
-    </div>
+
     <div class="grid-item">
       <div class="commob-title">
         有价宽带终端数<el-icon v-if="props.data.yjkdliushi > 0" color="#FF6347"><Top /></el-icon
-        ><el-icon v-if="props.data.yjkdliushi < 0" color="#90EE90"
-          ><Bottom />{{ props.data.yjkdliushi * 100 }}%</el-icon
+        ><el-icon v-if="props.data.yjkdliushi < 0" color="#90EE90"><Bottom /></el-icon>
+        <span
+          :style="{ color: props.data.yjkdliushi > 0 ? '#FF6347' : '#90ee90' }"
+          v-if="props.data.yjkdliushi"
+          >{{ props.data.yjkdliushi * 100 }} %</span
         >
       </div>
       <div class="total-amount">{{ props.data.yjkd }}</div>
