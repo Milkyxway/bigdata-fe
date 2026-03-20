@@ -15,7 +15,7 @@
     <span class="rank-grid">{{ item.districtName }}</span>
     <span class="rank-index">{{ item.itvNum }}</span>
     <span class="rank-index">{{ item.itvNum_ly }}</span>
-    <span class="rank-index">{{ (item.itvRate * 100).toFixed(2) }} %</span>
+    <span class="rank-index">{{ (item.itvRate * 100).toFixed(2) }}%</span>
   </div>
   <div @click="handleClick" class="expand">
     <el-icon v-if="props.expandTxt === '展开'"><ArrowDown /></el-icon>
