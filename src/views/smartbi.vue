@@ -14,6 +14,7 @@
         >
           发展人</span
         >
+        <el-date-picker v-model="state.pickdate" @change="handleDateChange"></el-date-picker>
       </div>
       <div class="title">无锡分公司数据智看</div>
       <div class="right">数据更新时间：{{ state.updateTime }}</div>
@@ -72,8 +73,10 @@ const state = reactive({
     jfUser: 0, //缴费客户
     liushi: 0, // 流失
     yjkd: 0, //有价宽带
-    shouxian: 0 //收现
-  }
+    shouxian: 0, //收现
+    yjkdliushi: 0 //有价宽带流失
+  },
+  pickdate: ''
 })
 const showModal = () => {}
 
@@ -90,6 +93,11 @@ const tabChange = () => {
   state.view === '发展人' ? (state.view = '广电站') : (state.view = '发展人')
 }
 
+const handleDateChange = async (date) => {
+  const pickdate = dayjs(date).subtract(1, 'day').format('YYYYMMDD')
+  getDailyReport(2189, pickdate)
+}
+
 const sumHlw = () => {
   let sum = 0
   state.xzPropotion.map((i) => {
@@ -98,12 +106,8 @@ const sumHlw = () => {
   return sum
 }
 
-const formatData = (data) => {
-  return data.map((i) => {})
-}
-
-const getDailyReport = async () => {
-  const res = await getDailyReportReq({ taskId: 2189 })
+const getDailyReport = async (taskId, pickdate) => {
+  const res = await getDailyReportReq({ taskId, pickdate })
   const {
     data: { jsonData, fileName }
   } = res
@@ -139,7 +143,8 @@ const getDailyReport = async () => {
     jfUser: jsonData['总数'][0]['当前缴费客户'],
     liushi: jsonData['总数'][0]['增长率'],
     yjkd: jsonData['总数'][0]['有价宽带终端数'],
-    shouxian: jsonData['总数'][0]['收现金额']
+    shouxian: jsonData['总数'][0]['收现金额'],
+    yjkdliushi: jsonData['总数'][0]['有价宽带增长率']
   }
   state.updateTime = dayjs(fileName.substring(0, 8)).subtract(1, 'day').format('YYYY-MM-DD')
   state.sectionTaskCp = state.sectionTask
@@ -147,7 +152,7 @@ const getDailyReport = async () => {
   state.init = true
 }
 const init = () => {
-  getDailyReport()
+  getDailyReport(2189, null)
 }
 init()
 </script>
