@@ -38,7 +38,7 @@
       <div class="common-container" style="width: 30%">
         <div class="common-title">各业务销账金额占比</div>
         <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
-        <div class="common-title">各站数字电视保有率排名</div>
+        <div class="common-title">各站数字电视缴费客户保有率排名</div>
         <sectionrank
           :sectionTask="state.sectionTask"
           :sectionList="sectionList"
@@ -115,6 +115,7 @@ const getDailyReport = async (taskId, pickdate) => {
     return {
       districtName: i.REGION_NAME2,
       itvNum: i['缴费客户数当前'],
+      itvNum_ly: i['缴费客户数20251231'],
       itvRate: i['保有率']
     }
   })

@@ -58,7 +58,7 @@ const formatItem = (name, data) => {
 const commonChart = () => {
   const { data, data1 } = props
   return (option.value = {
-    color: ['#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF', '#E23AF5', '#4164F3'],
+    color: ['#94FFFF', '#e23af5'],
     xAxis: {
       name: '站',
       data: data.map((i) => i.districtName),

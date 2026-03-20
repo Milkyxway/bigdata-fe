@@ -2,7 +2,8 @@
   <div class="rank rank-title">
     <span class="rank-index">排名</span>
     <span class="rank-grid">站名</span>
-    <span class="rank-index">缴费客户数</span>
+    <span class="rank-index">当前缴费</span>
+    <span class="rank-index">去年末缴费</span>
     <span class="rank-index">保有率</span>
   </div>
   <div
@@ -13,7 +14,8 @@
     <span class="rank-index">{{ index + 1 }}</span>
     <span class="rank-grid">{{ item.districtName }}</span>
     <span class="rank-index">{{ item.itvNum }}</span>
-    <span class="rank-index">{{ item.itvRate }}</span>
+    <span class="rank-index">{{ item.itvNum_ly }}</span>
+    <span class="rank-index">{{ (item.itvRate * 100).toFixed(2) }} %</span>
   </div>
   <div @click="handleClick" class="expand">
     <el-icon v-if="props.expandTxt === '展开'"><ArrowDown /></el-icon>
@@ -71,7 +73,7 @@ const handleClick = () => {
 }
 .rank-grid {
   display: inline-block;
-  width: 34%;
+  width: 20%;
 }
 .rank-index {
   display: inline-block;
