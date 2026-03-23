@@ -7,7 +7,7 @@
         <span
           :style="{ color: props.data.liushi > 0 ? '#FF6347' : '#90ee90' }"
           v-if="props.data.liushi"
-          >{{ props.data.liushi * 100 }} %</span
+          >{{ (props.data.liushi * 100).toFixed(2) }} %</span
         >
       </div>
       <div class="total-amount">{{ props.data.jfUser }}</div>
@@ -20,7 +20,7 @@
         <span
           :style="{ color: props.data.yjkdliushi > 0 ? '#FF6347' : '#90ee90' }"
           v-if="props.data.yjkdliushi"
-          >{{ props.data.yjkdliushi * 100 }} %</span
+          >{{ (props.data.yjkdliushi * 100).toFixed(2) }} %</span
         >
       </div>
       <div class="total-amount">{{ props.data.yjkd }}</div>
