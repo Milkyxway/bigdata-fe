@@ -134,11 +134,14 @@ const getDailyReport = async (taskId, pickdate) => {
     return { districtName: i.REGION_NAME2, amt: i['销账上上月'] }
   })
   state.xzPropotion = jsonData['销账占比'].map((i) => {
-    return {
-      name: i['业务类型'],
-      amt: i['SUM(TOTAL_AMOUNT)/100']
-    }
+    return i['业务类型']
+      ? { name: i['业务类型'], amt: i['SUM(TOTAL_AMOUNT)/100'] }
+      : {
+          name: '未知',
+          amt: i['SUM(TOTAL_AMOUNT)/100']
+        }
   })
+
   state.hlwTotal = sumHlw()
   state.previewData = {
     jfUser: jsonData['总数'][0]['当前缴费客户'],
