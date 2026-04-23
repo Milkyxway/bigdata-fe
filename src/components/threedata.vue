@@ -32,13 +32,16 @@
     <div class="grid-item">
       <div class="commob-title">
         <el-tooltip content="2026年以来的现金帐本收现总额与2025年同期相比增长率" placement="top">
-          收现总额<el-icon v-if="props.data.yjkdliushi > 0" color="#FF6347"><Top /></el-icon
-          ><el-icon v-if="props.data.shouxian_tb < 0" color="#90EE90"><Bottom /></el-icon>
-          <span
-            :style="{ color: props.data.shouxian_tb > 0 ? '#FF6347' : '#90ee90' }"
-            v-if="props.data.shouxian_tb"
-            >{{ (props.data.shouxian_tb * 100).toFixed(2) }} %</span
-          >
+          <div>
+            <span>收现总额</span
+            ><el-icon v-if="props.data.yjkdliushi > 0" color="#FF6347"><Top /></el-icon
+            ><el-icon v-if="props.data.shouxian_tb < 0" color="#90EE90"><Bottom /></el-icon>
+            <span
+              :style="{ color: props.data.shouxian_tb > 0 ? '#FF6347' : '#90ee90' }"
+              v-if="props.data.shouxian_tb"
+              >{{ (props.data.shouxian_tb * 100).toFixed(2) }} %</span
+            >
+          </div>
         </el-tooltip>
       </div>
       <div class="total-amount">
@@ -48,16 +51,14 @@
     <div class="grid-item">
       <el-tooltip content="2026年以来移网开卡总数" placement="top">
         <div class="commob-title">移网开卡总数</div>
-        <div class="total-amount">
-          {{ props.data.amount_yw }}
-        </div>
       </el-tooltip>
+      <div class="total-amount">{{ props.data.amount_yw }}</div>
     </div>
     <div class="grid-item" @click="handleClick">
       <el-tooltip content="截止昨日移网卡活跃数与在网数比值" placement="top">
         <div class="commob-title">移网活跃率</div>
-        <div class="total-amount">{{ (props.data.yw_hyl * 100).toFixed(2) }} %</div>
       </el-tooltip>
+      <div class="total-amount">{{ (props.data.yw_hyl * 100).toFixed(2) }} %</div>
     </div>
   </div>
   <el-dialog v-model="state.dialogVisible" :before-close="handleClose">
