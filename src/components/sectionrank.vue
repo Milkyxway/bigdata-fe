@@ -2,9 +2,9 @@
   <div class="rank rank-title">
     <span class="rank-index">排名</span>
     <span class="rank-grid">站名</span>
-    <span class="rank-index">当前缴费</span>
-    <span class="rank-index">去年末缴费</span>
-    <span class="rank-index">保有率</span>
+    <span class="rank-index" v-if="props.columnName1"> {{ props.columnName1 }}</span>
+    <span class="rank-index" v-if="props.columnName2"> {{ props.columnName2 }}</span>
+    <span class="rank-index" v-if="props.columnName3"> {{ props.columnName3 }}</span>
   </div>
   <div
     v-for="(item, index) in props.sectionTask"
@@ -33,6 +33,15 @@ const props = defineProps({
     type: Array
   },
   expandTxt: {
+    type: String
+  },
+  columnName1: {
+    type: String
+  },
+  columnName2: {
+    type: String
+  },
+  columnName3: {
     type: String
   }
 })

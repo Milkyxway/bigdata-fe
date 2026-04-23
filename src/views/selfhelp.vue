@@ -314,7 +314,7 @@ const formatSqlArr = (arr) => {
   if (arr.length === 1) {
     return modifySql(arr[0])
   }
-  if ([1054, 1067, 1070, 1073, 1180].includes(state.selectTask)) {
+  if ([1054, 1067, 1070, 1073, 1180, 2231, 2236, 2256].includes(state.selectTask)) {
     // 2+2查询每一条sql都要替换参数
     let data = []
     arr.map((i) => {

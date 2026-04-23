@@ -44,6 +44,9 @@
           :sectionList="sectionList"
           @handleExpand="handleExpand"
           :expandTxt="state.expandTxt"
+          columnName1="当前缴费"
+          columnName2="去年末缴费"
+          columnName3="保有率"
         ></sectionrank>
       </div>
     </div>
@@ -74,7 +77,10 @@ const state = reactive({
     liushi: 0, // 流失
     yjkd: 0, //有价宽带
     shouxian: 0, //收现
-    yjkdliushi: 0 //有价宽带流失
+    yjkdliushi: 0, //有价宽带流失
+    amount_yw: 0,
+    yw_hyl: 0,
+    shouxian_tb: 0
   },
   pickdate: ''
 })
@@ -148,7 +154,10 @@ const getDailyReport = async (taskId, pickdate) => {
     liushi: jsonData['总数'][0]['增长率'],
     yjkd: jsonData['总数'][0]['有价宽带终端数'],
     shouxian: jsonData['总数'][0]['收现金额'],
-    yjkdliushi: jsonData['总数'][0]['有价宽带增长率']
+    yjkdliushi: jsonData['总数'][0]['有价宽带增长率'],
+    amount_yw: jsonData['总数'][0]['开卡数'],
+    yw_hyl: jsonData['总数'][0]['移网活跃率'],
+    shouxian_tb: jsonData['总数'][0]['收现同比增长']
   }
   state.updateTime = dayjs(fileName.substring(0, 8)).format('YYYY-MM-DD')
   state.sectionTaskCp = state.sectionTask
