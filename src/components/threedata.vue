@@ -2,7 +2,7 @@
   <div class="grid">
     <div class="grid-item">
       <div class="commob-title">
-        <el-tooltip content="截止昨天的数字电视缴费客户数" placement="top">
+        <el-tooltip content="截止昨天的数字电视缴费客户数与25年年末相比增长率" placement="top">
           <div>
             缴费客户数<el-icon v-if="props.data.liushi > 0" color="#FF6347"><Top /></el-icon
             ><el-icon v-if="props.data.liushi < 0" color="#90EE90"><Bottom /></el-icon>
