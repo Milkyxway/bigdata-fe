@@ -309,7 +309,7 @@ export const getTaskSortReq = (data) => {
 }
 
 /**
- * 获取任务执行排序情况
+ * 获取数据看板日报-广电站
  * @param {*} data
  * @returns
  */

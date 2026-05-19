@@ -2,53 +2,74 @@
   <div class="chart-page">
     <div class="top-content">
       <div class="left">
-        <span
-          :class="state.view === '广电站' ? 'active-font' : 'common-font'"
-          @click="() => (state.view = '广电站')"
-          >广电站</span
-        >
-        <span> | </span>
-        <span
-          :class="state.view === '发展人' ? 'active-font' : 'common-font'"
-          @click="() => (state.view = '发展人')"
-        >
-          发展人</span
-        >
         <el-date-picker v-model="state.pickdate" @change="handleDateChange"></el-date-picker>
       </div>
       <div class="title">无锡分公司数据智看</div>
       <div class="right">数据更新时间：{{ state.updateTime }}</div>
-    </div>
-
-    <div class="data-part" v-if="state.init">
-      <div class="common-container">
-        <div class="common-title">数据总览</div>
-        <div class="common-container_1">
-          <threedata :data="state.previewData"></threedata>
-        </div>
-        <div @click="showModal('xz')" style="width: 100%">
-          <div class="common-title">各站月销账金额</div>
-          <xzlinechart :data="state.xzAmt" :data1="state.xzAmt_lastmonth"></xzlinechart>
-        </div>
-        <div @click="showModal('xz')" style="width: 100%">
-          <div class="common-title">各站新发展客户数量</div>
-          <newcustbarchart :data="state.newCust"></newcustbarchart>
-        </div>
-      </div>
-      <div class="common-container" style="width: 30%">
-        <div class="common-title">各业务销账金额占比</div>
-        <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
-        <div class="common-title">各站数字电视缴费客户保有率排名</div>
-        <sectionrank
-          :sectionTask="state.sectionTask"
-          :sectionList="sectionList"
-          @handleExpand="handleExpand"
-          :expandTxt="state.expandTxt"
-          columnName1="当前缴费"
-          columnName2="去年末缴费"
-          columnName3="保有率"
-        ></sectionrank>
-      </div>
+      <el-tabs v-model="state.activeName" class="demo-tabs" @tab-click="handleClickTab">
+        <el-tab-pane label="广电站" name="广电站"
+          ><div class="data-part" v-if="state.init">
+            <div class="common-container">
+              <div class="common-title">数据总览</div>
+              <div class="common-container_1">
+                <threedata :data="state.previewData"></threedata>
+              </div>
+              <div @click="showModal('xz')" style="width: 100%">
+                <div class="common-title">各站月销账金额</div>
+                <xzlinechart :data="state.xzAmt" :data1="state.xzAmt_lastmonth"></xzlinechart>
+              </div>
+              <div @click="showModal('xz')" style="width: 100%">
+                <div class="common-title">各站新发展客户数量</div>
+                <newcustbarchart :data="state.newCust"></newcustbarchart>
+              </div>
+            </div>
+            <div class="common-container" style="width: 30%">
+              <div class="common-title">各业务销账金额占比</div>
+              <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
+              <div class="common-title">各站数字电视缴费客户保有率排名</div>
+              <sectionrank
+                :sectionTask="state.sectionTask"
+                :sectionList="sectionList"
+                @handleExpand="handleExpand"
+                :expandTxt="state.expandTxt"
+                columnName1="当前缴费"
+                columnName2="去年末缴费"
+                columnName3="保有率"
+              ></sectionrank>
+            </div></div
+        ></el-tab-pane>
+        <el-tab-pane label="分中心" name="分中心"
+          ><div class="data-part" v-if="state.initFzx">
+            <div class="common-container">
+              <!-- <div class="common-title">数据总览</div>
+              <div class="common-container_1">
+                <threedata :data="state.fzxData"></threedata>
+              </div> -->
+              <div @click="showModal('xz')" style="width: 100%">
+                <div class="common-title">各站月销账金额</div>
+                <xzlinechart
+                  :data="state.fzxData.xzAmt"
+                  :data1="state.fzxData.xzAmt_lastmonth"
+                ></xzlinechart>
+              </div>
+              <div @click="showModal('xz')" style="width: 100%">
+                <div class="common-title">各站新发展客户数量</div>
+                <newcustbarchart :data="state.fzxData.newCust"></newcustbarchart>
+              </div>
+              <div class="common-title">各站数字电视缴费客户保有率排名</div>
+              <sectionrank
+                :sectionTask="state.fzxData.sectionTask"
+                :sectionList="sectionList"
+                @handleExpand="handleExpand"
+                :expandTxt="null"
+                columnName1="当前缴费"
+                columnName2="去年末缴费"
+                columnName3="保有率"
+              ></sectionrank>
+            </div></div
+        ></el-tab-pane>
+        <el-tab-pane label="发展人" name="发展人">发展人</el-tab-pane>
+      </el-tabs>
     </div>
   </div>
 </template>
@@ -63,7 +84,8 @@ import hlwpiechart from '../components/hlwpiechart.vue'
 import { getDailyReportReq } from '../api/report'
 const state = reactive({
   init: false,
-  view: '广电站',
+  initFzx: false,
+  activeName: '广电站',
   expandTxt: '展开',
   hlwTotal: 0,
   sectionTask: [],
@@ -82,7 +104,8 @@ const state = reactive({
     yw_hyl: 0,
     shouxian_tb: 0
   },
-  pickdate: ''
+  pickdate: '',
+  fzxData: { xzAmt_lastmonth: [], newCust: [], xzAmt: [], sectionTask: [] }
 })
 const showModal = () => {}
 
@@ -95,8 +118,8 @@ const handleExpand = (txt) => {
   state.expandTxt = txt === '展开' ? '收起' : '展开'
 }
 
-const tabChange = () => {
-  state.view === '发展人' ? (state.view = '广电站') : (state.view = '发展人')
+const handleClickTab = (tab, event) => {
+  console.log(tab, event)
 }
 
 const handleDateChange = async (date) => {
@@ -164,8 +187,39 @@ const getDailyReport = async (taskId, pickdate) => {
   state.sectionTask = state.sectionTask.slice(0, 17)
   state.init = true
 }
+const getDailyReportFzx = async (taskId, pickdate) => {
+  const res = await getDailyReportReq({ taskId, pickdate })
+  const {
+    data: { jsonData, fileName }
+  } = res
+  console.log(jsonData)
+  state.fzxData.newCust = jsonData['各业务新发展'].map((i) => {
+    return {
+      districtName: i.FZX,
+      tvCust: i.CNT,
+      lanCust: i.CNT1,
+      mobileCust: i.CNT2
+    }
+  })
+  state.fzxData.xzAmt = jsonData['销账两月对比'].map((i) => {
+    return { districtName: i.FZX, amt: i['销账上月'] }
+  })
+  state.fzxData.xzAmt_lastmonth = jsonData['销账两月对比'].map((i) => {
+    return { districtName: i.FZX, amt: i['销账上上月'] }
+  })
+  state.fzxData.sectionTask = jsonData['数字电视保有率'].map((i) => {
+    return {
+      districtName: i.FZX,
+      itvNum: i['当前'],
+      itvNum_ly: i['去年年末'],
+      itvRate: i['保有率']
+    }
+  })
+  state.initFzx = true
+}
 const init = () => {
   getDailyReport(2189, null)
+  getDailyReportFzx(2424, null)
 }
 init()
 </script>
@@ -303,6 +357,20 @@ init()
   font-size: 10px;
 }
 .active-font {
+  color: #6ccee6;
+  position: relative;
+  /* 设置字体透明 */
+  color: transparent;
+  /* 设置线性渐变，从红色渐变到蓝色 */
+  background-image: linear-gradient(0deg, #94ffff, #4397ff);
+  /* 使用 -webkit-background-clip 属性将背景剪裁至文本形状 */
+  -webkit-background-clip: text;
+  /* 非Webkit内核浏览器需要使用标准前缀 */
+  background-clip: text;
+  /* 把当前元素设置为行内块，以便能够应用背景 */
+  display: inline-block;
+}
+:deep(.el-tabs__item.is-active) {
   color: #6ccee6;
   position: relative;
   /* 设置字体透明 */
