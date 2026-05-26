@@ -5,6 +5,7 @@
     <span class="rank-index" v-if="props.columnName1"> {{ props.columnName1 }}</span>
     <span class="rank-index" v-if="props.columnName2"> {{ props.columnName2 }}</span>
     <span class="rank-index" v-if="props.columnName3"> {{ props.columnName3 }}</span>
+    <span class="rank-index" v-if="props.columnName4"> {{ props.columnName4 }}</span>
   </div>
   <div
     v-for="(item, index) in props.sectionTask"
@@ -15,7 +16,9 @@
     <span class="rank-grid">{{ item.districtName }}</span>
     <span class="rank-index">{{ item.itvNum }}</span>
     <span class="rank-index">{{ item.itvNum_ly }}</span>
-    <span class="rank-index">{{ (item.itvRate * 100).toFixed(2) }}%</span>
+    <span class="rank-index" v-if="item.itvRate">{{ (item.itvRate * 100).toFixed(2) }}%</span>
+    <span class="rank-index" v-if="item.hyl">{{ item.hyl }}%</span>
+    <span class="rank-index" v-if="item.itvIncrease">{{ item.itvIncrease }}</span>
   </div>
   <div @click="handleClick" class="expand" v-if="props.expandTxt">
     <el-icon v-if="props.expandTxt === '展开'"><ArrowDown /></el-icon>
@@ -42,6 +45,9 @@ const props = defineProps({
     type: String
   },
   columnName3: {
+    type: String
+  },
+  columnName4: {
     type: String
   }
 })

@@ -114,5 +114,5 @@ onMounted(() => {
     }
   })
 })
-onBeforeUnmount(() => window.removeEventListener('resize'))
+// onBeforeUnmount(() => window.removeEventListener('resize'))
 </script>

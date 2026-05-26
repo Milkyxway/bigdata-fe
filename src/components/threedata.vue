@@ -29,7 +29,7 @@
       </div>
       <div class="total-amount">{{ props.data.yjkd }}</div>
     </div>
-    <div class="grid-item">
+    <div class="grid-item" @click="handleClick('sx')">
       <div class="commob-title">
         <el-tooltip content="2026年以来的现金帐本收现总额与2025年同期相比增长率" placement="top">
           <div>
@@ -48,22 +48,32 @@
         {{ props.data.shouxian }}
       </div>
     </div>
-    <div class="grid-item">
+    <div class="grid-item" @click="handleClick('kk')">
       <el-tooltip content="2026年以来移网开卡总数" placement="top">
         <div class="commob-title">移网开卡总数</div>
       </el-tooltip>
       <div class="total-amount">{{ props.data.amount_yw }}</div>
     </div>
-    <div class="grid-item" @click="handleClick">
+    <div class="grid-item" @click="handleClick('5g')">
       <el-tooltip content="截止昨日移网卡活跃数与在网数比值" placement="top">
         <div class="commob-title">移网活跃率</div>
       </el-tooltip>
       <div class="total-amount">{{ (props.data.yw_hyl * 100).toFixed(2) }} %</div>
     </div>
   </div>
-  <el-dialog v-model="state.dialogVisible" :before-close="handleClose">
+  <el-dialog
+    v-model="state.dialogVisible"
+    :before-close="handleClose"
+    style="background-color: #121f44"
+    :title="state.dialogTitle"
+  >
     <template #footer>
-      <sectionrank columnName1="活跃数" columnName2="在网数" columnName3="活跃率" />
+      <sectionrank
+        columnName1="活跃数"
+        columnName2="在网数"
+        columnName3="活跃率"
+        :sectionTask="state.dialogData"
+      />
     </template>
   </el-dialog>
 </template>
@@ -74,13 +84,35 @@ import sectionrank from './sectionrank.vue'
 const props = defineProps({
   data: {
     type: Object
+  },
+  yw: {
+    type: Array
   }
 })
 const state = reactive({
-  dialogVisible: false
+  dialogVisible: false,
+  dialogData: [],
+  dialogTitle: ''
 })
-const handleClick = () => {
+const handleClick = (type) => {
   state.dialogVisible = true
+  switch (type) {
+    case '5g': //5g活跃
+      state.dialogData = props.yw
+      state.dialogTitle = '5G活跃率排名'
+      break
+
+    case 'kk': //开卡
+      state.dialogData = props.yw
+      state.dialogTitle = '5G开卡数量排名'
+      break
+    case 'sx': //收现
+      state.dialogData = props.yw
+      state.dialogTitle = '收现排名'
+      break
+    default:
+      break
+  }
 }
 
 const handleClose = () => {

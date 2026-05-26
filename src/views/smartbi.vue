@@ -3,16 +3,36 @@
     <div class="top-content">
       <div class="left">
         <el-date-picker v-model="state.pickdate" @change="handleDateChange"></el-date-picker>
+        <el-dropdown type="primary" trigger="click" @command="handleCommand">
+          <span class="el-dropdown-link">
+            选择业务
+            <el-icon class="el-icon--right">
+              <arrow-down />
+            </el-icon>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="dtv">数字电视业务</el-dropdown-item>
+              <el-dropdown-item command="lan">宽带业务</el-dropdown-item>
+              <el-dropdown-item command="5g">5g业务</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
       <div class="title">无锡分公司数据智看</div>
-      <div class="right">数据更新时间：{{ state.updateTime }}</div>
+      <div class="right">
+        数据更新时间：{{ state.updateTime }}
+        <span @click="exportExcel()"
+          >一键导出<el-icon><Download /></el-icon
+        ></span>
+      </div>
       <el-tabs v-model="state.activeName" class="demo-tabs" @tab-click="handleClickTab">
-        <el-tab-pane label="广电站" name="广电站"
-          ><div class="data-part" v-if="state.init">
+        <el-tab-pane label="广电站" name="广电站">
+          <div class="data-part" v-if="state.init">
             <div class="common-container">
               <div class="common-title">数据总览</div>
               <div class="common-container_1">
-                <threedata :data="state.previewData"></threedata>
+                <threedata :data="state.previewData" :yw="state.yw_hyl_fz"></threedata>
               </div>
               <div @click="showModal('xz')" style="width: 100%">
                 <div class="common-title">各站月销账金额</div>
@@ -36,8 +56,35 @@
                 columnName2="去年末缴费"
                 columnName3="保有率"
               ></sectionrank>
-            </div></div
-        ></el-tab-pane>
+            </div>
+          </div>
+          <div v-if="state.showType === 'dtv'">
+            <dtvview
+              :data="{
+                sectionTask: state.sectionTaskCp,
+                sectionList: state.sectionList,
+                newCust: formatNewCust('tvCust')
+              }"
+            ></dtvview>
+          </div>
+          <div v-if="state.showType === 'lan'">
+            <lanview
+              :data="{
+                newCust: formatNewCust('lanCust')
+                // bnkd: formatNewCust('CNT') todo
+              }"
+            ></lanview>
+          </div>
+          <div v-if="state.showType === '5g'">
+            <mobileview
+              :data="{
+                newCust: formatNewCust('mobileCust'),
+                hyl: state.yw_hyl_fz
+                // bnkd: formatNewCust('CNT') todo
+              }"
+            ></mobileview>
+          </div>
+        </el-tab-pane>
         <el-tab-pane label="分中心" name="分中心"
           ><div class="data-part" v-if="state.initFzx">
             <div class="common-container">
@@ -56,7 +103,7 @@
                 <div class="common-title">各站新发展客户数量</div>
                 <newcustbarchart :data="state.fzxData.newCust"></newcustbarchart>
               </div>
-              <div class="common-title">各站数字电视缴费客户保有率排名</div>
+              <div class="common-title">各站数字电视缴费拍照客户保有率排名</div>
               <sectionrank
                 :sectionTask="state.fzxData.sectionTask"
                 :sectionList="sectionList"
@@ -82,6 +129,10 @@ import newcustbarchart from '../components/newcustbarchart.vue'
 import threedata from '../components/threedata.vue'
 import hlwpiechart from '../components/hlwpiechart.vue'
 import { getDailyReportReq } from '../api/report'
+import { getBlob, formatLink } from '../util/formatLink'
+import lanview from '../components/lanview.vue'
+import dtvview from '../components/dtvview.vue'
+import mobileview from '../components/mobileview.vue'
 const state = reactive({
   init: false,
   initFzx: false,
@@ -89,6 +140,8 @@ const state = reactive({
   expandTxt: '展开',
   hlwTotal: 0,
   sectionTask: [],
+  jfBaoyou: [],
+  bnkd: [],
   xzAmt: [],
   xzAmt_lastmonth: [],
   newCust: [],
@@ -105,23 +158,40 @@ const state = reactive({
     shouxian_tb: 0
   },
   pickdate: '',
-  fzxData: { xzAmt_lastmonth: [], newCust: [], xzAmt: [], sectionTask: [] }
+  fzxData: { xzAmt_lastmonth: [], newCust: [], xzAmt: [], sectionTask: [] },
+  yw_hyl_fz: [],
+  dailyReportFileName: '',
+  showType: ''
 })
 const showModal = () => {}
 
-const getActiveStyle = computed((activeName) =>
-  activeName === state.view ? 'active-font' : 'common-font'
-)
+const handleCommand = (cmd) => {
+  state.init = false
 
+  state.showType = cmd
+}
 const handleExpand = (txt) => {
   state.sectionTask = txt === '展开' ? state.sectionTaskCp : state.sectionTask.slice(0, 17)
   state.expandTxt = txt === '展开' ? '收起' : '展开'
+}
+
+const exportExcel = () => {
+  const url = formatLink(state.dailyReportFileName, 'out')
+  window.location.href = url
 }
 
 const handleClickTab = (tab, event) => {
   console.log(tab, event)
 }
 
+const formatNewCust = (type) => {
+  return state.newCust
+    .map((i) => ({
+      districtName: i.districtName,
+      [type]: i[type]
+    }))
+    .sort((a, b) => b[type] - a[type])
+}
 const handleDateChange = async (date) => {
   const pickdate = dayjs(date).subtract(1, 'day').format('YYYYMMDD')
   getDailyReport(2189, pickdate)
@@ -145,9 +215,25 @@ const getDailyReport = async (taskId, pickdate) => {
       districtName: i.REGION_NAME2,
       itvNum: i['缴费客户数当前'],
       itvNum_ly: i['缴费客户数20251231'],
-      itvRate: i['保有率']
+      itvRate: i['保有率'],
+      itvIncrease: i['缴费客户数当前'] - i['缴费客户数20251231']
     }
   })
+  // state.bnkd = jsonData['包年宽带订购'].map((i) => {
+  //   return {
+  //     districtName: i.REGION_NAME,
+  //     cnt: undefined.CNT
+  //   }
+  // })
+  // state.jfBaoYou = jsonData['数字电视大表18列保有'].map((i) => {
+  //   return {
+  //     districtName: i.REGION_NAME,
+  //     itvNum: i['当前缴费客户'],
+  //     itvNum_ly: i['去年年末'],
+  //     itvRate: i['保有率'],
+  //     itvIncrease: i['净增长']
+  //   }
+  // }) todo
   state.newCust = jsonData['各业务新发展'].map((i) => {
     return {
       districtName: i.DISTRICT_NAME,
@@ -170,6 +256,14 @@ const getDailyReport = async (taskId, pickdate) => {
           amt: i['SUM(TOTAL_AMOUNT)/100']
         }
   })
+  state.yw_hyl_fz = jsonData['移网卡活跃率'].map((i) => {
+    return {
+      districtName: i.DEPARTMENT_NAME,
+      itvNum: i['当前活跃数'],
+      itvNum_ly: i['去年活跃数'],
+      hyl: i['活跃率']
+    }
+  })
 
   state.hlwTotal = sumHlw()
   state.previewData = {
@@ -185,6 +279,7 @@ const getDailyReport = async (taskId, pickdate) => {
   state.updateTime = dayjs(fileName.substring(0, 8)).format('YYYY-MM-DD')
   state.sectionTaskCp = state.sectionTask
   state.sectionTask = state.sectionTask.slice(0, 17)
+  state.dailyReportFileName = fileName
   state.init = true
 }
 const getDailyReportFzx = async (taskId, pickdate) => {
@@ -192,7 +287,6 @@ const getDailyReportFzx = async (taskId, pickdate) => {
   const {
     data: { jsonData, fileName }
   } = res
-  console.log(jsonData)
   state.fzxData.newCust = jsonData['各业务新发展'].map((i) => {
     return {
       districtName: i.FZX,

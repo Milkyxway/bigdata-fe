@@ -22,7 +22,7 @@ const getLink = (fileName, path) => {
   }
 }
 
-const getBlob = (url, cb) => {
+export const getBlob = (url, cb) => {
   var xhr = new XMLHttpRequest()
   xhr.open('GET', url, true)
   xhr.responseType = 'blob'
