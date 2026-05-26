@@ -27,7 +27,12 @@ const props = defineProps({
   }
 })
 let option = ref()
-watch()
+watch(
+  () => props.data,
+  (val) => {
+    commonChart()
+  }
+)
 
 const formatLineData = (data, data1) => {
   const newCustArr = []

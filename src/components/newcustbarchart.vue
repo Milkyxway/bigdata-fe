@@ -37,7 +37,12 @@ const props = defineProps({
   }
 })
 let option = ref()
-watch()
+watch(
+  () => props.data,
+  (val) => {
+    commonChart()
+  }
+)
 
 const formatItem = (name, data) => {
   return {

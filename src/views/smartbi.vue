@@ -86,21 +86,33 @@
             ></mobileview>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="分中心" name="分中心"
+        <el-tab-pane label="分中心" name="广电中心"
           ><div class="data-part" v-if="state.initFzx">
             <div class="common-container">
               <!-- <div class="common-title">数据总览</div>
               <div class="common-container_1">
                 <threedata :data="state.fzxData"></threedata>
               </div> -->
-              <div @click="showModal('xz')" style="width: 100%">
+              <el-radio-group
+                v-model="state.chooseCenter"
+                size="small"
+                @change="handleChangeCenter"
+              >
+                <el-radio-button label="锡山" value="xishan" />
+                <el-radio-button label="惠山" value="huishan" />
+                <el-radio-button label="新吴" value="xinwu" />
+                <el-radio-button label="梁溪" value="liangxi" />
+                <el-radio-button label="滨湖" value="binhu" />
+                <el-radio-button label="全部" value="allCenter" />
+              </el-radio-group>
+              <div style="width: 100%">
                 <div class="common-title">各站月销账金额</div>
                 <xzlinechart
                   :data="state.fzxData.xzAmt"
                   :data1="state.fzxData.xzAmt_lastmonth"
                 ></xzlinechart>
               </div>
-              <div @click="showModal('xz')" style="width: 100%">
+              <div style="width: 100%">
                 <div class="common-title">各站新发展客户数量</div>
                 <newcustbarchart :data="state.fzxData.newCust"></newcustbarchart>
               </div>
@@ -130,10 +142,11 @@ import newcustbarchart from '../components/newcustbarchart.vue'
 import threedata from '../components/threedata.vue'
 import hlwpiechart from '../components/hlwpiechart.vue'
 import { getDailyReportReq } from '../api/report'
-import { getBlob, formatLink } from '../util/formatLink'
+import { formatLink } from '../util/formatLink'
 import lanview from '../components/lanview.vue'
 import dtvview from '../components/dtvview.vue'
 import mobileview from '../components/mobileview.vue'
+import { regionToCenter } from '../constant'
 const state = reactive({
   init: false,
   initFzx: false,
@@ -162,7 +175,9 @@ const state = reactive({
   fzxData: { xzAmt_lastmonth: [], newCust: [], xzAmt: [], sectionTask: [] },
   yw_hyl_fz: [],
   dailyReportFileName: '',
-  showType: ''
+  showType: '',
+  chooseCenter: '',
+  centerNewCust: []
 })
 const showModal = () => {}
 
@@ -180,13 +195,30 @@ const handleExpand = (txt) => {
   state.expandTxt = txt === '展开' ? '收起' : '展开'
 }
 
+const handleChangeCenter = (val) => {
+  state.centerNewCust = []
+  state.chooseCenter = val
+  state.fzxData.newCust = filterDataForRole(val, 'newCust')
+  state.fzxData.xzAmt = filterDataForRole(val, 'xzAmt')
+  state.fzxData.xzAmt_lastmonth = filterDataForRole(val, 'xzAmt_lastmonth')
+  state.fzxData.sectionTask = filterDataForRole(val, 'jfBaoyou')
+}
+
 const exportExcel = () => {
   const url = formatLink(state.dailyReportFileName, 'out')
   window.location.href = url
 }
 
-const handleClickTab = (tab, event) => {
-  console.log(tab, event)
+const filterDataForRole = (val, type) => {
+  const tmp = []
+  regionToCenter[val].map((i) => {
+    state[type].map((j) => {
+      if (i.districtName === j.districtName) {
+        tmp.push(j)
+      }
+    })
+  })
+  return tmp
 }
 
 const formatNewCust = (data, type) => {
@@ -305,6 +337,7 @@ const getDailyReportFzx = async (taskId, pickdate) => {
       mobileCust: i.CNT2
     }
   })
+
   state.fzxData.xzAmt = jsonData['销账两月对比'].map((i) => {
     return { districtName: i.FZX, amt: i['销账上月'] }
   })

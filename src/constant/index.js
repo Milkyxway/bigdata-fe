@@ -472,6 +472,55 @@ const roleList = [
   }
 ]
 
+const regionToCenter = {
+  锡山: [
+    {
+      districtName: '安镇'
+    },
+    {
+      districtName: '东亭'
+    },
+    {
+      districtName: '东北塘'
+    },
+    {
+      districtName: '羊尖'
+    },
+    {
+      districtName: '锡北'
+    }
+  ],
+  惠山: [
+    { districtName: '钱桥阳山' },
+    { districtName: '洛社' },
+    { districtName: '堰桥长安' },
+    { districtName: '前洲玉祁' },
+    { districtName: '山北黄巷' }
+  ],
+  滨湖: [
+    { districtName: '太湖滨湖' },
+    { districtName: '马山' },
+    { districtName: '华庄' },
+    { districtName: '胡埭' },
+    { districtName: '河埒' }
+  ],
+  新吴: [
+    { districtName: '鸿山梅村' },
+    { districtName: '硕放新安' },
+    { districtName: '旺庄' },
+    { districtName: '江溪广益' }
+  ],
+  梁溪: [
+    { districtName: '崇安' },
+    { districtName: '北塘' },
+    { districtName: '湖滨' },
+    { districtName: '盛岸' },
+    { districtName: '中桥' },
+    { districtName: '长江路' },
+    { districtName: '城区' }
+  ]
+}
+
 const regions = [
   {
     label: '无锡分公司',
@@ -537,5 +586,6 @@ export {
   regions,
   orgnizationTree_jy,
   orgnizationTree_yx,
-  accounts
+  accounts,
+  regionToCenter
 }
