@@ -31,6 +31,9 @@ use([
 const props = defineProps({
   data: {
     type: Array
+  },
+  title: {
+    type: String
   }
 })
 let option = ref()
@@ -83,8 +86,7 @@ const commonChart = () => {
       z: 10
     },
     yAxis: {
-      name: '新发展个数',
-
+      name: props.title || '新发展个数',
       axisLabel: {
         color: '#999'
       }

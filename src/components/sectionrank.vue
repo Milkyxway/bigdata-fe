@@ -6,6 +6,9 @@
     <span class="rank-index" v-if="props.columnName2"> {{ props.columnName2 }}</span>
     <span class="rank-index" v-if="props.columnName3"> {{ props.columnName3 }}</span>
     <span class="rank-index" v-if="props.columnName4"> {{ props.columnName4 }}</span>
+    <span class="rank-index" v-if="props.columnName5"> {{ props.columnName5 }}</span>
+    <span class="rank-index" v-if="props.columnName6"> {{ props.columnName6 }}</span>
+    <span class="rank-index" v-if="props.columnName7"> {{ props.columnName7 }}</span>
   </div>
   <div
     v-for="(item, index) in props.sectionTask"
@@ -19,6 +22,9 @@
     <span class="rank-index" v-if="item.itvRate">{{ (item.itvRate * 100).toFixed(2) }}%</span>
     <span class="rank-index" v-if="item.hyl">{{ item.hyl }}%</span>
     <span class="rank-index" v-if="item.itvIncrease">{{ item.itvIncrease }}</span>
+    <span class="rank-index" v-if="item.default1">{{ item.default1 }}</span>
+    <span class="rank-index" v-if="item.default2">{{ item.default2 }}</span>
+    <span class="rank-index" v-if="item.default3">{{ item.default3 }}</span>
   </div>
   <div @click="handleClick" class="expand" v-if="props.expandTxt">
     <el-icon v-if="props.expandTxt === '展开'"><ArrowDown /></el-icon>
@@ -48,6 +54,15 @@ const props = defineProps({
     type: String
   },
   columnName4: {
+    type: String
+  },
+  columnName5: {
+    type: String
+  },
+  columnName6: {
+    type: String
+  },
+  columnName7: {
     type: String
   }
 })

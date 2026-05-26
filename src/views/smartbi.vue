@@ -15,6 +15,7 @@
               <el-dropdown-item command="dtv">数字电视业务</el-dropdown-item>
               <el-dropdown-item command="lan">宽带业务</el-dropdown-item>
               <el-dropdown-item command="5g">5g业务</el-dropdown-item>
+              <el-dropdown-item command="all">全部</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -46,7 +47,7 @@
             <div class="common-container" style="width: 30%">
               <div class="common-title">各业务销账金额占比</div>
               <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
-              <div class="common-title">各站数字电视缴费客户保有率排名</div>
+              <div class="common-title">各站电视缴费拍照客户留存率排名</div>
               <sectionrank
                 :sectionTask="state.sectionTask"
                 :sectionList="sectionList"
@@ -55,32 +56,32 @@
                 columnName1="当前缴费"
                 columnName2="去年末缴费"
                 columnName3="保有率"
+                columnName4="净增长"
               ></sectionrank>
             </div>
           </div>
           <div v-if="state.showType === 'dtv'">
             <dtvview
               :data="{
-                sectionTask: state.sectionTaskCp,
+                sectionTask: state.jfBaoyou,
                 sectionList: state.sectionList,
-                newCust: formatNewCust('tvCust')
+                newCust: formatNewCust(state.newCust, 'tvCust')
               }"
             ></dtvview>
           </div>
           <div v-if="state.showType === 'lan'">
             <lanview
               :data="{
-                newCust: formatNewCust('lanCust')
-                // bnkd: formatNewCust('CNT') todo
+                newCust: formatNewCust(state.newCust, 'lanCust'),
+                bnkd: formatNewCust(state.bnkd, 'lanCust')
               }"
             ></lanview>
           </div>
           <div v-if="state.showType === '5g'">
             <mobileview
               :data="{
-                newCust: formatNewCust('mobileCust'),
+                newCust: formatNewCust(state.newCust, 'mobileCust'),
                 hyl: state.yw_hyl_fz
-                // bnkd: formatNewCust('CNT') todo
               }"
             ></mobileview>
           </div>
@@ -103,7 +104,7 @@
                 <div class="common-title">各站新发展客户数量</div>
                 <newcustbarchart :data="state.fzxData.newCust"></newcustbarchart>
               </div>
-              <div class="common-title">各站数字电视缴费拍照客户保有率排名</div>
+              <div class="common-title">各站数字电视缴费客户保有率排名</div>
               <sectionrank
                 :sectionTask="state.fzxData.sectionTask"
                 :sectionList="sectionList"
@@ -166,9 +167,13 @@ const state = reactive({
 const showModal = () => {}
 
 const handleCommand = (cmd) => {
-  state.init = false
-
-  state.showType = cmd
+  if (cmd !== 'all') {
+    state.init = false
+    state.showType = cmd
+  } else {
+    state.init = true
+    state.showType = ''
+  }
 }
 const handleExpand = (txt) => {
   state.sectionTask = txt === '展开' ? state.sectionTaskCp : state.sectionTask.slice(0, 17)
@@ -184,8 +189,8 @@ const handleClickTab = (tab, event) => {
   console.log(tab, event)
 }
 
-const formatNewCust = (type) => {
-  return state.newCust
+const formatNewCust = (data, type) => {
+  return data
     .map((i) => ({
       districtName: i.districtName,
       [type]: i[type]
@@ -219,21 +224,22 @@ const getDailyReport = async (taskId, pickdate) => {
       itvIncrease: i['缴费客户数当前'] - i['缴费客户数20251231']
     }
   })
-  // state.bnkd = jsonData['包年宽带订购'].map((i) => {
-  //   return {
-  //     districtName: i.REGION_NAME,
-  //     cnt: undefined.CNT
-  //   }
-  // })
-  // state.jfBaoYou = jsonData['数字电视大表18列保有'].map((i) => {
-  //   return {
-  //     districtName: i.REGION_NAME,
-  //     itvNum: i['当前缴费客户'],
-  //     itvNum_ly: i['去年年末'],
-  //     itvRate: i['保有率'],
-  //     itvIncrease: i['净增长']
-  //   }
-  // }) todo
+  state.bnkd = jsonData['包年宽带订购'].map((i) => {
+    return {
+      districtName: i.REGION_NAME,
+      lanCust: i.CNT
+    }
+  })
+
+  state.jfBaoyou = jsonData['数字电视大表18列保有'].map((i) => {
+    return {
+      districtName: i.REGION_NAME,
+      itvNum: i['当前缴费客户'],
+      itvNum_ly: i['去年年末'],
+      itvRate: i['保有率'],
+      itvIncrease: i['净增长']
+    }
+  })
   state.newCust = jsonData['各业务新发展'].map((i) => {
     return {
       districtName: i.DISTRICT_NAME,
@@ -259,9 +265,13 @@ const getDailyReport = async (taskId, pickdate) => {
   state.yw_hyl_fz = jsonData['移网卡活跃率'].map((i) => {
     return {
       districtName: i.DEPARTMENT_NAME,
-      itvNum: i['当前活跃数'],
-      itvNum_ly: i['去年活跃数'],
-      hyl: i['活跃率']
+      itvNum: i['当前在网数'],
+      itvNum_ly: i['去年年末在网数'],
+      hyl: i['当前活跃率'],
+      default1: i['当前活跃数'],
+      default2: i['去年年末活跃数'],
+      itvIncrease: i['当前在网数'] - i['去年年末在网数'],
+      default3: i['当前活跃数'] - i['去年年末活跃数']
     }
   })
 
@@ -322,6 +332,7 @@ init()
   width: 100%;
   min-height: 100vh;
   background: #0a1635;
+  user-select: none;
 }
 .title {
   text-align: center;
@@ -351,14 +362,6 @@ init()
   flex: 1;
   margin: 0 30px 0 0;
 }
-.center-content {
-  width: 700px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  flex: 1;
-}
 
 .common-container {
   padding: 20px 0;
@@ -367,9 +370,10 @@ init()
   height: auto;
   opacity: 1;
   background: #121f44;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-right: 10px;
+  /* border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0px 0px 35px 0px rgba(0, 0, 0, 0.18), inset 0px 0px 99px 0px rgba(255, 255, 255, 0.17);
-  display: flex;
+  display: flex; */
   flex-direction: column;
   align-items: flex-start;
   box-sizing: border-box;

@@ -2,6 +2,7 @@
   <div class="common-title">各站新发展单宽带客户数量</div>
   <newcustbarchart :data="props.data.newCust"></newcustbarchart>
   <div class="common-title">各站订购包年宽带数量</div>
+  <newcustbarchart :data="props.data.bnkd" title="订购客户数"></newcustbarchart>
 </template>
 <script setup>
 import { computed, reactive } from 'vue'

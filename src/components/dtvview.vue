@@ -6,26 +6,14 @@
     <sectionrank
       :sectionTask="props.data.sectionTask"
       :sectionList="props.data.sectionList"
-      :expandTxt="null"
       columnName1="当前缴费"
       columnName2="去年末缴费"
-      columnName3="保有率"
-      columnName4="净增长"
-    ></sectionrank>
-    <div class="common-title">各站数字电视当日净流失率排名</div>
-    <sectionrank
-      :sectionTask="props.data.sectionTask"
-      :sectionList="props.data.sectionList"
-      :expandTxt="null"
-      columnName1="当日缴费客户数"
-      columnName2="t-1日缴费客户数"
       columnName3="保有率"
       columnName4="净增长"
     ></sectionrank>
   </div>
 </template>
 <script setup>
-import { computed, reactive } from 'vue'
 import sectionrank from './sectionrank.vue'
 import newcustbarchart from './newcustbarchart.vue'
 const props = defineProps({
@@ -33,6 +21,7 @@ const props = defineProps({
     type: Array
   }
 })
+console.log(props.data.sectionTask)
 </script>
 
 <style scoped>

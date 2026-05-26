@@ -2,11 +2,22 @@
   <div class="common-title">各站新开5g卡数量</div>
   <newcustbarchart :data="props.data.newCust"></newcustbarchart>
   <div class="common-title">各站5g活跃率排名</div>
+  <el-radio-group v-model="state.choice" @change="handleChange">
+    <el-radio label="itvNum">按当前在网数</el-radio>
+    <el-radio label="default1">按当前活跃数</el-radio>
+    <el-radio label="hyl">按当前活跃率</el-radio>
+    <el-radio label="default3">按活跃数净增长</el-radio>
+    <el-radio label="itvIncrease">按在网数净增长</el-radio>
+  </el-radio-group>
   <sectionrank
-    columnName1="活跃数"
-    columnName2="在网数"
-    columnName3="活跃率"
-    :sectionTask="props.data.hyl"
+    columnName1="当前在网数"
+    columnName2="去年末在网数"
+    columnName3="在网数净增长"
+    columnName4="当前活跃率"
+    columnName5="当前活跃数"
+    columnName6="去年末活跃数"
+    columnName7="活跃数净增长"
+    :sectionTask="state.hylArr"
   />
 </template>
 <script setup>
@@ -17,6 +28,14 @@ const props = defineProps({
     type: Array
   }
 })
+const state = reactive({
+  choice: 1,
+  hylArr: props.data.hyl
+})
+const handleChange = (label) => {
+  const data = props.data.hyl
+  state.hylArr = data.sort((a, b) => b[label] - a[label])
+}
 </script>
 <style scoped>
 .common-title {
