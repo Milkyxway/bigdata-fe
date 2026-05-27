@@ -109,6 +109,31 @@
                 <el-radio-button label="滨湖" value="binhu" />
                 <el-radio-button label="全部" value="allCenter" />
               </el-radio-group>
+              <div v-if="state.showType === 'dtv'">
+                <dtvview
+                  :data="{
+                    sectionTask: state.jfBaoyou,
+                    sectionList: state.sectionList,
+                    newCust: formatNewCust(state.newCust, 'tvCust')
+                  }"
+                ></dtvview>
+              </div>
+              <div v-if="state.showType === 'lan'">
+                <lanview
+                  :data="{
+                    newCust: formatNewCust(state.newCust, 'lanCust'),
+                    bnkd: formatNewCust(state.bnkd, 'lanCust')
+                  }"
+                ></lanview>
+              </div>
+              <div v-if="state.showType === '5g'">
+                <mobileview
+                  :data="{
+                    newCust: formatNewCust(state.newCust, 'mobileCust'),
+                    hyl: state.yw_hyl_fz
+                  }"
+                ></mobileview>
+              </div>
             </div></div
         ></el-tab-pane>
         <el-tab-pane label="发展人" name="发展人">发展人</el-tab-pane>
@@ -117,7 +142,7 @@
   </div>
 </template>
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import dayjs from 'dayjs'
 import sectionrank from '../components/sectionrank.vue'
 import xzlinechart from '../components/xzlinechart.vue'
@@ -138,10 +163,14 @@ const state = reactive({
   hlwTotal: 0,
   sectionTask: [],
   jfBaoyou: [],
+  jfBaoyouCp: [],
   bnkd: [],
+  bnkdCp: [],
+  bnkdScore: [],
   xzAmt: [],
   xzAmt_lastmonth: [],
   newCust: [],
+  newCustCp: [],
   xzPropotion: [],
   updateTime: '',
   switch: false,
@@ -163,7 +192,18 @@ const state = reactive({
   chooseCenter: '',
   centerNewCust: []
 })
-const showModal = () => {}
+
+watch(
+  () => state.activeName,
+  (val) => {
+    if (val === '广电中心') {
+      state.showType = 'dtv'
+    } else if (val === '广电站') {
+      init()
+      state.showType = ''
+    }
+  }
+)
 
 const handleCommand = (cmd) => {
   if (cmd !== 'all') {
@@ -178,14 +218,15 @@ const handleExpand = (txt) => {
   state.sectionTask = txt === '展开' ? state.sectionTaskCp : state.sectionTask.slice(0, 17)
   state.expandTxt = txt === '展开' ? '收起' : '展开'
 }
-
+const handleClickTab = (a, e) => {
+  console.log(a, e)
+}
 const handleChangeCenter = (val) => {
   state.centerNewCust = []
   state.chooseCenter = val
-  state.fzxData.newCust = filterDataForRole(val, 'newCust')
-  state.fzxData.xzAmt = filterDataForRole(val, 'xzAmt')
-  state.fzxData.xzAmt_lastmonth = filterDataForRole(val, 'xzAmt_lastmonth')
-  state.fzxData.sectionTask = filterDataForRole(val, 'jfBaoyou')
+  state.newCust = filterDataForRole(val, 'newCustCp')
+  state.jfBaoyou = filterDataForRole(val, 'jfBaoyouCp')
+  state.bnkd = filterDataForRole(val, 'bnkdCp')
 }
 
 const exportExcel = () => {
@@ -264,6 +305,7 @@ const getDailyReport = async (taskId, pickdate) => {
       mobileCust: i.CNT2
     }
   })
+
   state.xzAmt = jsonData['各站销账两月对比'].map((i) => {
     return { districtName: i.REGION_NAME2, amt: i['销账上月'] }
   })
@@ -290,6 +332,13 @@ const getDailyReport = async (taskId, pickdate) => {
       default3: i['当前活跃数'] - i['去年年末活跃数']
     }
   })
+  // state.bnkdScore = jsonData['包年宽带订购分数'].map((i) => {
+  //   return {
+  //     districtName: i.REGION_NAME2,
+  //     itvNum: i.SCORE
+  //   }
+  // })
+  // todo
 
   state.hlwTotal = sumHlw()
   state.previewData = {
@@ -306,6 +355,9 @@ const getDailyReport = async (taskId, pickdate) => {
   state.sectionTaskCp = state.sectionTask
   state.sectionTask = state.sectionTask.slice(0, 17)
   state.dailyReportFileName = fileName
+  state.newCustCp = state.newCust
+  state.jfBaoyouCp = state.jfBaoyou
+  state.bnkdCp = state.bnkd
   state.init = true
 }
 const getDailyReportFzx = async (taskId, pickdate) => {
