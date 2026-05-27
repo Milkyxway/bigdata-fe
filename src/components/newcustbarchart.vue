@@ -77,6 +77,7 @@ const formatBardata = (data) => {
 }
 const commonChart = () => {
   const { data, name } = props
+  console.log(data)
   return (option.value = {
     color: ['#E23AF5', '#4164F3', '#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF'],
     xAxis: {

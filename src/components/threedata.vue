@@ -30,7 +30,7 @@
           </div>
         </el-tooltip>
       </div>
-      <div class="total-amount">{{ props.data.jfUser }}</div>
+      <div class="total-amount">{{ props.data.dkdcl }}</div>
     </div>
 
     <div class="grid-item">

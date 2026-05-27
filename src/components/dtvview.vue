@@ -3,8 +3,12 @@
     <div class="common-title">各站新发展电视客户数量</div>
     <newcustbarchart :data="props.data.newCust"></newcustbarchart>
     <div class="common-title">各站数字电视缴费客户保有率排名</div>
+    <el-radio-group v-model="state.choice" @change="handleChange">
+      <el-radio label="itvNum">按当前缴费终端数</el-radio>
+      <el-radio label="itvRate">按当前保有率</el-radio>
+    </el-radio-group>
     <sectionrank
-      :sectionTask="props.data.sectionTask"
+      :sectionTask="state.hylArr"
       :sectionList="props.data.sectionList"
       columnName1="当前缴费"
       columnName2="去年末缴费"
@@ -14,6 +18,7 @@
   </div>
 </template>
 <script setup>
+import { reactive } from 'vue'
 import sectionrank from './sectionrank.vue'
 import newcustbarchart from './newcustbarchart.vue'
 const props = defineProps({
@@ -21,6 +26,13 @@ const props = defineProps({
     type: Array
   }
 })
+const state = reactive({
+  hylArr: props.data.sectionTask
+})
+const handleChange = (label) => {
+  const data = props.data.sectionTask
+  state.hylArr = data.sort((a, b) => b[label] - a[label])
+}
 console.log(props.data.sectionTask)
 </script>
 

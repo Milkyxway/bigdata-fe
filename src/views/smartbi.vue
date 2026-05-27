@@ -36,7 +36,7 @@
                 <el-switch v-model="state.switch" class="ml-2" />
               </div>
               <div class="common-container_1">
-                <threedata :data="state.previewData" :yw="state.yw_hyl_fz"></threedata>
+                <threedata :data="state.previewData" :yw="state.ywhyl"></threedata>
               </div>
               <div @click="showModal('xz')" style="width: 100%">
                 <div class="common-title">各站月销账金额</div>
@@ -81,7 +81,9 @@
             <lanview
               :data="{
                 newCust: formatNewCust(state.newCust, 'lanCust'),
-                bnkd: formatNewCust(state.bnkd, 'lanCust')
+                bnkd: formatNewCust(state.bnkd, 'lanCust'),
+                yjkd: state.yjkd,
+                bnkdScore: state.bnkdScore
               }"
             ></lanview>
           </div>
@@ -89,7 +91,7 @@
             <mobileview
               :data="{
                 newCust: formatNewCust(state.newCust, 'mobileCust'),
-                hyl: state.yw_hyl_fz
+                hyl: state.ywhyl
               }"
             ></mobileview>
           </div>
@@ -130,7 +132,7 @@
                 <mobileview
                   :data="{
                     newCust: formatNewCust(state.newCust, 'mobileCust'),
-                    hyl: state.yw_hyl_fz
+                    hyl: state.ywhyl
                   }"
                 ></mobileview>
               </div>
@@ -182,15 +184,18 @@ const state = reactive({
     yjkdliushi: 0, //有价宽带流失
     amount_yw: 0,
     yw_hyl: 0,
-    shouxian_tb: 0
+    shouxian_tb: 0,
+    dkdcl: 0
   },
   pickdate: '',
   fzxData: { xzAmt_lastmonth: [], newCust: [], xzAmt: [], sectionTask: [] },
-  yw_hyl_fz: [],
+  ywhyl: [],
   dailyReportFileName: '',
   showType: '',
   chooseCenter: '',
-  centerNewCust: []
+  zhjt: [],
+  mclz: [],
+  yjkd: []
 })
 
 watch(
@@ -222,11 +227,16 @@ const handleClickTab = (a, e) => {
   console.log(a, e)
 }
 const handleChangeCenter = (val) => {
-  state.centerNewCust = []
-  state.chooseCenter = val
-  state.newCust = filterDataForRole(val, 'newCustCp')
-  state.jfBaoyou = filterDataForRole(val, 'jfBaoyouCp')
-  state.bnkd = filterDataForRole(val, 'bnkdCp')
+  if (val !== 'all') {
+    state.chooseCenter = val
+    state.newCust = filterDataForRole(val, 'newCustCp')
+    state.jfBaoyou = filterDataForRole(val, 'jfBaoyouCp')
+    state.bnkd = filterDataForRole(val, 'bnkdCp')
+  } else {
+    state.newCust = state.newCustCp
+    state.jfBaoyou = state.jfBaoyouCp
+    state.bnkd = state.bnkdCp
+  }
 }
 
 const exportExcel = () => {
@@ -283,14 +293,14 @@ const getDailyReport = async (taskId, pickdate) => {
   })
   state.bnkd = jsonData['包年宽带订购'].map((i) => {
     return {
-      districtName: i.REGION_NAME,
+      districtName: i.REGION_NAME2,
       lanCust: i.CNT
     }
   })
 
   state.jfBaoyou = jsonData['数字电视大表18列保有'].map((i) => {
     return {
-      districtName: i.REGION_NAME,
+      districtName: i.REGION_NAME2,
       itvNum: i['当前缴费客户'],
       itvNum_ly: i['去年年末'],
       itvRate: i['保有率'],
@@ -320,7 +330,7 @@ const getDailyReport = async (taskId, pickdate) => {
           amt: i['SUM(TOTAL_AMOUNT)/100']
         }
   })
-  state.yw_hyl_fz = jsonData['移网卡活跃率'].map((i) => {
+  state.ywhyl = jsonData['移网卡活跃率'].map((i) => {
     return {
       districtName: i.DEPARTMENT_NAME,
       itvNum: i['当前在网数'],
@@ -332,13 +342,30 @@ const getDailyReport = async (taskId, pickdate) => {
       default3: i['当前活跃数'] - i['去年年末活跃数']
     }
   })
-  // state.bnkdScore = jsonData['包年宽带订购分数'].map((i) => {
-  //   return {
-  //     districtName: i.REGION_NAME2,
-  //     itvNum: i.SCORE
-  //   }
-  // })
-  // todo
+
+  state.mclz = jsonData['明厨亮灶'].map((i) => {
+    return {
+      districtName: i.DEPARTMENT_NAME,
+      tvCust: i['有宽带'],
+      lanCust: i['无宽带']
+    }
+  })
+
+  state.bnkdScore = jsonData['包年宽带订购分数'].map((i) => {
+    return {
+      districtName: i.REGION_NAME2,
+      lanCust: i.SCORE
+    }
+  })
+  state.yjkd = jsonData['有价宽带终端数'].map((i) => {
+    return {
+      districtName: i.REGION_NAME2,
+      itvNum: i['IS_PRICE_LAN_PAIED'],
+      itvNum_ly: i['终端数20251231'],
+      itvIncrease: i['IS_PRICE_LAN_PAIED'] - i['终端数20251231'],
+      itvRate: i['IS_PRICE_LAN_PAIED'] / i['终端数20251231']
+    }
+  })
 
   state.hlwTotal = sumHlw()
   state.previewData = {
@@ -349,7 +376,8 @@ const getDailyReport = async (taskId, pickdate) => {
     yjkdliushi: jsonData['总数'][0]['有价宽带增长率'],
     amount_yw: jsonData['总数'][0]['开卡数'],
     yw_hyl: jsonData['总数'][0]['移网活跃率'],
-    shouxian_tb: jsonData['总数'][0]['收现同比增长']
+    shouxian_tb: jsonData['总数'][0]['收现同比增长'],
+    dkdcl: jsonData['总数'][0]['单宽带存量']
   }
   state.updateTime = dayjs(fileName.substring(0, 8)).format('YYYY-MM-DD')
   state.sectionTaskCp = state.sectionTask
