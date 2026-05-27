@@ -31,17 +31,25 @@
         <el-tab-pane label="广电站" name="广电站">
           <div class="data-part" v-if="state.init">
             <div class="common-container">
-              <div class="common-title">数据总览</div>
+              <div class="common-title">
+                数据总览
+                <el-switch v-model="state.switch" class="ml-2" />
+              </div>
               <div class="common-container_1">
                 <threedata :data="state.previewData" :yw="state.yw_hyl_fz"></threedata>
               </div>
               <div @click="showModal('xz')" style="width: 100%">
                 <div class="common-title">各站月销账金额</div>
-                <xzlinechart :data="state.xzAmt" :data1="state.xzAmt_lastmonth"></xzlinechart>
+                <xzlinechart
+                  :data="state.switch ? state.fzxData.xzAmt : state.xzAmt"
+                  :data1="state.switch ? state.fzxData.xzAmt_lastmonth : state.xzAmt_lastmonth"
+                ></xzlinechart>
               </div>
               <div @click="showModal('xz')" style="width: 100%">
                 <div class="common-title">各站新发展客户数量</div>
-                <newcustbarchart :data="state.newCust"></newcustbarchart>
+                <newcustbarchart
+                  :data="state.switch ? state.fzxData.newCust : state.newCust"
+                ></newcustbarchart>
               </div>
             </div>
             <div class="common-container" style="width: 30%">
@@ -49,10 +57,10 @@
               <hlwpiechart :data="state.xzPropotion" :hlwTotal="state.hlwTotal"></hlwpiechart>
               <div class="common-title">各站电视缴费拍照客户留存率排名</div>
               <sectionrank
-                :sectionTask="state.sectionTask"
+                :sectionTask="state.switch ? state.fzxData.sectionTask : state.sectionTask"
                 :sectionList="sectionList"
                 @handleExpand="handleExpand"
-                :expandTxt="state.expandTxt"
+                :expandTxt="!state.switch && state.expandTxt"
                 columnName1="当前缴费"
                 columnName2="去年末缴费"
                 columnName3="保有率"
@@ -89,10 +97,6 @@
         <el-tab-pane label="分中心" name="广电中心"
           ><div class="data-part" v-if="state.initFzx">
             <div class="common-container">
-              <!-- <div class="common-title">数据总览</div>
-              <div class="common-container_1">
-                <threedata :data="state.fzxData"></threedata>
-              </div> -->
               <el-radio-group
                 v-model="state.chooseCenter"
                 size="small"
@@ -105,27 +109,6 @@
                 <el-radio-button label="滨湖" value="binhu" />
                 <el-radio-button label="全部" value="allCenter" />
               </el-radio-group>
-              <div style="width: 100%">
-                <div class="common-title">各站月销账金额</div>
-                <xzlinechart
-                  :data="state.fzxData.xzAmt"
-                  :data1="state.fzxData.xzAmt_lastmonth"
-                ></xzlinechart>
-              </div>
-              <div style="width: 100%">
-                <div class="common-title">各站新发展客户数量</div>
-                <newcustbarchart :data="state.fzxData.newCust"></newcustbarchart>
-              </div>
-              <div class="common-title">各站数字电视缴费客户保有率排名</div>
-              <sectionrank
-                :sectionTask="state.fzxData.sectionTask"
-                :sectionList="sectionList"
-                @handleExpand="handleExpand"
-                :expandTxt="null"
-                columnName1="当前缴费"
-                columnName2="去年末缴费"
-                columnName3="保有率"
-              ></sectionrank>
             </div></div
         ></el-tab-pane>
         <el-tab-pane label="发展人" name="发展人">发展人</el-tab-pane>
@@ -161,6 +144,7 @@ const state = reactive({
   newCust: [],
   xzPropotion: [],
   updateTime: '',
+  switch: false,
   previewData: {
     jfUser: 0, //缴费客户
     liushi: 0, // 流失
@@ -349,7 +333,8 @@ const getDailyReportFzx = async (taskId, pickdate) => {
       districtName: i.FZX,
       itvNum: i['当前'],
       itvNum_ly: i['去年年末'],
-      itvRate: i['保有率']
+      itvRate: i['保有率'],
+      itvIncrease: i['当前'] - i['去年年末']
     }
   })
   state.initFzx = true
