@@ -1,4 +1,5 @@
 <template>
+  <bars></bars>
   <div class="common-title">各站新发展单宽带客户数量</div>
   <newcustbarchart :data="props.data.newCust"></newcustbarchart>
 
@@ -31,12 +32,12 @@
 import { computed, reactive } from 'vue'
 import newcustbarchart from './newcustbarchart.vue'
 import sectionrank from './sectionrank.vue'
+import bars from './bars.vue'
 const props = defineProps({
   data: {
     type: Array
   }
 })
-console.log(props.data)
 const state = reactive({
   hylArr: props.data.yjkd,
   switch: false

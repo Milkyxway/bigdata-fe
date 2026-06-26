@@ -58,26 +58,26 @@ const formatBardata = (data) => {
   newCustArr.push(
     formatItem(
       '电视',
-      data.map((i) => i.tvCust)
+      data.map((i) => (i.tvCust ? i.tvCust : 0))
     )
   )
+
   newCustArr.push(
     formatItem(
       '宽带',
-      data.map((i) => i.lanCust)
+      data.map((i) => (i.lanCust ? i.lanCust : 0))
     )
   )
   newCustArr.push(
     formatItem(
       '手机卡',
-      data.map((i) => i.mobileCust)
+      data.map((i) => (i.mobileCust ? i.mobileCust : 0))
     )
   )
   return newCustArr
 }
 const commonChart = () => {
   const { data, name } = props
-  console.log(data)
   return (option.value = {
     color: ['#E23AF5', '#4164F3', '#94FFFF', '#4397FF', '#8BB6FF', '#7D4BFF'],
     xAxis: {
@@ -115,7 +115,8 @@ const commonChart = () => {
       formatter: function (params) {
         let result = `<div style="font-weight: bold; margin-bottom: 5px;">${params[0].axisValue}</div>`
         params.forEach((item) => {
-          result += `
+          if (item) {
+            result += `
             <div style="display: flex; align-items: center; margin: 3px 0;">
               <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${
                 item.color
@@ -124,6 +125,7 @@ const commonChart = () => {
               <span style="font-weight: bold; margin-left: 10px;">${item.value.toLocaleString()}个</span>
             </div>
           `
+          }
         })
         return result
       }

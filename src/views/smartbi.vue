@@ -48,6 +48,7 @@
               <div @click="showModal('xz')" style="width: 100%">
                 <div class="common-title">各站新发展客户数量</div>
                 <newcustbarchart
+                  :needMarkLine="false"
                   :data="state.switch ? state.fzxData.newCust : state.newCust"
                 ></newcustbarchart>
               </div>
@@ -81,7 +82,8 @@
             <lanview
               :data="{
                 newCust: formatNewCust(state.newCust, 'lanCust'),
-                bnkd: formatNewCust(state.bnkd, 'lanCust'),
+                // bnkd: formatNewCust(state.bnkd, 'lanCust'),
+                bnkd: state.bnkd,
                 yjkd: state.yjkd,
                 bnkdScore: state.bnkdScore
               }"
@@ -354,7 +356,8 @@ const getDailyReport = async (taskId, pickdate) => {
   state.bnkdScore = jsonData['包年宽带订购分数'].map((i) => {
     return {
       districtName: i.REGION_NAME2,
-      lanCust: i.SCORE
+      lanCust: i.SCORE,
+      target: i['time_target']
     }
   })
   state.yjkd = jsonData['有价宽带终端数'].map((i) => {
