@@ -11,18 +11,29 @@
         <el-icon><location /></el-icon>
         <span>{{ item.label }}</span>
       </template>
-      <el-menu-item-group
-        v-for="child in item.children.filter((i) => i.isSider && i.auth && i.auth.includes(role))"
-        v-bind:key="child.key"
-      >
-        <el-menu-item
+      <el-menu-item-group :key="item.path">
+        <template
+          v-for="child in (item.children || []).filter(
+            (i) => i.isSider && i.auth && i.auth.includes(role)
+          )"
           :key="child.path"
-          :index="child.path"
-          v-if="showMenuItem(child)"
-          class="menu_item"
-          >{{ child.label }}</el-menu-item
-        ></el-menu-item-group
-      >
+        >
+          <el-menu-item
+            v-if="showMenuItem(child) && !child.externalLink"
+            :key="child.path"
+            :index="child.path"
+            class="menu_item"
+            >{{ child.label }}</el-menu-item
+          >
+          <el-menu-item
+            v-else-if="showMenuItem(child) && child.externalLink"
+            :key="child.path"
+            class="menu_item external-link"
+            @click="handleExternalLink(child.externalLink)"
+            >{{ child.label }}</el-menu-item
+          >
+        </template>
+      </el-menu-item-group>
     </el-sub-menu>
   </el-menu>
 </template>
@@ -52,6 +63,9 @@ const defaultSelectedKey =
 
 const handleOpen = () => {}
 const handleClose = () => {}
+const handleExternalLink = (url) => {
+  window.open(url, '_blank')
+}
 const showMenuItem = computed(() => {
   return function (item) {
     if (item.auth) {

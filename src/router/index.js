@@ -187,19 +187,21 @@ export const routeList = [
           }
         ]
       },
+
       {
         name: '数据看板',
         label: '数据看板',
-        path: '/statistic',
-        component: () => import('../views/newhome.vue'),
+        path: '/dashboard',
+        auth: ['developer', 'section'],
+        component: () => import('../views/PersonalHome.vue'),
         children: [
           {
-            name: '数据看板',
-            label: '数据看板',
-            path: '/statistic',
+            name: '外部看板',
+            label: '外部看板',
+            path: '/external-dashboard',
             auth: ['developer', 'section'],
             isSider: true,
-            component: () => import('../views/smartbi.vue')
+            externalLink: 'http://172.16.179.2'
           }
         ]
       }
