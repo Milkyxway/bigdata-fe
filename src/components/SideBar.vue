@@ -14,7 +14,7 @@
       <el-menu-item-group :key="item.path">
         <template
           v-for="child in (item.children || []).filter(
-            (i) => i.isSider && i.auth && i.auth.includes(role)
+            (i) => i.isSider && (!i.auth || i.auth.includes(role))
           )"
           :key="child.path"
         >
