@@ -8,13 +8,13 @@
   >
     <el-sub-menu v-for="item in homeMenu" :key="item.path" :index="item.path" class="sub_menu">
       <template #title>
-        <el-icon><component :is="iconMap[item.path]" /></el-icon>
+        <el-icon><location /></el-icon>
         <span>{{ item.label }}</span>
       </template>
       <el-menu-item-group :key="item.path">
         <template
           v-for="child in (item.children || []).filter(
-            (i) => i.isSider && (!i.auth || i.auth.includes(role))
+            (i) => i.isSider && i.auth && i.auth.includes(role)
           )"
           :key="child.path"
         >
@@ -29,7 +29,7 @@
             v-else-if="showMenuItem(child) && child.externalLink"
             :key="child.path"
             class="menu_item external-link"
-            @click="handleExternalLink(child.externalLink, child.ssoApiUrl)"
+            @click="handleExternalLink(child.externalLink)"
             >{{ child.label }}</el-menu-item
           >
         </template>
@@ -41,7 +41,6 @@
 import { reactive, computed } from 'vue'
 import { getLocalStore } from '../util/localStorage'
 import router, { routeList } from '../router/index'
-import { DataAnalysis, List, Document, Setting, User, Monitor } from '@element-plus/icons-vue'
 const role = getLocalStore('userInfo').role
 const homeMenu =
   routeList
@@ -64,34 +63,8 @@ const defaultSelectedKey =
 
 const handleOpen = () => {}
 const handleClose = () => {}
-const iconMap = {
-  '/report': DataAnalysis,
-  '/develop': List,
-  '/sql': Document,
-  '/tools': Setting,
-  '/personal': User,
-  '/dashboard': Monitor
-}
-const handleExternalLink = async (externalLink, ssoApiUrl) => {
-  try {
-    const apiUrl = ssoApiUrl || `${externalLink}/api/auth/login-by-key?key=data-dashboard-sso-2024`
-    const res = await fetch(apiUrl)
-    const data = await res.json()
-    let targetUrl = externalLink
-    if (data.code === 200) {
-      const token = data.data.token
-      targetUrl = `${externalLink}/login?token=${token}`
-    }
-    const a = document.createElement('a')
-    a.href = targetUrl
-    a.target = '_blank'
-    a.rel = 'noopener noreferrer'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-  } catch (error) {
-    window.open(externalLink, '_blank')
-  }
+const handleExternalLink = (url) => {
+  window.open(url, '_blank')
 }
 const showMenuItem = computed(() => {
   return function (item) {

@@ -192,15 +192,16 @@ export const routeList = [
         name: '数据看板',
         label: '数据看板',
         path: '/dashboard',
+        auth: ['developer', 'section'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
             name: '外部看板',
             label: '外部看板',
             path: '/external-dashboard',
+            auth: ['developer', 'section'],
             isSider: true,
-            externalLink: 'http://172.16.179.2',
-            ssoApiUrl: 'http://172.16.179.2:3000/api/auth/login-by-key?key=data-dashboard-sso-2024'
+            externalLink: 'http://172.16.179.2'
           }
         ]
       }
