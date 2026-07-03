@@ -1,6 +1,6 @@
 <template>
   <el-card>
-    <el-form ref="formRef">
+    <el-form ref="formRef" @keyup.enter="handleQuery">
       <el-row>
         <el-col :span="8">
           <el-form-item label="任务名称">

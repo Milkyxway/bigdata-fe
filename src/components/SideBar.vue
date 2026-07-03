@@ -8,7 +8,7 @@
   >
     <el-sub-menu v-for="item in homeMenu" :key="item.path" :index="item.path" class="sub_menu">
       <template #title>
-        <el-icon><location /></el-icon>
+        <el-icon><component :is="getMenuIcon(item.name)" /></el-icon>
         <span>{{ item.label }}</span>
       </template>
       <el-menu-item-group :key="item.path">
@@ -65,6 +65,18 @@ const handleOpen = () => {}
 const handleClose = () => {}
 const handleExternalLink = (url) => {
   window.open(url, '_blank')
+}
+const getMenuIcon = (name) => {
+  const iconMap = {
+    报表模块: 'DataAnalysis',
+    任务模块: 'List',
+    脚本库: 'FolderOpened',
+    工具箱: 'Setting',
+    工具箱开发: 'Setting',
+    账号模块: 'User',
+    数据看板: 'TrendCharts'
+  }
+  return iconMap[name] || 'Menu'
 }
 const showMenuItem = computed(() => {
   return function (item) {

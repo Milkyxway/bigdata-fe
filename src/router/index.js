@@ -201,7 +201,7 @@ export const routeList = [
             path: '/external-dashboard',
             auth: ['developer', 'section'],
             isSider: true,
-            externalLink: 'http://172.16.179.2'
+            externalLink: 'http://172.16.176.76'
           }
         ]
       }

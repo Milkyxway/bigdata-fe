@@ -2,7 +2,7 @@
   <div class="login-page">
     <img src="../assets/loginbg.png" class="login-bg" />
     <div class="login-form">
-      <el-form :model="formData" ref="loginFormRef">
+      <el-form :model="formData" ref="loginFormRef" @keyup.enter="login">
         <el-form-item
           prop="username"
           :label="accountProps.label"
