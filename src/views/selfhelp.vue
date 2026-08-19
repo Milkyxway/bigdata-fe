@@ -92,24 +92,90 @@
     </div>
 
     <WhiteSpace />
+    <div class="ai-section">
+      <div class="ai-header">
+        <span class="ai-badge">✨ AI 取数助手</span>
+        <span class="ai-model-tag">DeepSeek-V4-Pro</span>
+        <span class="ai-subtitle">用自然语言描述需求，AI 自动生成 SQL</span>
+      </div>
+      <div class="ai-input-row">
+        <div class="ai-input-wrap">
+          <el-input
+            type="textarea"
+            :rows="3"
+            v-model="state.aiInput"
+            placeholder="请输入你的取数需求 例如：查询无锡2025年各个业务的销账总额"
+            class="ai-input-box"
+          />
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".txt,.csv,.sql,.json,.xlsx,.xls"
+            style="display: none"
+            @change="handleFileUpload"
+          />
+          <div
+            class="ai-upload-icon"
+            @click="$refs.fileInputRef.click()"
+            title="上传Excel文件，第一行表头+数据列作为条件"
+          >
+            <el-icon :size="16"><Plus /></el-icon>
+          </div>
+        </div>
+        <el-button class="ai-btn-generate" @click="aiGenerateSql" :loading="state.aiLoading">
+          <el-icon v-if="!state.aiLoading"><MagicStick /></el-icon>
+          {{ state.aiLoading ? '生成中...' : '生成 SQL' }}
+        </el-button>
+      </div>
+      <div class="ai-file-tag" v-if="state.aiFile.count > 0">
+        <el-icon><FolderOpened /></el-icon>
+        <span>已上传：{{ state.aiFile.header }}（{{ state.aiFile.count }}条）</span>
+        <el-icon class="ai-file-close" @click="state.aiFile = { header: '', values: [], count: 0 }"
+          ><Close
+        /></el-icon>
+      </div>
+    </div>
+    <div class="row-item font-hint">*AI生成SQL后会自动填入下方输入框，请确认后再执行</div>
+    <WhiteSpace />
     <el-input
       type="textarea"
       rows="15"
       class="text-area"
       v-model="state.inputSql"
-      placeholder="该输入框可以选择下拉框中的脚本，也可以自主输入脚本；"
+      placeholder="该输入框可以选择下拉框中的脚本，也可以自主输入脚本；AI生成的SQL会自动填入此处"
     ></el-input>
     <WhiteSpace />
     <el-button type="primary" @click="inputTypeExe">立即执行</el-button>
+    <el-button :disabled="!state.inputSql" @click="copySql" class="ai-btn-copy">
+      <el-icon><DocumentCopy /></el-icon>
+      复制SQL
+    </el-button>
     <div v-if="state.reportLink" @click="downloadFn()" class="font-ble">
       {{ `http://172.16.179.2:7002/public/out/${state.reportLink}` }}
     </div>
   </el-card>
+
+  <!-- 语音助手小人 -->
+  <div class="voice-assistant" :class="{ listening: state.isListening }" @click="startVoiceInput">
+    <div class="va-bubble" v-if="!state.isListening">说说你的需求吧~</div>
+    <div class="va-bubble listening-text" v-else>正在聆听...</div>
+    <div class="va-body">
+      <div class="va-head">
+        <div class="va-face">
+          <span class="va-eye left"></span>
+          <span class="va-eye right"></span>
+          <span class="va-mouth"></span>
+        </div>
+      </div>
+      <div class="va-dress"></div>
+    </div>
+  </div>
 </template>
 <script setup>
 import { reactive } from 'vue'
 import dayjs from 'dayjs'
 import * as XLSX from 'xlsx'
+import { DocumentCopy, MagicStick, Plus, FolderOpened, Close } from '@element-plus/icons-vue'
 import {
   getTaskListReq,
   updateTaskReq,
@@ -127,6 +193,7 @@ import WhiteSpace from '../components/WhiteSpace.vue'
 import Upload from '../components/Upload.vue'
 import { getLocalStore } from '../util/localStorage'
 import { toast } from '../util/toast'
+import { copyContent } from '../util/common'
 import { stands, standMap } from '../constant/index'
 const state = reactive({
   taskList: [],
@@ -142,7 +209,11 @@ const state = reactive({
   commonSqls: [],
   selectSql: '',
   paramsStr: '',
-  pickMonth: ''
+  pickMonth: '',
+  aiInput: '',
+  aiLoading: false,
+  isListening: false,
+  aiFile: { header: '', values: [], count: 0 }
 })
 const inputSqlSamples = [
   {
@@ -411,6 +482,132 @@ const getCommonSqlList = async () => {
 
 getCommonSqlList()
 getDemandList()
+
+const copySql = () => {
+  copyContent(state.inputSql)
+}
+
+const handleFileUpload = (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  const isExcel = /\.xlsx?$/i.test(file.name)
+  if (isExcel) {
+    reader.onload = (ev) => {
+      const data = new Uint8Array(ev.target.result)
+      const workbook = XLSX.read(data, { type: 'array' })
+      const sheetName = workbook.SheetNames[0]
+      const sheet = workbook.Sheets[sheetName]
+      const result = XLSX.utils.sheet_to_json(sheet, { header: 1 })
+      if (result.length < 2) {
+        toast('Excel至少需要表头和数据两行', 'warning')
+        return
+      }
+      const header = result[0][0] || '字段名'
+      const values = result
+        .slice(1)
+        .map((row) => row[0])
+        .filter((v) => v !== undefined && v !== '')
+      if (values.length === 0) {
+        toast('未读取到有效数据', 'warning')
+        return
+      }
+      state.aiFile = { header, values, count: values.length }
+      toast(`已读取${values.length}条数据`, 'success')
+    }
+    reader.readAsArrayBuffer(file)
+  } else {
+    reader.onload = (ev) => {
+      state.aiInput = state.aiInput ? state.aiInput + '\n' + ev.target.result : ev.target.result
+      toast('文件内容已导入', 'success')
+    }
+    reader.onerror = () => {
+      toast('文件读取失败，请重试', 'error')
+    }
+    reader.readAsText(file, 'UTF-8')
+  }
+  e.target.value = ''
+}
+
+const startVoiceInput = () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognition) {
+    return toast('当前浏览器不支持语音识别，请使用Chrome浏览器', 'warning')
+  }
+  if (state.isListening) {
+    state.isListening = false
+    return
+  }
+  const recognition = new SpeechRecognition()
+  recognition.lang = 'zh-CN'
+  recognition.interimResults = false
+  recognition.continuous = false
+  state.isListening = true
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript
+    state.aiInput = state.aiInput ? state.aiInput + transcript : transcript
+    toast('语音识别成功', 'success')
+  }
+  recognition.onerror = () => {
+    toast('语音识别失败，请重试', 'error')
+  }
+  recognition.onend = () => {
+    state.isListening = false
+  }
+  recognition.start()
+}
+
+const aiGenerateSql = async () => {
+  if (!state.aiInput.trim()) {
+    return toast('请输入需求描述后再生成', 'warning')
+  }
+  state.aiLoading = true
+  try {
+    const body = { prompt: state.aiInput }
+    if (state.aiFile.count > 0) {
+      body.fileData = { header: state.aiFile.header, values: state.aiFile.values }
+    }
+    const res = await fetch('http://172.16.179.2:7002/api/report/generateSql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let streamDone = false
+    while (!streamDone) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop()
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const event = JSON.parse(line.slice(6))
+        switch (event.type) {
+          case 'chunk':
+            state.inputSql += event.content
+            break
+          case 'done':
+            state.inputSql = event.sql
+            toast('SQL已生成，请确认后点击立即执行', 'success')
+            streamDone = true
+            break
+          case 'error':
+            toast(event.message || 'AI生成SQL失败', 'error')
+            streamDone = true
+            state.inputSql = ''
+            break
+        }
+      }
+    }
+  } catch (e) {
+    toast('AI服务异常，请稍后重试', 'error')
+  } finally {
+    state.aiLoading = false
+  }
+}
 </script>
 <style scoped>
 .row-item {
@@ -451,5 +648,268 @@ getDemandList()
 }
 .pick-month {
   max-width: 200px;
+}
+/* AI写SQL区域 */
+.ai-section {
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 20px;
+  background: linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) border-box;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+.ai-section:hover {
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.25);
+}
+.ai-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  white-space: nowrap;
+}
+.ai-model-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: #8b8fa3;
+  border: 1px solid #e0e0e0;
+  background: #f8f8fa;
+  letter-spacing: 0.3px;
+}
+.ai-subtitle {
+  color: #909399;
+  font-size: 13px;
+}
+.ai-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-input-box {
+  flex: 1;
+}
+.ai-btn-copy {
+  border: 1px solid #c0c4cc;
+  color: #606266;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+.ai-btn-copy:hover {
+  border-color: #667eea;
+  color: #667eea;
+  background: #f0f0ff;
+}
+.ai-input-wrap {
+  position: relative;
+  flex: 1;
+}
+.ai-upload-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f0f0f4;
+  color: #8b8fa3;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ai-upload-icon:hover {
+  background: #667eea;
+  color: #fff;
+}
+.ai-file-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  color: #667eea;
+  background: #f0f0ff;
+  border: 1px solid #d4d4f7;
+}
+.ai-file-close {
+  cursor: pointer;
+  color: #999;
+  font-size: 14px;
+}
+.ai-file-close:hover {
+  color: #e04040;
+}
+.ai-btn-generate {
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.ai-btn-generate:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+}
+.ai-btn-generate:active {
+  transform: translateY(0);
+}
+.ai-btn-generate.is-loading {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* 语音助手小人 - 右下角悬浮 */
+.voice-assistant {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 999;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+.voice-assistant:hover {
+  transform: scale(1.05);
+}
+.voice-assistant:hover .va-bubble {
+  opacity: 1;
+}
+.va-bubble {
+  position: absolute;
+  bottom: 130px;
+  right: -10px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 16px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.va-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 24px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fff;
+}
+.va-bubble.listening-text {
+  opacity: 1;
+  color: #e04040;
+  font-weight: 500;
+}
+.va-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.va-head {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd1d1, #ffb3b3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(255, 150, 150, 0.4);
+  position: relative;
+  z-index: 2;
+}
+.va-face {
+  display: flex;
+  flex-wrap: wrap;
+  width: 28px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+.va-eye {
+  display: inline-block;
+  width: 6px;
+  height: 7px;
+  border-radius: 50%;
+  background: #333;
+}
+.va-eye.right {
+  margin-left: 4px;
+}
+.va-mouth {
+  display: inline-block;
+  width: 10px;
+  height: 5px;
+  border-radius: 0 0 10px 10px;
+  background: #e88;
+  margin: 4px auto 0;
+}
+.va-dress {
+  width: 50px;
+  height: 24px;
+  border-radius: 0 0 20px 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  margin-top: -4px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+.voice-assistant.listening .va-head {
+  animation: girlPulse 1.2s ease-in-out infinite;
+  background: linear-gradient(135deg, #ff9a9e, #fecfef);
+  box-shadow: 0 0 24px rgba(255, 120, 120, 0.6);
+}
+.voice-assistant.listening .va-mouth {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e55;
+  animation: mouthTalk 0.4s ease-in-out infinite;
+}
+@keyframes girlPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 120, 120, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 16px rgba(255, 120, 120, 0);
+  }
+}
+@keyframes mouthTalk {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.4);
+  }
 }
 </style>

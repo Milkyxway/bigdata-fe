@@ -155,7 +155,7 @@
       </SelectCommon>
     </el-form-item>
     <UploadBtn
-      v-showByAuth="{ role: userInfo.role, showCondition: ['section'] }"
+      v-showByAuth="{ role: userInfo.role, showCondition: ['section', 'employee'] }"
       @update-file="modifyTaskFile"
     />
     <el-button
@@ -236,7 +236,7 @@ const noon = ref([
   }
 ])
 
-const disableCondition = computed(() => ['section'].includes(userInfo.role))
+const disableCondition = computed(() => ['section', 'employee'].includes(userInfo.role))
 const modifyTaskFile = async (SourceExcelLink) => {
   await updateTaskReq({
     reportId: props.detail.reportId,

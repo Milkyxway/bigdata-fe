@@ -21,6 +21,19 @@ export const getSQLListReq = (data) => {
   })
 }
 
+/**
+ * AI生成SQL
+ * @param {*} data
+ * @returns
+ */
+export const aiGenerateSqlReq = (data) => {
+  return createRequest()({
+    url: '/api/report/generateSql',
+    method: 'post',
+    data
+  })
+}
+
 // export const downloadSqlReq = (data) => {
 //   return createRequest()({
 //     url: '/api/report/download',

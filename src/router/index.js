@@ -10,7 +10,7 @@ export const routeList = [
     name: '统计模块',
     label: '统计模块',
     path: '/statistic',
-    auth: ['developer', 'section'],
+    auth: ['developer', 'section', 'employee'],
     isSider: true,
     component: () => import('../views/smartbi.vue')
   },
@@ -25,7 +25,7 @@ export const routeList = [
         name: '报表模块',
         label: '报表模块',
         iconName: 'view',
-        auth: ['section', 'developer'],
+        auth: ['section', 'developer', 'employee'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
@@ -33,14 +33,14 @@ export const routeList = [
             name: '报表列表',
             label: '报表列表',
             isSider: true,
-            auth: ['developer', 'section'],
+            auth: ['developer', 'section', 'employee'],
             component: () => import('../views/reportlist.vue')
           },
           {
             path: '/report/selfhelp',
             name: '自助提数',
             label: '自助提数',
-            auth: ['section', 'developer'],
+            auth: ['section', 'developer', 'employee'],
             isSider: true,
             component: () => import('../views/selfhelp.vue')
           }
@@ -72,7 +72,7 @@ export const routeList = [
             path: '/develop/tasklist',
             name: 'tasklist',
             label: '任务列表',
-            auth: ['developer', 'section'],
+            auth: ['developer', 'section', 'employee'],
             isSider: true,
             component: () => import('../views/tasklist.vue')
           },
@@ -134,14 +134,14 @@ export const routeList = [
         name: '工具箱',
         label: '工具箱',
         iconName: 'view',
-        auth: ['section'],
+        auth: ['section', 'employee'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
             path: '/tools/section',
             name: '工具箱',
             label: '工具箱',
-            auth: ['section'],
+            auth: ['section', 'employee'],
             isSider: true,
             component: () => import('../views/tools.vue')
           }
@@ -192,14 +192,14 @@ export const routeList = [
         name: '数据看板',
         label: '数据看板',
         path: '/dashboard',
-        auth: ['developer', 'section'],
+        auth: ['developer', 'section', 'employee'],
         component: () => import('../views/PersonalHome.vue'),
         children: [
           {
             name: '外部看板',
             label: '外部看板',
             path: '/external-dashboard',
-            auth: ['developer', 'section'],
+            auth: ['developer', 'section', 'employee'],
             isSider: true,
             externalLink: 'http://172.16.176.76'
           }
