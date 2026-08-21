@@ -90,6 +90,14 @@ export const routeList = [
             auth: ['developer'],
             isSider: true,
             component: () => import('../views/configparams.vue')
+          },
+          {
+            path: '/develop/skill',
+            name: 'Skill配置',
+            label: 'Skill配置',
+            auth: ['developer'],
+            isSider: true,
+            component: () => import('../views/skillconfig.vue')
           }
         ]
       },

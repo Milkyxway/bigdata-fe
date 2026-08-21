@@ -333,3 +333,33 @@ export const getDailyReportReq = (data) => {
     data
   })
 }
+
+export const getSkillConfigReq = () => {
+  return createRequest()({
+    url: '/api/skill/config',
+    method: 'get'
+  })
+}
+
+export const aiAppendSkillReq = (data) => {
+  return createRequest()({
+    url: '/api/skill/ai-append',
+    method: 'post',
+    data
+  })
+}
+
+export const deleteSkillReq = (data) => {
+  return createRequest()({
+    url: '/api/skill/delete',
+    method: 'post',
+    data
+  })
+}
+
+export const getRecentPromptsReq = () => {
+  return createRequest()({
+    url: '/api/skill/recent-prompts',
+    method: 'get'
+  })
+}

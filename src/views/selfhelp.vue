@@ -87,9 +87,7 @@
       />
     </div>
 
-    <div class="row-item font-hint">
-      *点击执行后每10s轮询任务执行状态。当轮询到提数结果时,页面上将展示结果的下载地址，因此点击执行后切勿关闭页面、切换页面等动作。
-    </div>
+    <div class="row-item font-hint">*任务创建后可在任务列表查看执行结果</div>
 
     <WhiteSpace />
     <div class="ai-section">
@@ -130,10 +128,22 @@
       <div class="ai-file-tag" v-if="state.aiFile.count > 0">
         <el-icon><FolderOpened /></el-icon>
         <span>已上传：{{ state.aiFile.header }}（{{ state.aiFile.count }}条）</span>
-        <el-icon class="ai-file-close" @click="state.aiFile = { header: '', values: [], count: 0 }"
+        <el-icon
+          class="ai-file-close"
+          @click="state.aiFile = { header: '', values: [], count: 0, rawFile: null }"
           ><Close
         /></el-icon>
       </div>
+    </div>
+    <div class="recent-prompts" v-if="state.recentPrompts.length">
+      <el-tag
+        v-for="(prompt, index) in state.recentPrompts"
+        :key="'prompt-' + index"
+        class="prompt-tag"
+        @click="state.aiInput = prompt"
+      >
+        {{ prompt }}
+      </el-tag>
     </div>
     <div class="row-item font-hint">*AI生成SQL后会自动填入下方输入框，请确认后再执行</div>
     <WhiteSpace />
@@ -170,6 +180,61 @@
       <div class="va-dress"></div>
     </div>
   </div>
+
+  <WhiteSpace />
+  <el-card>
+    <template #header>
+      <div class="card-header">
+        <span>日报合并</span>
+      </div>
+    </template>
+    <div class="row-item">
+      <span class="label">模板表</span>
+      <input
+        ref="templateInputRef"
+        type="file"
+        accept=".xlsx,.xls"
+        style="display: none"
+        @change="handleTemplateUpload"
+      />
+      <el-button plain @click="$refs.templateInputRef.click()">
+        {{ state.mergeTemplateName || '选择模板表' }}
+      </el-button>
+      <el-icon v-if="state.mergeTemplateName" class="merge-remove" @click="removeTemplate"
+        ><Close
+      /></el-icon>
+    </div>
+    <div class="row-item">
+      <span class="label">日报文件</span>
+      <input
+        ref="dailyInputRef"
+        type="file"
+        multiple
+        accept=".xlsx,.xls"
+        style="display: none"
+        @change="handleDailyUpload"
+      />
+      <el-button plain @click="$refs.dailyInputRef.click()">
+        {{
+          state.mergeDailyReports.length
+            ? `已选${state.mergeDailyReports.length}个日报`
+            : '选择日报文件（可多选）'
+        }}
+      </el-button>
+      <el-icon v-if="state.mergeDailyReports.length" class="merge-remove" @click="removeDaily"
+        ><Close
+      /></el-icon>
+    </div>
+    <WhiteSpace />
+    <el-button
+      type="primary"
+      @click="mergeDaily"
+      :loading="state.mergeLoading"
+      :disabled="!state.mergeTemplate || !state.mergeDailyReports.length"
+    >
+      开始合并
+    </el-button>
+  </el-card>
 </template>
 <script setup>
 import { reactive } from 'vue'
@@ -185,7 +250,8 @@ import {
   addSqlBatchReq,
   addSqlReq,
   deleteTaskSqlReq,
-  getSQLListReq
+  getSQLListReq,
+  getRecentPromptsReq
 } from '../api/report'
 import { ElLoading } from 'element-plus'
 import SelectCommon from '../components/SelectCommon.vue'
@@ -213,7 +279,12 @@ const state = reactive({
   aiInput: '',
   aiLoading: false,
   isListening: false,
-  aiFile: { header: '', values: [], count: 0 }
+  aiFile: { header: '', values: [], count: 0, rawFile: null },
+  mergeTemplate: null,
+  mergeTemplateName: '',
+  mergeDailyReports: [],
+  mergeLoading: false,
+  recentPrompts: []
 })
 const inputSqlSamples = [
   {
@@ -280,35 +351,25 @@ const inputTypeExe = async () => {
     background: 'rgba(0, 0, 0, 0.7)'
   })
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
-  const res = await getTaskSqlsReq({ taskId: 800 })
-  if (res.data.taskSqls.length) {
-    const reportSqlId = res.data.taskSqls[0].reportSqlId
-    await deleteTaskSqlReq({ reportSqlId })
-  }
-  await addSqlReq({ sqlType: 3, reportSqlData: state.inputSql, reportId: 800 })
-  await updateTaskReq({
-    reportId: 800,
-    reportState: 1,
+  const res = await createTaskReq({
+    LargeCategory: '一次性',
+    reportName: `自助取数_${getLocalStore('userInfo').username}_${dayjs().format(
+      'YYYYMMDDHHmmss'
+    )}`,
+    reportPriority: '普通',
     OneTime: `${dayjs().format('YYYY-MM-DD')} ${noon}`,
-    lastTime: dayjs().subtract(1, 'day').format('YYYY-MM-DD 00:00:00')
+    taskAssignOrg: String(orgnization),
+    custID: userId,
+    region
   })
-  toast('收到该需求了，正在努力执行～')
-  let timer
-  timer = setInterval(async () => {
-    const result = await getTaskListReq({
-      reportId: 800,
-      LargeCategory: '',
-      pageSize: 200,
-      pageNum: 0,
-      region
-    })
-    if (result.data.list[0].reportState == 2) {
-      loading.close()
-      state.reportLink = result.data.list[0].excelData.reverse()[0].excelData
-      clearInterval(timer)
-      timer = null
-    }
-  }, 10000)
+  const newTaskId = res.data.reportId
+  await addSqlReq({ sqlType: 3, reportSqlData: state.inputSql, reportId: newTaskId })
+  await updateTaskReq({
+    reportId: newTaskId,
+    reportState: 1
+  })
+  loading.close()
+  toast('任务已创建，正在执行中～', 'success')
 }
 
 const downloadFn = () => {
@@ -512,7 +573,7 @@ const handleFileUpload = (e) => {
         toast('未读取到有效数据', 'warning')
         return
       }
-      state.aiFile = { header, values, count: values.length }
+      state.aiFile = { header, values, count: values.length, rawFile: file }
       toast(`已读取${values.length}条数据`, 'success')
     }
     reader.readAsArrayBuffer(file)
@@ -563,14 +624,14 @@ const aiGenerateSql = async () => {
   }
   state.aiLoading = true
   try {
-    const body = { prompt: state.aiInput }
-    if (state.aiFile.count > 0) {
-      body.fileData = { header: state.aiFile.header, values: state.aiFile.values }
+    const formData = new FormData()
+    formData.append('requirement', state.aiInput)
+    if (state.aiFile.rawFile) {
+      formData.append('file', state.aiFile.rawFile)
     }
     const res = await fetch('http://172.16.179.2:7002/api/report/generateSql', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: formData
     })
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
@@ -590,7 +651,7 @@ const aiGenerateSql = async () => {
             state.inputSql += event.content
             break
           case 'done':
-            state.inputSql = event.sql
+            state.inputSql = event.prompt ? `-- 用户需求：${event.prompt}\n${event.sql}` : event.sql
             toast('SQL已生成，请确认后点击立即执行', 'success')
             streamDone = true
             break
@@ -608,6 +669,75 @@ const aiGenerateSql = async () => {
     state.aiLoading = false
   }
 }
+
+const handleTemplateUpload = (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  state.mergeTemplate = file
+  state.mergeTemplateName = file.name
+  e.target.value = ''
+}
+
+const handleDailyUpload = (e) => {
+  const files = Array.from(e.target.files)
+  if (!files.length) return
+  state.mergeDailyReports = files
+  e.target.value = ''
+}
+
+const removeTemplate = () => {
+  state.mergeTemplate = null
+  state.mergeTemplateName = ''
+}
+
+const removeDaily = () => {
+  state.mergeDailyReports = []
+}
+
+const mergeDaily = async () => {
+  state.mergeLoading = true
+  try {
+    const formData = new FormData()
+    formData.append('template', state.mergeTemplate)
+    state.mergeDailyReports.forEach((f) => formData.append('dailyReports', f))
+
+    const resp = await fetch('http://172.16.179.2:7002/api/report/mergeDaily', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (resp.ok) {
+      const blob = await resp.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'merged_daily_report.xlsx'
+      a.click()
+      URL.revokeObjectURL(url)
+      toast('合并完成，正在下载', 'success')
+    } else {
+      const err = await resp.json()
+      toast(err.errMsg || '合并失败', 'error')
+    }
+  } catch (e) {
+    toast('合并服务异常，请稍后重试', 'error')
+  } finally {
+    state.mergeLoading = false
+  }
+}
+
+const fetchRecentPrompts = async () => {
+  try {
+    const res = await getRecentPromptsReq()
+    if (res.code === 200) {
+      state.recentPrompts = res.data || []
+    }
+  } catch (e) {
+    // 静默失败
+  }
+}
+
+fetchRecentPrompts()
 </script>
 <style scoped>
 .row-item {
@@ -621,6 +751,14 @@ const aiGenerateSql = async () => {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+}
+.merge-remove {
+  cursor: pointer;
+  color: #909399;
+  margin-left: 6px;
+}
+.merge-remove:hover {
+  color: #f56c6c;
 }
 .label {
   display: inline-block;
@@ -756,6 +894,19 @@ const aiGenerateSql = async () => {
 }
 .ai-file-close:hover {
   color: #e04040;
+}
+.recent-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.prompt-tag {
+  cursor: pointer;
+}
+.prompt-tag:hover {
+  color: #409eff;
+  border-color: #409eff;
 }
 .ai-btn-generate {
   border: none;
