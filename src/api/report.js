@@ -34,6 +34,19 @@ export const aiGenerateSqlReq = (data) => {
   })
 }
 
+/**
+ * AI生成图表配置
+ * @param {*} data
+ * @returns
+ */
+export const generateChartReq = (data) => {
+  return createRequest()({
+    url: '/api/report/generateChart',
+    method: 'post',
+    data
+  })
+}
+
 // export const downloadSqlReq = (data) => {
 //   return createRequest()({
 //     url: '/api/report/download',

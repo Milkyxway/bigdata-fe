@@ -9,19 +9,70 @@
     <div class="ai-append-section">
       <div class="section-title">新增内容</div>
       <div class="section-hint">
-        粘贴表结构、关联关系、业务规则或示例SQL，AI 自动识别分类并写入知识库
+        选择对应的分类后输入内容，AI 将自动解析为结构化数据并写入知识库
       </div>
-      <div class="append-row">
-        <el-input
-          type="textarea"
-          :rows="3"
-          v-model="appendContent"
-          placeholder="例如：rep2.rep_fact_unpay_yyyymmdd 欠费表，fee 欠费金额(分)，acct_id 账户ID"
-          class="append-input"
-        />
-        <el-button type="primary" @click="aiAppend" :loading="appendLoading" class="append-btn">
-          添加
-        </el-button>
+
+      <div class="type-section">
+        <div class="type-label">表结构</div>
+        <div class="append-row">
+          <el-input
+            type="textarea"
+            :rows="2"
+            v-model="tableContent"
+            placeholder="例如：rep2.rep_fact_unpay_yyyymmdd 欠费表，fee 欠费金额(分)，acct_id 账户ID"
+            class="append-input"
+          />
+          <el-button
+            type="primary"
+            @click="aiAppend('table')"
+            :loading="tableLoading"
+            class="append-btn"
+          >
+            添加
+          </el-button>
+        </div>
+      </div>
+
+      <div class="type-section">
+        <div class="type-label">表关联关系</div>
+        <div class="append-row">
+          <el-input
+            type="textarea"
+            :rows="2"
+            v-model="relationContent"
+            placeholder="例如：rep2.rep_fact_cust_info_yyyymmdd.CUST_ID 关联 files2.um_subscriber.cust_id，1:1，客户对应终端"
+            class="append-input"
+          />
+          <el-button
+            type="primary"
+            @click="aiAppend('relation')"
+            :loading="relationLoading"
+            class="append-btn"
+          >
+            添加
+          </el-button>
+        </div>
+      </div>
+
+      <div class="type-section">
+        <div class="type-label">业务规则</div>
+        <div class="append-row">
+          <el-input
+            type="textarea"
+            :rows="2"
+            v-model="ruleContent"
+            placeholder="例如：订购正常 = 产品订购状态为正常 + 停开机状态为正常"
+            class="append-input"
+          />
+          <el-button
+            type="primary"
+            @click="aiAppend('rule')"
+            :loading="ruleLoading"
+            class="append-btn"
+          >
+            添加
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -125,8 +176,12 @@ const state = reactive({
   fewShotExamples: []
 })
 
-const appendContent = ref('')
-const appendLoading = ref(false)
+const tableContent = ref('')
+const relationContent = ref('')
+const ruleContent = ref('')
+const tableLoading = ref(false)
+const relationLoading = ref(false)
+const ruleLoading = ref(false)
 const loading = ref(false)
 
 const fetchConfig = async () => {
@@ -146,16 +201,29 @@ const fetchConfig = async () => {
   }
 }
 
-const aiAppend = async () => {
-  if (!appendContent.value.trim()) {
+const contentMap = {
+  table: tableContent,
+  relation: relationContent,
+  rule: ruleContent
+}
+const loadingMap = {
+  table: tableLoading,
+  relation: relationLoading,
+  rule: ruleLoading
+}
+
+const aiAppend = async (type) => {
+  const content = contentMap[type]
+  const loadingRef = loadingMap[type]
+  if (!content.value.trim()) {
     return toast('请输入内容', 'warning')
   }
-  appendLoading.value = true
+  loadingRef.value = true
   try {
-    const res = await aiAppendSkillReq({ content: appendContent.value.trim() })
+    const res = await aiAppendSkillReq({ content: content.value.trim(), type })
     if (res.code === 200) {
       toast(res.data.message || '添加成功', 'success')
-      appendContent.value = ''
+      content.value = ''
       fetchConfig()
     } else {
       toast(res.errMsg || '添加失败', 'error')
@@ -163,17 +231,11 @@ const aiAppend = async () => {
   } catch (e) {
     toast('添加失败，请稍后重试', 'error')
   } finally {
-    appendLoading.value = false
+    loadingRef.value = false
   }
 }
 
 const handleDelete = async (type, index) => {
-  const typeMap = {
-    table: '表结构',
-    relation: '关联关系',
-    rule: '业务规则',
-    example: 'Few-Shot 示例'
-  }
   try {
     const res = await deleteSkillReq({ type, index })
     if (res.code === 200) {
@@ -207,7 +269,16 @@ onMounted(() => {
 .section-hint {
   font-size: 12px;
   color: #909399;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+}
+.type-section {
+  margin-bottom: 12px;
+}
+.type-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #606266;
+  margin-bottom: 4px;
 }
 .append-row {
   display: flex;

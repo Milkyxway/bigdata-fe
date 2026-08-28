@@ -160,8 +160,21 @@
       <el-icon><DocumentCopy /></el-icon>
       复制SQL
     </el-button>
+    <el-button
+      v-if="state.chartInfo.showBtn"
+      type="success"
+      @click="generateChart"
+      :loading="state.chartInfo.loading"
+      :disabled="state.chartInfo.status !== 2"
+    >
+      <el-icon><DataAnalysis /></el-icon>
+      {{ state.chartInfo.status === 2 ? '生成图表' : chartStatusText }}
+    </el-button>
     <div v-if="state.reportLink" @click="downloadFn()" class="font-ble">
       {{ `http://172.16.179.2:7002/public/out/${state.reportLink}` }}
+    </div>
+    <div v-if="state.chartInfo.option" class="chart-container">
+      <v-chart class="chart-canvas" :option="state.chartInfo.option" autoresize />
     </div>
   </el-card>
 
@@ -237,10 +250,17 @@
   </el-card>
 </template>
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onUnmounted, computed } from 'vue'
 import dayjs from 'dayjs'
 import * as XLSX from 'xlsx'
-import { DocumentCopy, MagicStick, Plus, FolderOpened, Close } from '@element-plus/icons-vue'
+import {
+  DocumentCopy,
+  MagicStick,
+  Plus,
+  FolderOpened,
+  Close,
+  DataAnalysis
+} from '@element-plus/icons-vue'
 import {
   getTaskListReq,
   updateTaskReq,
@@ -251,7 +271,9 @@ import {
   addSqlReq,
   deleteTaskSqlReq,
   getSQLListReq,
-  getRecentPromptsReq
+  getRecentPromptsReq,
+  generateChartReq,
+  getTaskDetailReq
 } from '../api/report'
 import { ElLoading } from 'element-plus'
 import SelectCommon from '../components/SelectCommon.vue'
@@ -261,6 +283,27 @@ import { getLocalStore } from '../util/localStorage'
 import { toast } from '../util/toast'
 import { copyContent } from '../util/common'
 import { stands, standMap } from '../constant/index'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, PieChart, LineChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+} from 'echarts/components'
+import VChart from 'vue-echarts'
+
+use([
+  CanvasRenderer,
+  BarChart,
+  PieChart,
+  LineChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+])
 const state = reactive({
   taskList: [],
   selectTask: '',
@@ -284,7 +327,17 @@ const state = reactive({
   mergeTemplateName: '',
   mergeDailyReports: [],
   mergeLoading: false,
-  recentPrompts: []
+  recentPrompts: [],
+  chartInfo: {
+    showBtn: false,
+    loading: false,
+    option: null,
+    taskId: 0,
+    chartType: '',
+    requirement: '',
+    status: 0,
+    pollTimer: null
+  }
 })
 const inputSqlSamples = [
   {
@@ -370,6 +423,21 @@ const inputTypeExe = async () => {
   })
   loading.close()
   toast('任务已创建，正在执行中～', 'success')
+
+  const chartType = detectChartType(state.aiInput)
+  if (chartType) {
+    state.chartInfo.showBtn = true
+    state.chartInfo.taskId = newTaskId
+    state.chartInfo.chartType = chartType
+    state.chartInfo.requirement = state.aiInput
+    state.chartInfo.option = null
+    state.chartInfo.status = 1
+    startPolling(newTaskId)
+  } else {
+    state.chartInfo.showBtn = false
+    state.chartInfo.option = null
+    stopPolling()
+  }
 }
 
 const downloadFn = () => {
@@ -726,6 +794,38 @@ const mergeDaily = async () => {
   }
 }
 
+const detectChartType = (text) => {
+  if (!text) return ''
+  if (text.includes('柱状图') || text.includes('柱图') || text.includes('条形图')) return 'bar'
+  if (text.includes('饼状图') || text.includes('饼图')) return 'pie'
+  if (text.includes('折线图') || text.includes('曲线图') || text.includes('趋势图')) return 'line'
+  return ''
+}
+
+const generateChart = async () => {
+  if (!state.chartInfo.taskId) {
+    return toast('未找到任务ID', 'error')
+  }
+  state.chartInfo.loading = true
+  try {
+    const res = await generateChartReq({
+      taskId: state.chartInfo.taskId,
+      requirement: state.chartInfo.requirement,
+      chartType: state.chartInfo.chartType
+    })
+    if (res.code === 200) {
+      state.chartInfo.option = res.data.chartOption
+      toast('图表生成成功', 'success')
+    } else {
+      toast(res.errMsg || '图表生成失败', 'error')
+    }
+  } catch (e) {
+    toast('图表生成失败，请稍后重试', 'error')
+  } finally {
+    state.chartInfo.loading = false
+  }
+}
+
 const fetchRecentPrompts = async () => {
   try {
     const res = await getRecentPromptsReq()
@@ -738,6 +838,37 @@ const fetchRecentPrompts = async () => {
 }
 
 fetchRecentPrompts()
+
+const statusTextMap = { 0: '已创建', 1: '执行中', 2: '完结归档', 3: '中止', 4: '执行错误' }
+const chartStatusText = computed(() => statusTextMap[state.chartInfo.status] || '未知状态')
+
+const startPolling = (taskId) => {
+  stopPolling()
+  state.chartInfo.pollTimer = setInterval(async () => {
+    try {
+      const res = await getTaskDetailReq({ taskId })
+      if (res.code === 200) {
+        state.chartInfo.status = res.data.reportState
+        if (res.data.reportState === 2 || res.data.reportState >= 3) {
+          stopPolling()
+        }
+      }
+    } catch (e) {
+      // 静默失败，继续轮询
+    }
+  }, 5000)
+}
+
+const stopPolling = () => {
+  if (state.chartInfo.pollTimer) {
+    clearInterval(state.chartInfo.pollTimer)
+    state.chartInfo.pollTimer = null
+  }
+}
+
+onUnmounted(() => {
+  stopPolling()
+})
 </script>
 <style scoped>
 .row-item {
@@ -1062,5 +1193,16 @@ fetchRecentPrompts()
   50% {
     transform: scaleY(0.4);
   }
+}
+.chart-container {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  background: #fff;
+}
+.chart-canvas {
+  width: 100%;
+  height: 400px;
 }
 </style>
