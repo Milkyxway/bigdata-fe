@@ -691,6 +691,33 @@ const aiGenerateSql = async () => {
     return toast('请输入需求描述后再生成', 'warning')
   }
   state.aiLoading = true
+
+  const chartKeywords = /图表|柱状图|柱形图|条形图|饼图|饼状图|折线图|趋势图/
+  if (state.aiFile.rawFile && chartKeywords.test(state.aiInput)) {
+    try {
+      const formData = new FormData()
+      formData.append('requirement', state.aiInput)
+      formData.append('file', state.aiFile.rawFile)
+      const res = await fetch('http://172.16.179.2:7002/api/report/generateChartFromExcel', {
+        method: 'POST',
+        body: formData
+      })
+      const json = await res.json()
+      if (json.code === 0) {
+        state.chartInfo.option = json.data.chartOption
+        state.chartInfo.showBtn = false
+        toast('图表生成成功', 'success')
+      } else {
+        toast(json.errMsg || '图表生成失败', 'error')
+      }
+    } catch (e) {
+      toast('图表生成失败，请稍后重试', 'error')
+    } finally {
+      state.aiLoading = false
+    }
+    return
+  }
+
   try {
     const formData = new FormData()
     formData.append('requirement', state.aiInput)
