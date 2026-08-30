@@ -122,7 +122,7 @@
         </div>
         <el-button class="ai-btn-generate" @click="aiGenerateSql" :loading="state.aiLoading">
           <el-icon v-if="!state.aiLoading"><MagicStick /></el-icon>
-          {{ state.aiLoading ? '生成中...' : '生成 SQL' }}
+          {{ state.aiLoading ? '生成中...' : isChartFlow ? '生成图表' : '生成 SQL' }}
         </el-button>
       </div>
       <div class="ai-file-tag" v-if="state.aiFile.count > 0">
@@ -692,7 +692,6 @@ const aiGenerateSql = async () => {
   }
   state.aiLoading = true
 
-  const chartKeywords = /图表|柱状图|柱形图|条形图|饼图|饼状图|折线图|趋势图/
   if (state.aiFile.rawFile && chartKeywords.test(state.aiInput)) {
     try {
       const formData = new FormData()
@@ -703,7 +702,7 @@ const aiGenerateSql = async () => {
         body: formData
       })
       const json = await res.json()
-      if (json.code === 0) {
+      if (json.data && json.data.chartOption) {
         state.chartInfo.option = json.data.chartOption
         state.chartInfo.showBtn = false
         toast('图表生成成功', 'success')
@@ -868,6 +867,9 @@ fetchRecentPrompts()
 
 const statusTextMap = { 0: '已创建', 1: '执行中', 2: '完结归档', 3: '中止', 4: '执行错误' }
 const chartStatusText = computed(() => statusTextMap[state.chartInfo.status] || '未知状态')
+
+const chartKeywords = /生成图表|柱状图|柱形图|条形图|饼图|饼状图|折线图|趋势图|画图|可视化/
+const isChartFlow = computed(() => state.aiFile.rawFile && chartKeywords.test(state.aiInput))
 
 const startPolling = (taskId) => {
   stopPolling()
