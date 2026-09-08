@@ -81,6 +81,7 @@
           (val) => {
             if (val !== '') {
               state.inputSql = val
+              state.isAiGenerated = false
             }
           }
         "
@@ -152,6 +153,7 @@
       rows="15"
       class="text-area"
       v-model="state.inputSql"
+      @input="state.isAiGenerated = false"
       placeholder="该输入框可以选择下拉框中的脚本，也可以自主输入脚本；AI生成的SQL会自动填入此处"
     ></el-input>
     <WhiteSpace />
@@ -321,6 +323,8 @@ const state = reactive({
   pickMonth: '',
   aiInput: '',
   aiLoading: false,
+  isAiGenerated: false,
+  aiTaskName: '',
   isListening: false,
   aiFile: { header: '', values: [], count: 0, rawFile: null },
   mergeTemplate: null,
@@ -406,9 +410,11 @@ const inputTypeExe = async () => {
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
   const res = await createTaskReq({
     LargeCategory: '一次性',
-    reportName: `自助取数_${getLocalStore('userInfo').username}_${dayjs().format(
-      'YYYYMMDDHHmmss'
-    )}`,
+    reportName:
+      state.aiTaskName ||
+      `自助取数${state.isAiGenerated ? '_AI' : ''}_${
+        getLocalStore('userInfo').username
+      }_${dayjs().format('YYYYMMDDHHmmss')}`,
     reportPriority: '普通',
     OneTime: `${dayjs().format('YYYY-MM-DD')} ${noon}`,
     taskAssignOrg: String(orgnization),
@@ -423,6 +429,8 @@ const inputTypeExe = async () => {
   })
   loading.close()
   toast('任务已创建，正在执行中～', 'success')
+  state.isAiGenerated = false
+  state.aiTaskName = ''
 
   const chartType = detectChartType(state.aiInput)
   if (chartType) {
@@ -746,6 +754,8 @@ const aiGenerateSql = async () => {
             break
           case 'done':
             state.inputSql = event.prompt ? `-- 用户需求：${event.prompt}\n${event.sql}` : event.sql
+            state.isAiGenerated = true
+            state.aiTaskName = event.taskName || ''
             toast('SQL已生成，请确认后点击立即执行', 'success')
             streamDone = true
             break
