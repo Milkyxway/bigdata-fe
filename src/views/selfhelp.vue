@@ -410,11 +410,11 @@ const inputTypeExe = async () => {
   const noon = new Date().getHours() < 12 ? '09:00:00' : '12:00:00'
   const res = await createTaskReq({
     LargeCategory: '一次性',
-    reportName:
-      state.aiTaskName ||
-      `自助取数${state.isAiGenerated ? '_AI' : ''}_${
-        getLocalStore('userInfo').username
-      }_${dayjs().format('YYYYMMDDHHmmss')}`,
+    reportName: state.aiTaskName
+      ? `自助取数_AI_${state.aiTaskName}_${getLocalStore('userInfo').username}`
+      : `自助取数${state.isAiGenerated ? '_AI' : ''}_${
+          getLocalStore('userInfo').username
+        }_${dayjs().format('YYYYMMDDHHmmss')}`,
     reportPriority: '普通',
     OneTime: `${dayjs().format('YYYY-MM-DD')} ${noon}`,
     taskAssignOrg: String(orgnization),
@@ -698,6 +698,7 @@ const aiGenerateSql = async () => {
   if (!state.aiInput.trim()) {
     return toast('请输入需求描述后再生成', 'warning')
   }
+
   state.aiLoading = true
 
   if (state.aiFile.rawFile && chartKeywords.test(state.aiInput)) {
@@ -753,7 +754,10 @@ const aiGenerateSql = async () => {
             state.inputSql += event.content
             break
           case 'done':
-            state.inputSql = event.prompt ? `-- 用户需求：${event.prompt}\n${event.sql}` : event.sql
+            const promptComment = event.prompt
+              ? `-- 用户需求：${event.prompt.replace(/\n/g, '\n-- ')}\n`
+              : ''
+            state.inputSql = promptComment + event.sql
             state.isAiGenerated = true
             state.aiTaskName = event.taskName || ''
             toast('SQL已生成，请确认后点击立即执行', 'success')

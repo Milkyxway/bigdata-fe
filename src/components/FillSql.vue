@@ -2,7 +2,7 @@
   <ParamsList />
   <div v-for="(item, index) in props.sqlArr" v-bind:key="index" class="sql-box">
     <WhiteSpace />
-    <div class="input-row">
+    <div class="input-row" v-if="!isEmployee">
       <el-radio-group v-model="item.chooseSqlType">
         <el-radio
           v-for="(item, index) in sqlTypes"
@@ -26,7 +26,7 @@
     </div>
     <WhiteSpace v-if="item.chooseSqlType === '查询类有输出'" />
     <div class="input-row">
-      <div v-if="state.commonSqls && item.chooseSqlType === '查询类有输出'">
+      <div v-if="state.commonSqls && item.chooseSqlType === '查询类有输出' && !isEmployee">
         <span>常用sql语句 </span>
         <SelectCommon
           :selections="state.commonSqls"
@@ -43,7 +43,7 @@
     </div>
     <WhiteSpace />
     <div class="input-row">
-      <div>
+      <div v-if="!isEmployee">
         <el-icon @click="addSqlStrs" color="#0076fe"><CirclePlus /></el-icon>
         <el-icon @click="deleteSqlInput(index)" color="#f56c6c" v-if="index">
           <SemiSelect
@@ -55,11 +55,21 @@
         placeholder="请输入sql语句，用英文;分隔"
         :rows="item.chooseSqlType !== '上传' ? 20 : 1"
         v-model="item.reportSqlData"
+        :readonly="isEmployee"
         clearable
       />
+      <el-button
+        v-if="isEmployee"
+        type="primary"
+        size="small"
+        @click="copyContent(item.reportSqlData)"
+        style="margin-left: 8px"
+      >
+        复制SQL
+      </el-button>
     </div>
     <WhiteSpace />
-    <div v-if="item.chooseSqlType === '上传'">
+    <div v-if="item.chooseSqlType === '上传' && !isEmployee">
       <div class="input-row">
         <span class="sub-title">源sheet名</span>
         <el-input placeholder="请输入源sheet名" v-model="item.SourceSheet"></el-input>
@@ -81,22 +91,29 @@
       />
       <WhiteSpace />
     </div>
-    <div class="input-row" v-if="item.chooseSqlType === '查询类有输出'">
+    <div class="input-row" v-if="item.chooseSqlType === '查询类有输出' && !isEmployee">
       <span class="sub-title">目标sheet名</span>
       <el-input placeholder="请输入目标sheet名" v-model="item.TargetSheet"></el-input>
     </div>
-    <WhiteSpace v-if="item.chooseSqlType === '查询类有输出'" />
-    <el-button type="plain" @click="commitSql(index)">{{
+    <WhiteSpace v-if="item.chooseSqlType === '查询类有输出' && !isEmployee" />
+    <el-button type="plain" @click="commitSql(index)" v-if="!isEmployee">{{
       props.sqlArr[index].reportSqlId ? '修改语句' : '提交语句'
     }}</el-button>
-    <el-button type="plain" @click="item.reportSqlData = ''">清空输入框</el-button>
-    <el-button type="plain" @click="deleteTaskSql(item.reportSqlId)" v-if="item.reportSqlId"
+    <el-button type="plain" @click="item.reportSqlData = ''" v-if="!isEmployee"
+      >清空输入框</el-button
+    >
+    <el-button
+      type="plain"
+      @click="deleteTaskSql(item.reportSqlId)"
+      v-if="item.reportSqlId && !isEmployee"
       >删除sql语句</el-button
     >
     <WhiteSpace />
   </div>
   <WhiteSpace />
-  <el-button type="primary" @click="startExe" :loading="state.loading">完成，开始执行</el-button>
+  <el-button type="primary" @click="startExe" :loading="state.loading" v-if="!isEmployee"
+    >完成，开始执行</el-button
+  >
 </template>
 <script setup>
 import { reactive, ref, watch, computed } from 'vue'
@@ -146,9 +163,14 @@ const props = defineProps({
   },
   reportName: {
     type: String
+  },
+  role: {
+    type: String,
+    default: ''
   }
 })
 const emits = defineEmits(['addSqlInput', 'deleteSqlInput', 'refreshPage'])
+const isEmployee = computed(() => props.role === 'employee')
 const sqlTypes = ref([
   {
     label: '执行类无输出',

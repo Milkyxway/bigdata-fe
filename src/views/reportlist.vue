@@ -48,7 +48,7 @@
           link
           type="info"
           size="small"
-          v-if="row.LargeCategory === '周期性'"
+          v-if="row.LargeCategory === '周期性' || role === 'employee' || role === '员工'"
           @click="router.push(`/develop/taskdetail/${row.reportId}`)"
           >查看</el-button
         >
@@ -89,6 +89,7 @@ import { ElMessageBoxFn } from '../util/toast'
 const userId = getLocalStore('userInfo').userId
 const orgId = getLocalStore('userInfo').orgnization
 const region = getLocalStore('userInfo').region
+const role = getLocalStore('userInfo').role
 const tabs = ref([{ label: '一次性任务', value: 0 }, ...periodType])
 const state = reactive({
   chooseTab: 0,

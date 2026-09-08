@@ -20,7 +20,7 @@
   <div
     v-showByAuth="{
       role,
-      showCondition: ['developer']
+      showCondition: ['developer', 'employee']
     }"
   >
     <el-card>
@@ -36,6 +36,7 @@
         :taskId="taskId"
         :excelLink="getExcelLink"
         :reportName="state.detail.reportName"
+        :role="role"
         @refreshPage="refreshPage"
       />
     </el-card>
