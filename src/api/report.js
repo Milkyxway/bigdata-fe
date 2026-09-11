@@ -376,3 +376,11 @@ export const getRecentPromptsReq = () => {
     method: 'get'
   })
 }
+
+export const deletePromptReq = (prompt) => {
+  return createRequest()({
+    url: '/api/skill/delete-prompt',
+    method: 'post',
+    data: { prompt }
+  })
+}

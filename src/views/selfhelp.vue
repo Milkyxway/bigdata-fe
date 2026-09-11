@@ -94,7 +94,15 @@
     <div class="ai-section">
       <div class="ai-header">
         <span class="ai-badge">✨ AI 取数助手</span>
-        <span class="ai-model-tag">DeepSeek-V4-Pro</span>
+        <el-select
+          v-model="state.aiModel"
+          size="small"
+          class="ai-model-select"
+        >
+          <el-option label="DeepSeek-V4-Pro" value="deepseek-v4-pro" />
+          <el-option label="GLM-5.2" value="glm-5.2" />
+          <el-option label="Qwen-Plus" value="qwen-plus" />
+        </el-select>
         <span class="ai-subtitle">用自然语言描述需求，AI 自动生成 SQL</span>
       </div>
       <div class="ai-input-row">
@@ -322,6 +330,7 @@ const state = reactive({
   paramsStr: '',
   pickMonth: '',
   aiInput: '',
+  aiModel: 'glm-5.2',
   aiLoading: false,
   isAiGenerated: false,
   aiTaskName: '',
@@ -729,6 +738,7 @@ const aiGenerateSql = async () => {
   try {
     const formData = new FormData()
     formData.append('requirement', state.aiInput)
+    formData.append('model', state.aiModel)
     if (state.aiFile.rawFile) {
       formData.append('file', state.aiFile.rawFile)
     }
@@ -736,38 +746,49 @@ const aiGenerateSql = async () => {
       method: 'POST',
       body: formData
     })
+
+    const promptComment = state.aiInput
+      ? `-- 用户需求：${state.aiInput.replace(/\n/g, '\n-- ')}\n`
+      : ''
+
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
-    let streamDone = false
-    while (!streamDone) {
+    let fullContent = ''
+
+    while (true) {
       const { done, value } = await reader.read()
       if (done) break
+
       buffer += decoder.decode(value, { stream: true })
       const lines = buffer.split('\n')
       buffer = lines.pop()
+
       for (const line of lines) {
-        if (!line.startsWith('data: ')) continue
-        const event = JSON.parse(line.slice(6))
-        switch (event.type) {
-          case 'chunk':
-            state.inputSql += event.content
-            break
-          case 'done':
-            const promptComment = event.prompt
-              ? `-- 用户需求：${event.prompt.replace(/\n/g, '\n-- ')}\n`
-              : ''
-            state.inputSql = promptComment + event.sql
-            state.isAiGenerated = true
-            state.aiTaskName = event.taskName || ''
-            toast('SQL已生成，请确认后点击立即执行', 'success')
-            streamDone = true
-            break
-          case 'error':
-            toast(event.message || 'AI生成SQL失败', 'error')
-            streamDone = true
-            state.inputSql = ''
-            break
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim()
+          if (!data) continue
+          try {
+            const event = JSON.parse(data)
+            if (event.type === 'chunk') {
+              fullContent += event.content
+              // 实时显示当前生成的内容
+              state.inputSql = promptComment + fullContent
+                .replace(/```sql\s*/gi, '')
+                .replace(/```\s*/g, '')
+                .trim()
+            } else if (event.type === 'done') {
+              state.inputSql = promptComment + event.sql
+              state.isAiGenerated = true
+              state.aiTaskName = event.taskName || ''
+              toast('SQL已生成，请确认后点击立即执行', 'success')
+            } else if (event.type === 'error') {
+              toast(event.message || 'AI生成SQL失败', 'error')
+              state.inputSql = ''
+            }
+          } catch (e) {
+            // 跳过无法解析的行
+          }
         }
       }
     }
@@ -872,6 +893,15 @@ const fetchRecentPrompts = async () => {
     if (res.code === 200) {
       state.recentPrompts = res.data || []
     }
+  } catch (e) {
+    // 静默失败
+  }
+}
+
+const handleDeletePrompt = async (prompt) => {
+  try {
+    await deletePromptReq(prompt)
+    state.recentPrompts = state.recentPrompts.filter(p => p !== prompt)
   } catch (e) {
     // 静默失败
   }
