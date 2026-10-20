@@ -85,6 +85,10 @@ const orgnizationTree = [
   {
     value: 11,
     label: '安播运维部'
+  },
+  {
+    value: 27,
+    label: '广电站'
   }
 ]
 
@@ -360,7 +364,8 @@ const orgMap = {
   23: '党群工作部',
   24: '企业发展科',
   25: '人力资源科',
-  26: '工会'
+  26: '工会',
+  27: '广电站'
 }
 
 const periodType = [

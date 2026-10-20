@@ -161,7 +161,7 @@
     <el-button
       type="primary"
       @click="commit"
-      v-if="!state.taskId && userInfo.role === 'developer'"
+      v-if="!state.taskId && (userInfo.role === 'developer' || userInfo.role === 'employee')"
       >{{ props.detail?.reportId ? '修改任务' : '创建任务' }}</el-button
     >
   </el-form>
@@ -236,7 +236,7 @@ const noon = ref([
   }
 ])
 
-const disableCondition = computed(() => ['section', 'employee'].includes(userInfo.role))
+const disableCondition = computed(() => ['section'].includes(userInfo.role))
 const modifyTaskFile = async (SourceExcelLink) => {
   await updateTaskReq({
     reportId: props.detail.reportId,

@@ -182,7 +182,7 @@ export const routeList = [
             name: '用户管理',
             label: '用户管理',
             isSider: true,
-            auth: ['admin'],
+            auth: ['admin', 'developer'],
             component: () => import('../views/users.vue')
           },
           {

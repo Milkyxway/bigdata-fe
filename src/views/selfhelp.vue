@@ -94,14 +94,15 @@
     <div class="ai-section">
       <div class="ai-header">
         <span class="ai-badge">✨ AI 取数助手</span>
-        <el-select
-          v-model="state.aiModel"
-          size="small"
-          class="ai-model-select"
-        >
-          <el-option label="DeepSeek-V4-Pro" value="deepseek-v4-pro" />
-          <el-option label="GLM-5.2" value="glm-5.2" />
+        <el-select v-model="state.aiModel" size="small" class="ai-model-select">
+          <el-option label="GLM-5.3" value="glm-5.3" />
           <el-option label="Qwen-Plus" value="qwen-plus" />
+          <el-option label="DeepSeek-V4.1-Flash" value="deepseek-v4.1-flash" />
+          <el-option
+            v-if="isDeveloper"
+            label="DeepSeek-Chat（直连快速）"
+            value="deepseek-chat-direct"
+          />
         </el-select>
         <span class="ai-subtitle">用自然语言描述需求，AI 自动生成 SQL</span>
       </div>
@@ -149,9 +150,11 @@
         v-for="(prompt, index) in state.recentPrompts"
         :key="'prompt-' + index"
         class="prompt-tag"
+        :closable="isDeveloper"
         @click="state.aiInput = prompt"
+        @close="handleDeletePrompt(prompt)"
       >
-        {{ prompt }}
+        {{ prompt.length > 30 ? prompt.slice(0, 30) + '...' : prompt }}
       </el-tag>
     </div>
     <div class="row-item font-hint">*AI生成SQL后会自动填入下方输入框，请确认后再执行</div>
@@ -282,6 +285,7 @@ import {
   deleteTaskSqlReq,
   getSQLListReq,
   getRecentPromptsReq,
+  deletePromptReq,
   generateChartReq,
   getTaskDetailReq
 } from '../api/report'
@@ -330,7 +334,7 @@ const state = reactive({
   paramsStr: '',
   pickMonth: '',
   aiInput: '',
-  aiModel: 'glm-5.2',
+  aiModel: 'deepseek-v4.1-flash',
   aiLoading: false,
   isAiGenerated: false,
   aiTaskName: '',
@@ -378,6 +382,7 @@ const inputSqlSamples = [
 const userId = getLocalStore('userInfo').userId
 const region = getLocalStore('userInfo').region
 const orgnization = getLocalStore('userInfo').orgnization
+const isDeveloper = getLocalStore('userInfo').role === 'developer'
 const formatArr = (arr) => {
   return arr.map((i) => {
     return {
@@ -531,7 +536,9 @@ const formatSqlArr = (arr) => {
   if (arr.length === 1) {
     return modifySql(arr[0])
   }
-  if ([1054, 1067, 1070, 1073, 1180, 2231, 2236, 2256, 2401].includes(state.selectTask)) {
+  if (
+    [1054, 1067, 1070, 1073, 1180, 2231, 2236, 2256, 2401, 3199, 3334].includes(state.selectTask)
+  ) {
     // 2+2查询每一条sql都要替换参数
     let data = []
     arr.map((i) => {
@@ -746,51 +753,18 @@ const aiGenerateSql = async () => {
       method: 'POST',
       body: formData
     })
-
-    const promptComment = state.aiInput
-      ? `-- 用户需求：${state.aiInput.replace(/\n/g, '\n-- ')}\n`
-      : ''
-
-    const reader = res.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-    let fullContent = ''
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-
-      buffer += decoder.decode(value, { stream: true })
-      const lines = buffer.split('\n')
-      buffer = lines.pop()
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6).trim()
-          if (!data) continue
-          try {
-            const event = JSON.parse(data)
-            if (event.type === 'chunk') {
-              fullContent += event.content
-              // 实时显示当前生成的内容
-              state.inputSql = promptComment + fullContent
-                .replace(/```sql\s*/gi, '')
-                .replace(/```\s*/g, '')
-                .trim()
-            } else if (event.type === 'done') {
-              state.inputSql = promptComment + event.sql
-              state.isAiGenerated = true
-              state.aiTaskName = event.taskName || ''
-              toast('SQL已生成，请确认后点击立即执行', 'success')
-            } else if (event.type === 'error') {
-              toast(event.message || 'AI生成SQL失败', 'error')
-              state.inputSql = ''
-            }
-          } catch (e) {
-            // 跳过无法解析的行
-          }
-        }
-      }
+    const json = await res.json()
+    if (json.code === 200 && json.data && json.data.sql) {
+      const promptComment = state.aiInput
+        ? `-- 用户需求：${state.aiInput.replace(/\n/g, '\n-- ')}\n`
+        : ''
+      state.inputSql = promptComment + json.data.sql
+      state.isAiGenerated = true
+      state.aiTaskName = json.data.taskName || ''
+      toast('SQL已生成，请确认后点击立即执行', 'success')
+    } else {
+      toast(json.errMsg || 'AI生成SQL失败，返回内容为空', 'error')
+      state.inputSql = ''
     }
   } catch (e) {
     toast('AI服务异常，请稍后重试', 'error')
@@ -901,7 +875,7 @@ const fetchRecentPrompts = async () => {
 const handleDeletePrompt = async (prompt) => {
   try {
     await deletePromptReq(prompt)
-    state.recentPrompts = state.recentPrompts.filter(p => p !== prompt)
+    state.recentPrompts = state.recentPrompts.filter((p) => p !== prompt)
   } catch (e) {
     // 静默失败
   }
