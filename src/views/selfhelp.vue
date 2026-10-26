@@ -59,7 +59,11 @@
         >创建任务</el-button
       >
       <div class="btn-wrap">
-        <Upload :btnTxt="'上传匹配文件并执行'" @handleFileChange="handleFileChange" />
+        <Upload
+          :btnTxt="'上传匹配文件并执行'"
+          accept=".xlsx,.xls"
+          @handleFileChange="handleFileChange"
+        />
       </div>
       <!-- <el-button type="primary" plain @click="confirm">开始执行</el-button> -->
     </div>

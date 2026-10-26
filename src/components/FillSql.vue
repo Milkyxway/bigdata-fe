@@ -87,6 +87,7 @@
       <Upload
         :btn-txt="props.excelLink ? '修改匹配文件' : '上传匹配文件'"
         btn-type="danger"
+        accept=".xlsx,.xls"
         @handleFileChange="(file) => handleFileChange(file, index)"
       />
       <WhiteSpace />

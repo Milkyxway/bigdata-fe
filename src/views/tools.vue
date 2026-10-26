@@ -21,7 +21,7 @@
           >
         </el-select>
       </div>
-      <Upload btn-txt="选择文件" @handleFileChange="handleFileChange" />
+      <Upload btn-txt="选择文件" accept=".xlsx,.xls" @handleFileChange="handleFileChange" />
 
       <!-- <div class="row-item">
           <el-button @click="onUpload" type="primary">选择文件</el-button>

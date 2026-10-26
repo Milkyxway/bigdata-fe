@@ -1,7 +1,7 @@
 <template>
   <div class="row-item">
     <el-button @click="onUpload" :type="btnType">{{ props.btnTxt }}</el-button>
-    <input ref="uploadRef" type="file" @change="beforeUpload" hidden />
+    <input ref="uploadRef" type="file" :accept="props.accept" @change="beforeUpload" hidden />
   </div>
 </template>
 <script setup>
@@ -13,6 +13,10 @@ const props = defineProps({
   btnType: {
     type: String,
     default: 'primary'
+  },
+  accept: {
+    type: String,
+    default: ''
   }
 })
 const emits = defineEmits(['handleFileChange'])

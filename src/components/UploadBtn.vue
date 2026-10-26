@@ -2,6 +2,7 @@
   <Upload
     :btn-txt="'上传文件'"
     btn-type="danger"
+    accept=".xlsx,.xls"
     @handleFileChange="(file) => handleFileChange(file)"
   />
 </template>
